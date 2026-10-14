@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="script.centerstage"
+       name="Center Stage"
+       version="0.0.1"
+       provider-name="b-pass">
+  <requires>
+    <import addon="xbmc.python" version="3.0.1"/>
+  </requires>
+  <!-- the window; listed under Programs -->
+  <extension point="xbmc.python.script" library="default.py">
+    <provides>executable</provides>
+  </extension>
+  <!-- the title list as a folder (for widgets); listed under Video add-ons, where it opens the window -->
+  <extension point="xbmc.python.pluginsource" library="plugin.py">
+    <provides>video</provides>
+  </extension>
+  <extension point="kodi.context.item">
+    <menu id="kodi.core.main">
+      <item library="context.py">
+        <label>32000</label>
+        <visible>!ListItem.IsParentFolder + !String.StartsWith(ListItem.FolderPath,plugin://script.centerstage) + [String.StartsWith(ListItem.FolderPath,plugin://) | String.StartsWith(ListItem.FolderPath,pvr://recordings) | String.IsEqual(ListItem.DBType,movie) | String.IsEqual(ListItem.DBType,tvshow) | String.IsEqual(ListItem.DBType,season) | String.IsEqual(ListItem.DBType,episode)]</visible>
+      </item>
+    </menu>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">Your shows, recordings and add-on favourites in one place.</summary>
+    <description lang="en_GB">One list of everything you watch: DVR recordings appear automatically, and you can add library shows, seasons and movies, and shows or videos from other add-ons, with "Center Stage…" in the context menu. Pick a title to see its episodes and details; pick an episode to play it.</description>
+    <platform>all</platform>
+    <language>en</language>
+    <license>The Unlicense</license>
+    <assets>
+      <icon>resources/icon.png</icon>
+      <fanart>resources/fanart.jpg</fanart>
+    </assets>
+  </extension>
+</addon>
