@@ -10,7 +10,7 @@ import xbmcgui
 import xbmcvfs
 
 from jsonrpc import Rpc, RpcError
-from model import LIBRARY, PVR, episode_code, format_time, parse_date, plain
+from model import LIBRARY, MOVIES, MOVIES_ID, PVR, episode_code, format_time, parse_date, plain
 from sources import pvr
 
 ADDON = xbmcaddon.Addon()
@@ -32,7 +32,8 @@ S = {
     'library': 32032, 'dvr': 32033, 'watched': 32034, 'left': 32035, 'recordings': 32036,
     'play_failed': 32040, 'one_recording': 32041, 'season_watched': 32042,
     'season_episode': 32043, 'episode_n': 32044, 'group': 32045, 'all_groups': 32046,
-    'no_group': 32047, 'which_group': 32048, 'set_group': 32049, 'switch_group': 32050,
+    'which_group': 32048, 'set_group': 32049, 'switch_group': 32050, 'movies': 32051,
+    'one_movie': 32052, 'n_movies': 32053,
 }
 
 
@@ -75,7 +76,7 @@ def setting_bool(key, default=False):
 
 
 def recording_groups(rpc):
-    """The DVR's recording groups ("" for recordings outside any), or [] with the DVR off."""
+    """The DVR's recording groups (Default first), or [] with the DVR off."""
     if not setting_bool('include_dvr', True):
         return []
     try:
@@ -85,9 +86,16 @@ def recording_groups(rpc):
         return []
 
 
+def movies_title(store):
+    """The "Movies" title's name (it can be renamed), or None when movies aren't grouped."""
+    if not setting_bool('group_movies', True):
+        return None
+    return store.renames().get(MOVIES_ID) or tr('movies')
+
+
 def group_label(group):
-    """None is every group; "" is the recordings outside any group."""
-    return tr('all_groups') if group is None else group or tr('no_group')
+    """None is every group."""
+    return tr('all_groups') if group is None else group
 
 
 def pick_group(heading, options, current=None):
@@ -100,10 +108,11 @@ def pick_group(heading, options, current=None):
 def pick_entry_group(rpc, current=''):
     """Which group a stored entry is shown in: "" for all of them. None if cancelled; "" without
     asking when there's only one group."""
-    named = [g for g in recording_groups(rpc) if g]
+    named = recording_groups(rpc)
     if len(named) < 2 and current in named + ['']:
         return ''
-    options = [None] + sorted(set(named) | ({current} - {''}), key=str.casefold)
+    options = [None] + sorted(set(named) | ({current} - {''}),
+                              key=lambda g: (g != pvr.DEFAULT_GROUP, g.casefold()))
     ok, group = pick_group(tr('which_group'), options, current or None)
     return (group or '') if ok else None
 
@@ -112,6 +121,9 @@ def origin_label(entry):
     """Where an entry comes from, for the details pane."""
     if entry.source == LIBRARY:
         return tr('library')
+    if entry.source == MOVIES:
+        n = len(entry.members)
+        return tr('one_movie') if n == 1 else tr('n_movies', n)
     if entry.source == PVR:
         # "DVR - BBC One[CR]12 recordings"
         text = tr('dvr') + (' - ' + entry.origin if entry.origin else '')

@@ -6,9 +6,11 @@ carries the backend's episode name (CPVRRecording maps strEpisodeName to m_strSh
 episode are -1 when the backend doesn't know them.
 
 A recording's group is its "directory" without the trailing title folder. pvr.mythtv puts each
-recording under "<recording group>/<title>" (just "<title>" for the Default group when its
-"root default group" setting is on, which comes out as group ""). pvr.mythtv also wraps damaged
-recordings' titles in [COLOR ...] tags; those are ignored when grouping by title.
+recording under "<recording group>/<title>", or just "<title>" for the Default group when its
+"Show default recording group as root" setting is on (its default). Recordings outside any group
+folder therefore belong to "Default", so the Default group has the same name either way (and for
+backends without groups, every recording is in it). pvr.mythtv also wraps damaged recordings'
+titles in [COLOR ...] tags; those are ignored when grouping by title.
 """
 import calendar
 import re
@@ -16,6 +18,8 @@ import time
 
 from model import Entry, Episode, PVR, SHOW, entry_id, is_untitled, plain, pvr_key
 from sources.common import as_int, resume_of, episode_label
+
+DEFAULT_GROUP = 'Default'
 
 RECORDING_PROPS = ['title', 'plot', 'plotoutline', 'playcount', 'resume', 'channel', 'starttime',
                    'runtime', 'art', 'icon', 'radio', 'isdeleted', 'season', 'episode',
@@ -36,12 +40,12 @@ def group_of(rec):
     parts = [p for p in (rec.get('directory') or '').split('/') if p]
     if parts and pvr_key(plain(parts[-1])) == pvr_key(_title(rec)):
         parts.pop()
-    return '/'.join(parts)
+    return '/'.join(parts) or DEFAULT_GROUP
 
 
 def groups(recs):
-    """The recording groups, alphabetically ("" for recordings outside any group last)."""
-    return sorted({group_of(r) for r in recs}, key=lambda g: (not g, g.casefold()))
+    """The recording groups: Default first, then the others alphabetically."""
+    return sorted({group_of(r) for r in recs}, key=lambda g: (g != DEFAULT_GROUP, g.casefold()))
 
 
 def in_group(recs, group):

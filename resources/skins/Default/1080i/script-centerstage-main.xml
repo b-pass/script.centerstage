@@ -15,10 +15,17 @@
 <window>
 	<defaultcontrol always="true">100</defaultcontrol>
 	<controls>
-		<!-- background: flat colour, then the focused title's fanart, dimmed -->
+		<!-- background: flat colour, or the picture the skin keeps in
+		     Skin.String(centerstage.background) (see the README), then the focused title's fanart, dimmed -->
 		<control type="image">
 			<left>0</left><top>0</top><width>1920</width><height>1080</height>
 			<texture colordiffuse="FF0E1116">uv-white.png</texture>
+		</control>
+		<control type="image">
+			<left>0</left><top>0</top><width>1920</width><height>1080</height>
+			<aspectratio>scale</aspectratio>
+			<texture background="true" colordiffuse="C0FFFFFF">$INFO[Skin.String(centerstage.background)]</texture>
+			<visible>!String.IsEmpty(Skin.String(centerstage.background))</visible>
 		</control>
 		<control type="image">
 			<left>0</left><top>0</top><width>1920</width><height>1080</height>

@@ -23,7 +23,7 @@ import catalog
 import kodiutil as K
 from cache import EpisodeCache
 from jsonrpc import RpcError
-from model import ADDON, PVR, format_time, parent_row, pvr_key
+from model import ADDON, MOVIES, PVR, format_time, parent_row, pvr_key
 from sources import addon, pvr
 from store import Store
 
@@ -101,7 +101,7 @@ class MainWindow(xbmcgui.WindowXML):
             xbmc.getInfoLabel('PVR.BackendDiskSpace')
         self.setProperty('dvr', 'true' if dvr else '')
         rows = catalog.rows(stored, pvr_rows, K.setting_int('sort_order', catalog.SORT_TITLE),
-                            self.group)
+                            self.group, K.movies_title(self.store))
         with self.lock:
             self.rows = rows
             pos = next((n for n, e in enumerate(rows) if e.id == select), 0)
@@ -208,9 +208,10 @@ class MainWindow(xbmcgui.WindowXML):
         with self.lock:
             if gen != self.gen:
                 return
+            episodic = not entry.is_single and entry.source != MOVIES
             arranged = catalog.arrange(
-                rows, newest_first=K.setting_int('episode_order', 0) == 1,
-                hide_watched=K.setting_bool('hide_watched') and not entry.is_single)
+                rows, newest_first=episodic and K.setting_int('episode_order', 0) == 1,
+                hide_watched=episodic and K.setting_bool('hide_watched'))
             shown = ([parent_row()] if self._stack() else []) + arranged
             if keep_position:
                 pos = self.list.getSelectedPosition()
@@ -316,12 +317,17 @@ class MainWindow(xbmcgui.WindowXML):
 
     def _episode_menu(self):
         pos = self.list.getSelectedPosition()
+        ep = self.episodes[pos] if 0 <= pos < len(self.episodes) else None
         actions = []
-        if 0 <= pos < len(self.episodes):
-            ep = self.episodes[pos]
-            if not ep.is_folder and ep.resume > 0:
-                actions.append((K.tr('from_start'), lambda: self._play(ep, resume=False)))
+        if ep and not ep.is_folder and ep.resume > 0:
+            actions.append((K.tr('from_start'), lambda: self._play(ep, resume=False)))
         actions.append((K.tr('refresh'), self._refresh_current))
+        movie = self.store.get(ep.entry_id) if ep and ep.entry_id else None
+        if movie:
+            # a movie in the "Movies" title, which has no row of its own to do this from
+            if self.groups_asked or movie.group:
+                actions.append((K.tr('set_group'), lambda: self._set_group(movie)))
+            actions.append((K.tr('remove'), lambda: self._remove(movie)))
         self._menu(actions)
 
     def _title_menu(self):
@@ -333,7 +339,7 @@ class MainWindow(xbmcgui.WindowXML):
                    (K.tr('refresh'), self._refresh_current)]
         if entry.source == PVR:
             actions.append((K.tr('hide_pvr'), lambda: self._hide(entry)))
-        else:
+        elif entry.source != MOVIES:  # its movies are removed from their own rows' menu
             if self.groups_asked or entry.group:
                 actions.append((K.tr('set_group'), lambda: self._set_group(entry)))
             actions.append((K.tr('remove'), lambda: self._remove(entry)))
@@ -374,13 +380,18 @@ class MainWindow(xbmcgui.WindowXML):
         for key in [k for k in self.mem if k == entry.id or k.startswith(entry.id + '|')]:
             del self.mem[key]
         self.cache.drop(entry.id)
-        self._refresh(keep=True)
+        self._refresh(keep=True, reload_current=self._in_movies(entry))
 
     def _set_group(self, entry):
         group = K.pick_entry_group(self.rpc, entry.group)
         if group is not None and group != entry.group:
             self.store.set_group(entry.id, group)
-            self._refresh(keep=True)
+            self._refresh(keep=True, reload_current=self._in_movies(entry))
+
+    def _in_movies(self, entry):
+        """Whether entry is one of the movies in the "Movies" title being shown."""
+        return bool(self.current and self.current.source == MOVIES
+                    and any(m.id == entry.id for m in self.current.members))
 
     def _hide(self, entry):
         self.store.hide_pvr(pvr_key(entry.ref['title']), entry.display_title)
@@ -396,13 +407,13 @@ class MainWindow(xbmcgui.WindowXML):
         self._refresh(keep=True)
 
 
-def show(preselect=None, group=None):
+def show(preselect=None, group=None, ask=True):
     """Open the window. Without a title or group to open on, first ask for a recording group
-    (when there's more than one and the setting is on), and again each time Back leaves the
-    titles."""
+    (when there's more than one, the setting is on and ask isn't False), and again each time Back
+    leaves the titles."""
     store = Store(K.PROFILE)
     groups = []
-    if preselect is None and group is None and K.setting_bool('ask_group', True):
+    if preselect is None and group is None and ask and K.setting_bool('ask_group', True):
         groups = K.recording_groups(K.rpc())
     ask = len(groups) > 1
     while True:

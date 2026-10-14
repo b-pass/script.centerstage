@@ -3,8 +3,11 @@
 
   /                 open the window; loaded as a widget (Home is the active window): the titles
   /?action=list     the titles (use this path for a widget); &group=<name> for one recording
-                    group's titles ("" for the recordings outside any group)
+                    group's titles
   /?action=open&id= open the window on that title (&group= as above)
+  /?action=stages   the Stages (recording groups), "All groups" first, for a skin's home menu.
+                    Each item's "stage" property holds the RunScript arguments that open it
+                    without asking for a group: RunScript(script.centerstage,<stage>)
 """
 import os
 import sys
@@ -34,12 +37,18 @@ def group_params(group):
     return {} if group is None else {'group': group}
 
 
-def open_window(entry_id=None, group=None):
+def script_args(entry_id=None, group=None, ask=True):
     # urlencoded, so ids (which may be add-on URLs) can't contain the commas and quotes that
     # builtin parameter parsing splits on
     params = dict({'id': entry_id} if entry_id else {}, **group_params(group))
-    args = ',' + urlencode(params) if params else ''
-    xbmc.executebuiltin(f'RunScript({K.ADDON_ID}{args})')
+    if not ask:
+        params['ask'] = '0'
+    return urlencode(params)
+
+
+def open_window(entry_id=None, group=None, ask=True):
+    args = script_args(entry_id, group, ask)
+    xbmc.executebuiltin(f'RunScript({K.ADDON_ID}{"," + args if args else ""})')
 
 
 def all_rows(group=None):
@@ -52,7 +61,7 @@ def all_rows(group=None):
         except RpcError as e:
             K.log(f'no PVR recordings: {e}')
     return catalog.rows(store.entries(), pvr_rows, K.setting_int('sort_order', catalog.SORT_TITLE),
-                        group)
+                        group, K.movies_title(store))
 
 
 def title_item(entry, group):
@@ -71,16 +80,29 @@ def list_titles(handle, group=None):
     xbmcplugin.endOfDirectory(handle, cacheToDisc=False)
 
 
+def list_stages(handle):
+    items = []
+    for group in [None] + K.recording_groups(K.rpc()):
+        li = xbmcgui.ListItem(K.group_label(group), offscreen=True)
+        li.setProperty('stage', script_args(group=group, ask=False))
+        li.setProperty('IsPlayable', 'false')
+        items.append((url(action='open', **group_params(group), ask='0'), li, False))
+    xbmcplugin.addDirectoryItems(handle, items, len(items))
+    xbmcplugin.endOfDirectory(handle, cacheToDisc=False)
+
+
 def main(argv):
     handle = int(argv[1]) if len(argv) > 1 and argv[1].lstrip('-').isdigit() else -1
     params = dict(parse_qsl(argv[2].lstrip('?'), keep_blank_values=True)) if len(argv) > 2 else {}
     action = params.get('action')
     group = params.get('group')
     if action == 'open' or (action is None and handle < 0):
-        open_window(params.get('id'), group)
+        open_window(params.get('id'), group, params.get('ask') != '0')
         if handle >= 0:
             # reached through PlayMedia (a widget click): tell Kodi there's nothing to play
             xbmcplugin.setResolvedUrl(handle, False, xbmcgui.ListItem())
+    elif action == 'stages':
+        list_stages(handle)
     elif action == 'list' or xbmc.getCondVisibility('Window.IsActive(home)'):
         # a widget: opening the plugin from anywhere else activates the Videos window first
         # (GUIWindowManager adds it to the history before WINDOW_INIT), so Home isn't active then

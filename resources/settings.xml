@@ -30,6 +30,11 @@
                     <default>false</default>
                     <control type="toggle"/>
                 </setting>
+                <setting id="group_movies" type="boolean" label="32111">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
                 <setting id="include_dvr" type="boolean" label="32108">
                     <level>0</level>
                     <default>true</default>
