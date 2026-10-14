@@ -156,7 +156,9 @@ instead. `Default/` itself does use `1080i`: that last fallback scans the folder
   a path while in use, empty otherwise. It's persistent, so it works without anything running at
   start-up (the user rejected a Home window property for that reason). Myth Estuary sets it
   alongside its own `use_custom_bg`/`custom_background` from the same skin-settings buttons, and
-  keeps drawing its own background from those (the user didn't want the skin reading our string). Every layout draws it at 75% over black when set, below the fanart;
+  keeps drawing its own background from those (the user didn't want the skin reading our string).
+  Its "Monthly background" (`monthly_bg`, `MonthlyBackgroundVar`, picked by `System.Date`) clears
+  the string, and reaches our window only through `ColoredBackgroundImages` in the Myth layout. Every layout draws it at 75% over black when set, below the fanart;
   in the Estuary/Myth layout that covers `ColoredBackgroundImages`, so Myth Estuary's own copy of
   the picture isn't drawn twice over itself.
 - The disk-space bar reads `PVR.BackendDiskSpaceProgr` (255 when not reported). Only reading the

@@ -149,6 +149,11 @@ switch as it was:
 
 The quotes keep a path with commas in one piece.
 
+A background that changes by itself can't be stored as one path. Myth Estuary's "Monthly
+background", for example, picks a picture by date. For those, leave the string empty and draw
+the background in a layout of your own (below). Myth Estuary's layout uses the skin's own
+`ColoredBackgroundImages` include, so it shows the monthly picture too.
+
 ### A layout of your own
 
 Kodi looks for the window in `resources/skins/<skin id>/<folder>/script-centerstage-main.xml`
