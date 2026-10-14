@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Center Stage main window for any skin without its own layout. It copies the Estuary layout
+     (resources/skins/skin.estuary/xml) as closely as it can with nothing from the skin: the same
+     positions (in a fixed 1920x1080 space, since this folder only has 1080i), row heights,
+     colours (Estuary's default blue FF12A0C7 and grey FFA0A0A0) and emphasis.
+
+     Only font names nearly every skin defines are used, and Kodi falls back to font13 for any the
+     current skin lacks. The sizes are matched roughly:
+     - font13 for list rows (Estuary uses font27)
+     - font12 for dates, the grey details and plots (as Estuary)
+     - [B]font13[/B] for the title and episode names (Estuary uses font32_title/font30_title,
+       which are bold)
+     Panels, focus bars, scrollbars and the progress bar are all drawn with uv-white.png, so the
+     current skin's textures and defaults don't apply. -->
+<window>
+	<defaultcontrol always="true">100</defaultcontrol>
+	<controls>
+		<!-- background: flat colour, then the focused title's fanart, dimmed -->
+		<control type="image">
+			<left>0</left><top>0</top><width>1920</width><height>1080</height>
+			<texture colordiffuse="FF0E1116">uv-white.png</texture>
+		</control>
+		<control type="image">
+			<left>0</left><top>0</top><width>1920</width><height>1080</height>
+			<aspectratio>scale</aspectratio>
+			<fadetime>400</fadetime>
+			<texture colordiffuse="37FFFFFF">$INFO[Container(100).ListItem.Art(fanart)]</texture>
+		</control>
+
+		<!-- left: titles. A plain list, so the first title sits at the top. -->
+		<control type="image">
+			<left>0</left><top>0</top><width>580</width><height>1080</height>
+			<texture colordiffuse="C0181C22">uv-white.png</texture>
+		</control>
+		<control type="list" id="100">
+			<left>0</left><top>130</top><width>550</width><height>880</height>
+			<onright>200</onright>
+			<onup>100</onup>
+			<ondown>100</ondown>
+			<pagecontrol>101</pagecontrol>
+			<scrolltime tween="cubic" easing="out">300</scrolltime>
+			<orientation>vertical</orientation>
+			<focusedlayout height="80" width="550">
+				<!-- stays, dimmed, while the episodes have focus, to mark whose they are -->
+				<control type="image">
+					<left>0</left><top>0</top><width>550</width><height>80</height>
+					<texture colordiffuse="FF12A0C7">uv-white.png</texture>
+					<animation effect="fade" start="100" end="50" time="40" condition="!Control.HasFocus(100)">Conditional</animation>
+				</control>
+				<control type="label">
+					<left>30</left><top>0</top><width>500</width><height>80</height>
+					<font>font13</font>
+					<aligny>center</aligny>
+					<scroll>true</scroll>
+					<label>$INFO[ListItem.Label]</label>
+				</control>
+			</focusedlayout>
+			<itemlayout height="80" width="550">
+				<control type="label">
+					<left>30</left><top>0</top><width>500</width><height>80</height>
+					<font>font13</font>
+					<aligny>center</aligny>
+					<label>$INFO[ListItem.Label]</label>
+				</control>
+			</itemlayout>
+		</control>
+		<control type="scrollbar" id="101">
+			<left>568</left><top>130</top><width>12</width><height>880</height>
+			<onleft>100</onleft>
+			<onright>200</onright>
+			<orientation>vertical</orientation>
+			<showonepage>false</showonepage>
+			<texturesliderbackground colordiffuse="18FFFFFF">uv-white.png</texturesliderbackground>
+			<texturesliderbar colordiffuse="60FFFFFF">uv-white.png</texturesliderbar>
+			<texturesliderbarfocus colordiffuse="FF12A0C7">uv-white.png</texturesliderbarfocus>
+			<textureslidernib></textureslidernib>
+			<textureslidernibfocus></textureslidernibfocus>
+		</control>
+		<control type="textbox">
+			<left>30</left><top>160</top><width>500</width><height>500</height>
+			<font>font13</font>
+			<textcolor>FFA0A0A0</textcolor>
+			<label>$ADDON[script.centerstage 32029]</label>
+			<visible>String.IsEqual(Window.Property(empty),true)</visible>
+		</control>
+
+		<!-- top right: episodes (or folders) of the selected title. The panel runs to the right
+		     edge of the screen, and the scrollbar sits flush against it. -->
+		<control type="image">
+			<left>610</left><top>130</top><width>1310</width><height>480</height>
+			<texture colordiffuse="C0181C22">uv-white.png</texture>
+		</control>
+		<control type="list" id="200">
+			<left>610</left><top>130</top><width>1286</width><height>480</height>
+			<onleft>100</onleft>
+			<onup>200</onup>
+			<ondown>200</ondown>
+			<pagecontrol>201</pagecontrol>
+			<scrolltime tween="cubic" easing="out">300</scrolltime>
+			<orientation>vertical</orientation>
+			<focusedlayout height="60" width="1286">
+				<control type="image">
+					<left>0</left><top>0</top><width>1286</width><height>60</height>
+					<texture colordiffuse="FF12A0C7">uv-white.png</texture>
+					<visible>Control.HasFocus(200)</visible>
+				</control>
+				<!-- where Estuary has its watched icon: a dot for unwatched, half-bright when
+				     partly watched -->
+				<control type="image">
+					<left>26</left><top>24</top><width>12</width><height>12</height>
+					<texture colordiffuse="FFFFFFFF">uv-white.png</texture>
+					<visible>!ListItem.IsFolder + !String.IsEqual(ListItem.Property(watched),true)</visible>
+					<animation effect="fade" start="100" end="50" time="0" condition="ListItem.IsResumable">Conditional</animation>
+				</control>
+				<control type="label">
+					<left>64</left><top>0</top><width>922</width><height>60</height>
+					<font>font13</font>
+					<aligny>center</aligny>
+					<scroll>true</scroll>
+					<label>$INFO[ListItem.Label]</label>
+				</control>
+				<control type="label">
+					<left>986</left><top>0</top><width>280</width><height>60</height>
+					<font>font12</font>
+					<align>right</align>
+					<aligny>center</aligny>
+					<label>$INFO[ListItem.Label2]</label>
+				</control>
+			</focusedlayout>
+			<itemlayout height="60" width="1286">
+				<control type="image">
+					<left>26</left><top>24</top><width>12</width><height>12</height>
+					<texture colordiffuse="FF12A0C7">uv-white.png</texture>
+					<visible>!ListItem.IsFolder + !String.IsEqual(ListItem.Property(watched),true)</visible>
+					<animation effect="fade" start="100" end="50" time="0" condition="ListItem.IsResumable">Conditional</animation>
+				</control>
+				<control type="label">
+					<left>64</left><top>0</top><width>922</width><height>60</height>
+					<font>font13</font>
+					<aligny>center</aligny>
+					<label>$INFO[ListItem.Label]</label>
+				</control>
+				<control type="label">
+					<left>986</left><top>0</top><width>280</width><height>60</height>
+					<font>font12</font>
+					<align>right</align>
+					<aligny>center</aligny>
+					<textcolor>FFA0A0A0</textcolor>
+					<label>$INFO[ListItem.Label2]</label>
+				</control>
+			</itemlayout>
+		</control>
+		<control type="scrollbar" id="201">
+			<left>1908</left><top>130</top><width>12</width><height>480</height>
+			<onleft>200</onleft>
+			<onright>200</onright>
+			<orientation>vertical</orientation>
+			<showonepage>false</showonepage>
+			<texturesliderbackground colordiffuse="18FFFFFF">uv-white.png</texturesliderbackground>
+			<texturesliderbar colordiffuse="60FFFFFF">uv-white.png</texturesliderbar>
+			<texturesliderbarfocus colordiffuse="FF12A0C7">uv-white.png</texturesliderbarfocus>
+			<textureslidernib></textureslidernib>
+			<textureslidernibfocus></textureslidernibfocus>
+		</control>
+		<control type="label">
+			<left>674</left><top>220</top><width>1182</width><height>60</height>
+			<font>font13</font>
+			<textcolor>FFA0A0A0</textcolor>
+			<label>$ADDON[script.centerstage 32028]</label>
+			<visible>String.IsEqual(Window.Property(loading),true)</visible>
+		</control>
+		<control type="textbox">
+			<left>674</left><top>220</top><width>1182</width><height>300</height>
+			<font>font13</font>
+			<textcolor>FFA0A0A0</textcolor>
+			<label>$INFO[Window.Property(message)]</label>
+			<visible>!String.IsEmpty(Window.Property(message))</visible>
+		</control>
+
+		<!-- bottom right: details, laid out like the recordings window. The title's name, and
+		     under it the episode's (with S01E02); opposite them, right-aligned in grey, the
+		     episode's channel/date/length or where the title comes from; below, the picture on
+		     the left (16:9 fills it, 4:3 fills its height) and the plot beside it. Everything
+		     stays in place whichever list has focus; only the contents change. -->
+		<control type="image">
+			<left>610</left><top>640</top><width>1310</width><height>390</height>
+			<texture colordiffuse="C0181C22">uv-white.png</texture>
+		</control>
+		<control type="group">
+			<left>610</left><top>640</top><width>1310</width><height>390</height>
+			<control type="label">
+				<left>10</left><top>10</top><width>850</width><height>45</height>
+				<font>font13</font>
+				<textcolor>FF12A0C7</textcolor>
+				<scroll>true</scroll>
+				<label>[B]$INFO[Container(100).ListItem.Label][/B]</label>
+			</control>
+			<control type="label">
+				<left>10</left><top>55</top><width>850</width><height>45</height>
+				<font>font13</font>
+				<scroll>true</scroll>
+				<label>[B]$INFO[Container(200).ListItem.Property(name)][/B]</label>
+				<visible>Control.HasFocus(200)</visible>
+			</control>
+			<control type="textbox">
+				<left>880</left><top>14</top><width>400</width><height>96</height>
+				<font>font12</font>
+				<align>right</align>
+				<textcolor>FFA0A0A0</textcolor>
+				<label>$INFO[Container(200).ListItem.Property(details)]</label>
+				<visible>Control.HasFocus(200)</visible>
+			</control>
+			<control type="textbox">
+				<left>880</left><top>14</top><width>400</width><height>96</height>
+				<font>font12</font>
+				<align>right</align>
+				<textcolor>FFA0A0A0</textcolor>
+				<label>$INFO[Container(100).ListItem.Property(origin)]</label>
+				<visible>!Control.HasFocus(200)</visible>
+			</control>
+			<control type="image">
+				<left>10</left><top>110</top><width>480</width><height>270</height>
+				<aspectratio>keep</aspectratio>
+				<fadetime>200</fadetime>
+				<texture background="true">$INFO[Container(100).ListItem.Art(thumb)]</texture>
+				<visible>!Control.HasFocus(200)</visible>
+			</control>
+			<control type="image">
+				<left>10</left><top>110</top><width>480</width><height>270</height>
+				<aspectratio>keep</aspectratio>
+				<fadetime>200</fadetime>
+				<texture background="true">$INFO[Container(200).ListItem.Art(thumb)]</texture>
+				<visible>Control.HasFocus(200)</visible>
+			</control>
+			<control type="textbox">
+				<left>510</left><top>110</top><width>770</width><height>270</height>
+				<font>font12</font>
+				<autoscroll delay="10000" time="3000" repeat="10000">true</autoscroll>
+				<label>$INFO[Container(100).ListItem.Plot]</label>
+				<visible>!Control.HasFocus(200)</visible>
+			</control>
+			<control type="textbox">
+				<left>510</left><top>110</top><width>770</width><height>270</height>
+				<font>font12</font>
+				<autoscroll delay="10000" time="3000" repeat="10000">true</autoscroll>
+				<label>$INFO[Container(200).ListItem.Plot]</label>
+				<visible>Control.HasFocus(200)</visible>
+			</control>
+		</control>
+
+		<!-- top bar: "Center Stage / group / Season 2" at the left, like Estuary's breadcrumbs -->
+		<control type="label">
+			<left>35</left><top>20</top><width>1100</width><height>60</height>
+			<font>font13</font>
+			<aligny>center</aligny>
+			<label>$ADDON[script.centerstage 32001]$INFO[Window.Property(group), / ]$INFO[Window.Property(level), / ]</label>
+		</control>
+		<!-- DVR backend disk space, centred in the top bar. PVR.BackendDiskSpaceProgr is 255 when
+		     the backend doesn't report it. -->
+		<control type="group">
+			<left>710</left><top>12</top><width>500</width>
+			<visible>String.IsEqual(Window.Property(dvr),true) + !Integer.IsGreater(PVR.BackendDiskSpaceProgr,100) + !Player.HasMedia</visible>
+			<control type="label">
+				<left>0</left><top>0</top><width>500</width><height>30</height>
+				<font>font12</font>
+				<align>center</align>
+				<label>$INFO[PVR.BackendDiskSpace]</label>
+			</control>
+			<control type="progress">
+				<left>100</left><top>40</top><width>300</width><height>10</height>
+				<texturebg colordiffuse="30FFFFFF">uv-white.png</texturebg>
+				<lefttexture></lefttexture>
+				<midtexture colordiffuse="FF12A0C7">uv-white.png</midtexture>
+				<righttexture></righttexture>
+				<overlaytexture></overlaytexture>
+				<info>PVR.BackendDiskSpaceProgr</info>
+			</control>
+		</control>
+	</controls>
+</window>
