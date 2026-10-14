@@ -171,10 +171,6 @@ msgctxt "#32046"
 msgid "All groups"
 msgstr ""
 
-msgctxt "#32047"
-msgid "No group"
-msgstr ""
-
 msgctxt "#32048"
 msgid "Show it in which group?"
 msgstr ""
@@ -185,6 +181,18 @@ msgstr ""
 
 msgctxt "#32050"
 msgid "Switch recording group…"
+msgstr ""
+
+msgctxt "#32051"
+msgid "Movies"
+msgstr ""
+
+msgctxt "#32052"
+msgid "1 movie"
+msgstr ""
+
+msgctxt "#32053"
+msgid "{} movies"
 msgstr ""
 
 msgctxt "#32100"
@@ -229,4 +237,8 @@ msgstr ""
 
 msgctxt "#32110"
 msgid "Ask for a recording group when opening"
+msgstr ""
+
+msgctxt "#32111"
+msgid "Group movies under one \"Movies\" title"
 msgstr ""

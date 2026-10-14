@@ -1,3 +1,5 @@
+<img src="resources/icon.png" alt="Center Stage icon" width="128" align="right">
+
 # Center Stage (`script.centerstage`)
 
 This Kodi 21/22 add-on shows one list of everything you watch: DVR recordings, library shows,
@@ -16,12 +18,29 @@ DVR recordings appear automatically, one row per recording title. Everything els
 Favourites and home-screen widgets. If you add a season folder from another add-on, it's named
 "Show - Season N". When the add-on doesn't provide the show name, you're asked for it.
 
+## Contents
+
+- [Using it](#using-it)
+- [Integrating a skin](#integrating-a-skin)
+  - [Opening the window](#opening-the-window)
+  - [A home menu entry with its Stages](#a-home-menu-entry-with-its-stages)
+  - [Widgets](#widgets)
+  - [The background picture](#the-background-picture)
+  - [A layout of your own](#a-layout-of-your-own)
+- [Limits](#limits)
+- [Development](#development)
+
 ## Using it
 
 - Open it from **Programs** or **Video add-ons**.
 - **Recording groups:** if your DVR files recordings in groups (MythTV recording groups), you're
   first asked which group to show, or "All groups". When you add something with the context menu,
-  you pick the group it belongs to, or all of them.
+  you pick the group it belongs to, or all of them. Recordings outside any group folder (MythTV's
+  "Show default recording group as root") are in the "Default" group.
+- **Movies:** add library movies, or movies from other add-ons, with the context menu, and pick
+  their group like anything else. They're gathered under one "Movies" title (renamable); its
+  context menu on each movie has "Recording group…" and "Remove". Turn off "Group movies under
+  one "Movies" title" in the settings to show each movie as its own title instead.
 - In the window:
   - **Left/right** moves between titles and episodes.
   - **Back** returns to the titles, then to the group question (or closes the window).
@@ -30,8 +49,114 @@ Favourites and home-screen widgets. If you add a season folder from another add-
 - **Widget:** point a skin widget at `plugin://script.centerstage/?action=list`, or
   `?action=list&group=Emily` for one recording group. Clicking a title opens the window on it.
 - **Settings:** title sort order (A-Z or recently added), episode order, hide watched episodes,
-  include DVR recordings, ask for a recording group when opening, and how long add-on listings
-  are cached.
+  group movies under "Movies", include DVR recordings, ask for a recording group when opening,
+  and how long add-on listings are cached.
+
+## Integrating a skin
+
+Center Stage works with any skin as it is. A skin can go further with the hooks below, all
+optional. Myth Estuary (`skin.myth-estuary`) uses every one of them; its `Home.xml`
+(the menu entry and Stages) and `SkinSettings.xml` (the background) are working examples.
+
+### Opening the window
+
+```
+RunScript(script.centerstage)                      the window; asks for a recording group first
+RunScript(script.centerstage,group=Default)        straight into one group (a "Stage")
+RunScript(script.centerstage,ask=0)                all groups, without asking
+RunScript(script.centerstage,id=<entry id>)        on one title
+```
+
+Arguments are URL-encoded and joined with `&`, e.g. `group=Saved+for+Later&ask=0`. Recordings
+outside any group folder are in the group `Default`, so `group=Default` works on every MythTV
+setup. Opening from a group or a title skips the question, and Back on the titles closes the
+window.
+
+### A home menu entry with its Stages
+
+`plugin://script.centerstage/?action=stages` lists the Stages: "All groups", then each recording
+group, Default first. Each item's `stage` property holds the `RunScript` arguments that open it,
+so a list of them needs only one `onclick`:
+
+```xml
+<control type="list" id="24100">
+	<content>plugin://script.centerstage/?action=stages</content>
+	<onclick>RunScript(script.centerstage,$INFO[ListItem.Property(stage)])</onclick>
+	<!-- item layouts with $INFO[ListItem.Label] -->
+</control>
+```
+
+Pair it with a main-menu item that runs `RunScript(script.centerstage,group=Default)`, shown
+with `<visible>System.HasAddon(script.centerstage)</visible>`. A white menu icon in Estuary's style is
+in `resources/sidemenu.png` (`tools/art.py` draws it).
+
+### Widgets
+
+`plugin://script.centerstage/?action=list` lists the titles, and `&group=<name>` limits them to
+one group. Clicking one opens the window on it. The items have art but no video info tag, so a
+click opens the window instead of going through the user's "select action".
+
+### The background picture
+
+If the skin lets the user pick a background picture, it can share it with Center Stage through the
+skin string **`centerstage.background`**: the picture's path while it's in use, empty when it's
+not. Center Stage reads `Skin.String(centerstage.background)` from whatever skin is running. The
+window draws the picture full-screen at 75% brightness over black, under its panels and the
+focused title's fanart. When the string is empty, it uses its normal background. This works in
+every layout, including the one for skins without their own.
+
+Skin strings are saved with the skin's settings, so nothing has to run at start-up. The skin only
+has to set the string when the user changes its background setting. If the skin has no such
+setting yet, the simplest way is to store the picture there directly:
+
+```xml
+<control type="button">
+	<label>Background picture</label>
+	<label2>$INFO[Skin.String(centerstage.background)]</label2>
+	<onclick>Skin.SetImage(centerstage.background)</onclick>
+</control>
+<control type="button">
+	<label>No background picture</label>
+	<onclick>Skin.Reset(centerstage.background)</onclick>
+</control>
+```
+
+and draw it in the skin's own background with `$INFO[Skin.String(centerstage.background)]`,
+visible when `!String.IsEmpty(Skin.String(centerstage.background))`.
+
+A skin that already has its own setting keeps it, and sets `centerstage.background` alongside it
+from the same buttons. Myth Estuary has an on/off switch (`use_custom_bg`) and a picture it
+remembers while it's off (`custom_background`). It copies the picture into the string when the
+switch is turned on or the picture changes, and resets the string when the switch is turned off.
+All of an `onclick`'s conditions are checked before any of its actions run, so they see the
+switch as it was:
+
+```xml
+<control type="radiobutton">
+	<label>Use custom background</label>
+	<selected>Skin.HasSetting(use_custom_bg)</selected>
+	<onclick condition="Skin.HasSetting(use_custom_bg)">Skin.Reset(centerstage.background)</onclick>
+	<onclick condition="!Skin.HasSetting(use_custom_bg)">Skin.SetString(centerstage.background,"$INFO[Skin.String(custom_background)]")</onclick>
+	<onclick>Skin.ToggleSetting(use_custom_bg)</onclick>
+</control>
+<control type="button">
+	<label>Choose image path</label>
+	<onclick>Skin.SetImage(custom_background)</onclick>
+	<onclick>Skin.SetString(centerstage.background,"$INFO[Skin.String(custom_background)]")</onclick>
+	<enable>Skin.HasSetting(use_custom_bg)</enable>
+</control>
+```
+
+The quotes keep a path with commas in one piece.
+
+### A layout of your own
+
+Kodi looks for the window in `resources/skins/<skin id>/<folder>/script-centerstage-main.xml`
+before falling back to `resources/skins/Default/1080i/`. `<folder>` must be the skin's own
+resolution folder name (`<res folder=...>` in its `addon.xml`, e.g. `xml` for Estuary). The
+Estuary layout is the one to start from. It shows the control ids (100 titles, 101 their
+scrollbar, 200 episodes, 201 its scrollbar) and the window and list item properties the add-on
+fills in. `tests/test_skins.py` checks that every layout has them.
 
 ## Limits
 

@@ -1,5 +1,6 @@
 """Draws resources/icon.png and resources/fanart.jpg: a play button in a spotlight, between stage
-curtains.
+curtains. Also resources/sidemenu.png, the same picture as a white silhouette in the style of
+Estuary's home menu icons (copied into Myth Estuary as media/icons/sidemenu/centerstage.png).
 
 Usage: python3 tools/art.py (needs Pillow)
 """
@@ -94,7 +95,38 @@ def draw(width, height, curtain_scale=1.0):
     return img.resize((width, height), Image.LANCZOS)
 
 
+def sidemenu(size=256):
+    """The curtains, valance and play button in white on transparent, about half the canvas wide
+    and centred, like Estuary's icons/sidemenu/*.png. Laid out 512 units wide and 432 tall."""
+    k = size * S * 0.53 / 512
+    x0, y0 = size * S / 2 - 256 * k, size * S / 2 - 216 * k
+
+    def p(x, y):
+        return (x0 + x * k, y0 + y * k)
+
+    edge = (bezier((150, 40), (140, 170), (80, 270), (70, 310), 200) +
+            bezier((70, 310), (80, 360), (115, 410), (125, 432), 200)[1:])
+    mask = Image.new('L', (size * S, size * S), 0)
+    d = ImageDraw.Draw(mask)
+    for mirror in (False, True):
+        d.polygon([p(512 - x if mirror else x, y) for x, y in [(0, 40)] + edge + [(0, 432)]],
+                  fill=255)
+    # the valance, its scallops cut off from the curtains by a thin gap
+    n = 5
+    for i in range(n):
+        d.pieslice([p(i * 512 / n - 12, 0), p((i + 1) * 512 / n + 12, 104)], 0, 180, fill=0)
+    d.rectangle([p(0, 0), p(512, 46)], fill=255)
+    for i in range(n):
+        d.pieslice([p(i * 512 / n, 6), p((i + 1) * 512 / n, 80)], 0, 180, fill=255)
+    cy, r = 270, 76
+    d.polygon([p(256 - r * 0.55, cy - r), p(256 - r * 0.55, cy + r), p(256 + r, cy)], fill=255)
+    img = Image.new('LA', mask.size, 255)
+    img.putalpha(mask)
+    return img.resize((size, size), Image.LANCZOS)
+
+
 if __name__ == '__main__':
+    sidemenu().save(os.path.join(RESOURCES, 'sidemenu.png'), optimize=True)
     draw(512, 512).save(os.path.join(RESOURCES, 'icon.png'), optimize=True)
     draw(1920, 1080, curtain_scale=1.5).save(os.path.join(RESOURCES, 'fanart.jpg'),
                                               quality=90, optimize=True)

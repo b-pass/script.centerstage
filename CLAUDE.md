@@ -35,13 +35,17 @@ The add-on has three entry points, all declared in `addon.xml`. Each one puts `r
 `sys.path`.
 - `default.py`: the `xbmc.python.script` extension (listed under Programs). It opens the window.
   `RunScript(script.centerstage,id=<urlencoded entry id>)` preselects a title, and `&group=`
-  picks a recording group. A Home window property stops a second copy from opening.
+  picks a recording group. `ask=0` opens all groups without asking. A Home window property stops a second copy from opening.
 - `plugin.py`: the `xbmc.python.pluginsource` extension (listed under Video add-ons).
   - Root: opens the window, with no listing in between. Only when Home is the active window
     (a widget pointed at the root) does it list the titles instead. Opening the plugin from
     anywhere else activates the Videos window before the plugin runs.
   - `?action=list`: widget listing. `&group=` limits it to one recording group.
-  - `?action=open&id=`: opens the window on a title (`&group=` too).
+  - `?action=open&id=`: opens the window on a title (`&group=` and `&ask=0` too).
+  - `?action=stages`: the recording groups ("Stages" in the skin), "All groups" first, for Myth
+    Estuary's "Center Stage" home menu entry. Each item's `stage` property is the urlencoded
+    `RunScript` arguments that open it without asking; the skin's `<onclick>` uses that rather
+    than the item's path, so the click doesn't go through `PlayMedia`.
 
   Widget items deliberately have **no video info tag**. With one, a click would go through the
   user's video "select action" (e.g. show information) instead of `PlayMedia`, and our plugin
@@ -146,6 +150,15 @@ instead. `Default/` itself does use `1080i`: that last fallback scans the folder
   - `group`: the recording group shown, empty for all of them (in the breadcrumbs)
   - `level`: the path of the open folder, e.g. "Season 2 / Extras"
   - `dvr`: PVR answered, which gates the backend disk-space bar
+- The skin-facing hooks (RunScript arguments, `?action=stages`, widgets, the background
+  string, per-skin layouts) are documented for skin authors in README "Integrating a skin";
+  keep it in step. The background is `Skin.String(centerstage.background)` of the running skin:
+  a path while in use, empty otherwise. It's persistent, so it works without anything running at
+  start-up (the user rejected a Home window property for that reason). Myth Estuary sets it
+  alongside its own `use_custom_bg`/`custom_background` from the same skin-settings buttons, and
+  keeps drawing its own background from those (the user didn't want the skin reading our string). Every layout draws it at 75% over black when set, below the fanart;
+  in the Estuary/Myth layout that covers `ColoredBackgroundImages`, so Myth Estuary's own copy of
+  the picture isn't drawn twice over itself.
 - The disk-space bar reads `PVR.BackendDiskSpaceProgr` (255 when not reported). Only reading the
   `PVR.BackendDiskSpace` label makes Kodi refresh those numbers, so `_refresh` reads it.
 - The Default layout uses only fonts that every skin has (`font12`/`font13`; Kodi falls back to
@@ -157,8 +170,11 @@ instead. `Default/` itself does use `1080i`: that last fallback scans the folder
 
 - A recording's group is its JSON-RPC `directory` minus the trailing title folder
   (`pvr.group_of()`). pvr.mythtv files recordings as `<recording group>/<title>`, or just
-  `<title>` for Default when its "root default group" setting is on; that gives group `""`
-  ("No group"). pvr.mythtv also wraps damaged recordings' titles in `[COLOR yellow]`, which
+  `<title>` for Default when its "Show default recording group as root" setting is on (its
+  default; the user has it off). Anything left with no group folder is put in `pvr.DEFAULT_GROUP`
+  ("Default"), so the Default group, and the skin's `group=Default`, work with the setting either
+  way; backends without groups put every recording in Default. `pvr.groups()` lists Default
+  first. pvr.mythtv also wraps damaged recordings' titles in `[COLOR yellow]`, which
   `pvr._title()` strips so they join their series. Only the episode row keeps the colour:
   titles go through `model.plain()`, and the details pane shows the episode's `name` property
   (its label without tags) instead of `ListItem.Label`.
@@ -169,6 +185,21 @@ instead. `Default/` itself does use `1080i`: that last fallback scans the folder
 - In a group, the window shows only that group's recordings, so a DVR title's episodes are that
   group's only. Stored entries have `Entry.group`: `""` means all groups, otherwise one group
   name (`catalog.rows(..., group)` filters). "Recording group…" in the title menu changes it.
+
+## Movies
+
+- Movies are stored entries of kind `MOVIE` (library movies, and add-on items whose media type is
+  movie), added and given a group like anything else.
+- With the `group_movies` setting on (the default), `catalog.rows(..., movies_title)` gathers the
+  movies shown in that group into one computed `Entry` (`source=MOVIES`, id `movies`, the movies
+  in `Entry.members`). `catalog.movie_rows()` gives one row per movie, by its Center Stage name
+  and sorted by it, with `Episode.entry_id` set to the movie's entry. The episode order and
+  "hide watched" settings don't apply to it.
+- The "Movies" title can be renamed (stored in `renames` under `movies`, read by
+  `kodiutil.movies_title()`), but not removed or given a group. Each movie's own context menu in
+  the episode list has "Recording group…" and "Remove" instead.
+- With the setting off, every movie is its own title, as before.
+- DVR recordings of movies aren't detected; they're titles like any other recording.
 
 ## Kodi facts this code relies on (checked in ../xbmc)
 
@@ -210,4 +241,10 @@ Only the unit tests and a stub-based smoke run have been done. Things to check i
   disk-space bar
 - folder browsing in real add-ons
 - the widget click path (`PlayMedia` → `RunScript`) and whether it shows an error
+- Myth Estuary's "Center Stage" home entry (in that skin's `Home.xml`: the first menu item,
+  and the Stages panel, group 24000 with list 24100, modelled on Recordings' 22000/22100;
+  icon `media/icons/sidemenu/centerstage.png`, copied from `resources/sidemenu.png`; hidden by
+  the `HomeMenuNoCenterStageButton` toggle in Skin settings → Main menu items)
+- the "Movies" title, and the Default group with pvr.mythtv's "Show default recording group as
+  root" on
 - Kodi 22

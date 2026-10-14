@@ -8,11 +8,24 @@
 	<defaultcontrol always="true">100</defaultcontrol>
 	<backgroundcolor>background</backgroundcolor>
 	<controls>
-		<!-- the user's Estuary colour theme background, then the focused title's fanart like
-		     Estuary's own media windows -->
+		<!-- the user's Estuary colour theme background, or the picture the skin keeps in
+		     Skin.String(centerstage.background) (see the README), then the focused
+		     title's fanart like Estuary's own media windows -->
 		<control type="group">
 			<include>FullScreenDimensions</include>
 			<include>ColoredBackgroundImages</include>
+			<control type="group">
+				<visible>!String.IsEmpty(Skin.String(centerstage.background))</visible>
+				<control type="image">
+					<include>FullScreenDimensions</include>
+					<texture>colors/black.png</texture>
+				</control>
+				<control type="image">
+					<include>FullScreenDimensions</include>
+					<aspectratio>scale</aspectratio>
+					<texture background="true" colordiffuse="C0FFFFFF">$INFO[Skin.String(centerstage.background)]</texture>
+				</control>
+			</control>
 			<control type="image">
 				<include>FullScreenDimensions</include>
 				<aspectratio>scale</aspectratio>

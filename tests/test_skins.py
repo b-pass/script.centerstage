@@ -33,7 +33,8 @@ class Skins(unittest.TestCase):
                            'Property(name)', 'Property(details)', 'Property(origin)',
                            'Window.Property(group)', 'Window.Property(level)',
                            'Window.Property(loading)', 'Window.Property(message)',
-                           'Window.Property(empty)', 'Window.Property(dvr)'):
+                           'Window.Property(empty)', 'Window.Property(dvr)',
+                           'Skin.String(centerstage.background)'):
                 self.assertIn(needed, text, f'{needed} missing from {path}')
 
 

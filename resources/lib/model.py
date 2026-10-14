@@ -8,6 +8,8 @@ import time
 LIBRARY = 'library'
 PVR = 'pvr'
 ADDON = 'addon'  # any other plugin:// (or plain VFS) folder or item, listed through Files.GetDirectory
+MOVIES = 'movies'  # the "Movies" title: the stored movies, gathered into one row (never stored)
+MOVIES_ID = 'movies'
 
 # what an entry is
 SHOW = 'show'      # a whole series
@@ -42,8 +44,9 @@ class Entry:
     group: str = ''           # the recording group it's shown in; "" for all of them
     auto: bool = False        # computed on the fly (DVR series), never stored
     count: int = 0            # number of recordings, for DVR series; never stored
+    members: list = field(default_factory=list)  # the "Movies" title's movie entries; never stored
 
-    RUNTIME_FIELDS = ('auto', 'count')
+    RUNTIME_FIELDS = ('auto', 'count', 'members')
 
     @property
     def is_single(self):
@@ -86,6 +89,7 @@ class Episode:
     is_folder: bool = False
     browse: dict = field(default_factory=dict)  # for folders: what to pass back to list it
     parent: bool = False      # the ".." row
+    entry_id: str = ''        # in the "Movies" title: the stored movie entry this row is
 
     def to_dict(self):
         d = asdict(self)

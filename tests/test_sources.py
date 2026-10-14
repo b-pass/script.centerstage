@@ -6,7 +6,8 @@ import tests  # noqa: F401  (sets sys.path)
 from tests.fakes import FakeRpc
 import catalog
 from jsonrpc import RpcError
-from model import Entry, ADDON, LIBRARY, PVR, SHOW, SEASON, MOVIE, ITEM, entry_id
+from model import (Entry, ADDON, LIBRARY, PVR, SHOW, SEASON, MOVIE, ITEM, MOVIES, MOVIES_ID,
+                   entry_id)
 from sources import addon, library, pvr
 
 
@@ -105,8 +106,15 @@ class Pvr(unittest.TestCase):
             {'recordingid': 5, 'title': 'News', 'directory': 'Default'},   # no title folders
         ]
         self.assertEqual([pvr.group_of(r) for r in recs],
-                         ['Saved for Later', 'Saved for Later', 'Emily', '', 'Default'])
-        self.assertEqual(pvr.groups(recs), ['Default', 'Emily', 'Saved for Later', ''])
+                         ['Saved for Later', 'Saved for Later', 'Emily', 'Default', 'Default'])
+        self.assertEqual(pvr.groups(recs), ['Default', 'Emily', 'Saved for Later'])
+        self.assertEqual(len(pvr.in_group(recs, 'Default')), 2)
+        # with the root default group setting off, Default is a folder like the others
+        self.assertEqual(pvr.group_of({'title': 'Scrubs', 'directory': 'Default/Scrubs'}),
+                         'Default')
+        self.assertEqual(pvr.groups([{'title': 'Zed', 'directory': 'Zed'},
+                                     {'title': 'A', 'directory': 'Alpha/A'}]),
+                         ['Default', 'Alpha'])
         self.assertEqual(len(pvr.in_group(recs, None)), 5)
         saved = pvr.in_group(recs, 'Saved for Later')
         (alone,) = pvr.series_entries(saved)
@@ -302,6 +310,41 @@ class Catalog(unittest.TestCase):
         self.assertEqual(pick(None), ['Bryan only', 'Emily only', 'Everyone'])
         self.assertEqual(pick('Emily'), ['Emily only', 'Everyone'])
         self.assertEqual(pick(''), ['Everyone'])
+
+    def test_movies_gathered_into_one_title_per_group(self):
+        stored = [entry(LIBRARY, MOVIE, {'movieid': 1}, 'Up', added=5),
+                  entry(ADDON, MOVIE, {'path': 'p://m'}, 'The Abyss', added=9, group='Emily'),
+                  entry(LIBRARY, MOVIE, {'movieid': 2}, 'Heat', added=1, group='Bryan'),
+                  entry(ADDON, SHOW, {'path': 'p://s'}, 'Nova')]
+        loose = catalog.rows(stored, [], group='Emily')
+        self.assertEqual([e.display_title for e in loose], ['The Abyss', 'Nova', 'Up'])
+        rows = catalog.rows(stored, [], group='Emily', movies_title='Movies')
+        self.assertEqual([e.display_title for e in rows], ['Movies', 'Nova'])
+        movies = rows[0]
+        self.assertEqual((movies.id, movies.source), (MOVIES_ID, MOVIES))
+        self.assertEqual([m.display_title for m in movies.members], ['The Abyss', 'Up'])
+        self.assertEqual(movies.added, 9)
+        self.assertEqual(movies.to_dict().get('members'), None)
+        self.assertEqual([e.display_title for e in catalog.rows(stored[3:], [], movies_title='M')],
+                         ['Nova'])  # no movies, no "Movies" title
+
+    def test_movie_rows(self):
+        def details(p):
+            if p['movieid'] != 1:
+                return RpcError('Invalid params.')
+            return {'moviedetails': {'title': 'Up (2009)', 'playcount': 1, 'art': {}}}
+        rpc = FakeRpc({'VideoLibrary.GetMovieDetails': details})
+        stored = [entry(LIBRARY, MOVIE, {'movieid': 1}, 'Up'),
+                  entry(LIBRARY, MOVIE, {'movieid': 2}, 'Gone'),
+                  entry(ADDON, MOVIE, {'path': 'p://m'}, 'The Abyss')]
+        (movies,) = catalog.rows(stored, [], movies_title='Movies')
+        rows = catalog.load_rows(rpc, movies, 21)
+        self.assertEqual([(r.label, r.entry_id) for r in rows],
+                         [('The Abyss', 'addon:movie:p://m'), ('Gone', 'library:movie:2'),
+                          ('Up', 'library:movie:1')])
+        self.assertEqual(rows[2].playcount, 1)
+        self.assertEqual(rows[1].play, {})  # gone from the library: still listed, to remove it
+        self.assertEqual([r.label for r in catalog.arrange(rows)], ['The Abyss', 'Gone', 'Up'])
 
     def test_arrange_keeps_folders_in_place(self):
         from model import Episode
