@@ -24,7 +24,7 @@
   </extension>
   <extension point="xbmc.addon.metadata">
     <summary lang="en_GB">Your shows, recordings and add-on favourites in one place.</summary>
-    <description lang="en_GB">One list of everything you watch: DVR recordings appear automatically, and you can add library shows, seasons and movies, and shows or videos from other add-ons, with "Add to Center Stage" in the context menu. Pick a title to see its episodes and details; pick an episode to play it.</description>
+    <description lang="en_GB">One list of everything you watch: PVR recordings appear automatically, and you can add library shows, seasons and movies, and shows or videos from other add-ons, with "Add to Center Stage" in the context menu. Pick a title to see its episodes and details; pick an episode to play it.</description>
     <platform>all</platform>
     <language>en</language>
     <license>The Unlicense</license>

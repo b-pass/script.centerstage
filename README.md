@@ -2,7 +2,7 @@
 
 # Center Stage (`script.centerstage`)
 
-This Kodi 21/22 add-on shows one list of everything you watch: DVR recordings, library shows,
+This Kodi 21/22 add-on shows one list of everything you watch: PVR recordings, library shows,
 seasons and movies, and shows or videos from other add-ons.
 
 - **Left:** every title, from all sources, in one list.
@@ -13,10 +13,10 @@ seasons and movies, and shows or videos from other add-ons.
 - **Bottom right:** artwork and description of whatever is focused. For a title, this pane also
   shows where it comes from. A title with no picture of its own shows an empty stage.
 
-DVR recordings appear automatically, one row per recording title. Everything else you add with
+PVR recordings appear automatically, one row per recording title. Everything else you add with
 **Add to Center Stage** in the context menu, which appears on library items, recordings, add-on listings,
 Favourites and home-screen widgets. A season you add is named after its show (so it joins any
-other title of that name, such as the show's DVR recordings). When an add-on doesn't provide the
+other title of that name, such as the show's PVR recordings). When an add-on doesn't provide the
 show name, you're asked for it.
 
 ## Contents
@@ -34,12 +34,12 @@ show name, you're asked for it.
 ## Using it
 
 - Open it from **Programs** or **Video add-ons**.
-- **Stages:** if your DVR files recordings in groups (MythTV recording groups), each group is a
-  Stage. You're first asked which Stage to show, or "All Stages". When you add something with the
-  context menu, you pick the Stage it belongs to, or all of them. Recordings outside any group
+- **Stages:** if your PVR backend files recordings in groups (MythTV recording groups), each group
+  is a Stage. You're first asked which Stage to show, or "All Stages". When you add something with
+  the context menu, you pick the Stage it belongs to, or all of them. Recordings outside any group
   folder (MythTV's "Show default recording group as root") are in the "Default" Stage.
 - **Newest:** the first title, "<Stage> - Newest" (e.g. "All Stages - Newest"), lists the 25
-  newest DVR recordings you see in the window, newest first, each named with its series. It
+  newest PVR recordings you see in the window, newest first, each named with its series. It
   stays first whatever the sort order. It can be turned off in the settings.
 - **Movies:** add library movies, or movies from other add-ons, with the context menu, and pick
   their Stage like anything else. They're gathered under one "Movies" title (renamable); its
@@ -48,18 +48,18 @@ show name, you're asked for it.
 - In the window:
   - **Left/right** moves between titles and episodes.
   - **Back** returns to the titles, then to the Stage question (or closes the window).
-  - **Context menu** on a title: Rename, Refresh, Remove (or Hide, for a DVR series), "Stage…"
-    for titles you added, "Show hidden DVR series…", "Switch Stage…", "Settings…" and "Check
+  - **Context menu** on a title: Rename, Refresh, Remove (or Hide, for a PVR series), "Stage…"
+    for titles you added, "Show hidden PVR series…", "Switch Stage…", "Settings…" and "Check
     for updates" (Kodi checks its add-on repositories, then installs or announces updates as
     its own update setting says).
-  - A DVR series' episodes are Kodi's own recordings list, so the **context menu** on one is
+  - A PVR series' episodes are Kodi's own recordings list, so the **context menu** on one is
     Kodi's (Delete, Edit, Information…), and **Clear** opens it too. Selecting one plays,
     resumes or shows information as Kodi's own "select action" setting says.
 - **Widget:** point a skin widget at `plugin://script.centerstage/?action=list`, or
   `?action=list&group=Emily` for one Stage. Clicking a title opens the window on it.
 - **Settings:** title sort order (A-Z or recently added), episode order, hide watched episodes
-  (not in DVR series, whose lists always show every recording),
-  group movies under "Movies", include DVR recordings, ask for a Stage when opening,
+  (not in PVR series, whose lists always show every recording),
+  group movies under "Movies", include PVR recordings, ask for a Stage when opening,
   show the "Newest" title, how see-through the panels are, and how long add-on listings are
   cached.
 

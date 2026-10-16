@@ -92,11 +92,11 @@ msgid "Refresh"
 msgstr ""
 
 msgctxt "#32025"
-msgid "Hide this DVR series"
+msgid "Hide this PVR series"
 msgstr ""
 
 msgctxt "#32026"
-msgid "Show hidden DVR series…"
+msgid "Show hidden PVR series…"
 msgstr ""
 
 msgctxt "#32028"
@@ -120,7 +120,7 @@ msgid "Library"
 msgstr ""
 
 msgctxt "#32033"
-msgid "DVR"
+msgid "PVR"
 msgstr ""
 
 msgctxt "#32034"
@@ -244,11 +244,11 @@ msgid "Newest first"
 msgstr ""
 
 msgctxt "#32107"
-msgid "Hide watched episodes (not in DVR series)"
+msgid "Hide watched episodes (not in PVR series)"
 msgstr ""
 
 msgctxt "#32108"
-msgid "Include DVR recordings"
+msgid "Include PVR recordings"
 msgstr ""
 
 msgctxt "#32109"
@@ -272,5 +272,5 @@ msgid "Panel opacity"
 msgstr ""
 
 msgctxt "#32114"
-msgid "Hides watched episodes of library and add-on titles, and watched recordings in Newest. A DVR series' own list is Kodi's, which always shows all of its recordings."
+msgid "Hides watched episodes of library and add-on titles, and watched recordings in Newest. A PVR series' own list is Kodi's, which always shows all of its recordings."
 msgstr ""

@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## What this is
 
 `script.centerstage` is a Kodi 21/22 add-on. It shows a three-pane window: all titles on the
-left, the selected title's episodes top right, and details bottom right. Titles come from DVR
+left, the selected title's episodes top right, and details bottom right. Titles come from PVR
 recordings (automatic, one row per recording title), the video library and other add-ons'
 folders and items (both added with the "Add to Center Stage" context menu entry). The list is
 also a plugin folder, for widgets.
@@ -104,12 +104,13 @@ Layout rules (the numbers are in the XML):
 - Top bar: "Center Stage" over the Stage (`group` property), as `TopBar`'s breadcrumbs and
   sublabel. Its clock ends where the right panels do (`TopBar` sits in a group 10px narrower).
 - Panel opacity is the `panel_opacity` setting. The colours are Home properties
-  (`kodiutil.set_home_properties()`, with the recordings sort order) because a texture's `colordiffuse` is evaluated with no window
-  context, so our own window's property isn't reliably found.
+  (`kodiutil.set_home_properties()`, with the recordings sort order) because a texture's
+  `colordiffuse` is evaluated with no window context, so our own window's property isn't
+  reliably found.
 - Control 100 (titles) is a plain `list`, not a `fixedlist` (the user rejected the gap above the
   first title); its selected row stays dimly highlighted while 200 or 210 (episodes) has focus.
   101, 201 and 211 are mouse/touch-only scrollbars.
-- **A DVR series' episodes are Kodi's own list (control 210, `<content>` of the series'
+- **A PVR series' episodes are Kodi's own list (control 210, `<content>` of the series'
   `pvr://` folder, `pvr.folder_of()`), not Python rows.** Kodi's recording menu (Delete, Edit,
   …) only exists for items Kodi lists, and add-ons can't delete recordings any other way. Don't
   replace it with Python rows, and don't fake the menu (an invisible dialog doing that was built
@@ -134,7 +135,7 @@ Layout rules (the numbers are in the XML):
   refreshing after the menu closes.
 - Newest stays our own Python rows (they skip hidden series) with our own small menu.
 - The titles list shows no watched status; the user doesn't want icons there.
-- A title's picture is its `thumb`; for DVR series that's the series fanart, not pvr.mythtv's
+- A title's picture is its `thumb`; for PVR series that's the series fanart, not pvr.mythtv's
   preview image, which is for episodes (as in the recordings window). No picture: `stage.jpg`.
 - The background is `Skin.String(centerstage.background)` of the running skin, a persistent
   string so nothing has to run at start-up (the user rejected a Home property). Myth Estuary sets
@@ -149,12 +150,13 @@ Layout rules (the numbers are in the XML):
 ## Recording groups ("Stages")
 
 - Users only ever see "Stage"; code, `group=` arguments and the `group` property say group.
+- Users see "PVR", as Kodi says it, never "DVR".
 - A recording's group is its JSON-RPC `directory` minus the title folder (`pvr.group_of()`).
   Recordings with no group folder (pvr.mythtv's "Show default recording group as root") are in
   `pvr.DEFAULT_GROUP`, so `group=Default` works either way. The user keeps the name "Default".
 - pvr.mythtv wraps damaged recordings' titles in `[COLOR yellow]`; titles are stripped
   (`model.plain()`) so they join their series, and only the episode row keeps the colour.
-- Stored entries have `Entry.group` (`""` = all Stages). In a Stage, DVR titles show only that
+- Stored entries have `Entry.group` (`""` = all Stages). In a Stage, PVR titles show only that
   Stage's recordings.
 - `window.show()` asks which Stage (preselecting `last_group`) when there are two or more, the
   `ask_group` setting is on and nothing was preselected. Back on the titles, or "Switch Stage…",
