@@ -46,10 +46,9 @@ class Entry:
     group: str = ''           # the recording group it's shown in; "" for all of them
     auto: bool = False        # computed on the fly (DVR series), never stored
     count: int = 0            # number of recordings, for DVR series; never stored
-    watched: int = -1         # how many of those are watched; -1 when not known; never stored
     members: list = field(default_factory=list)  # the "Movies" title's movies; never stored
 
-    RUNTIME_FIELDS = ('auto', 'count', 'watched', 'members')
+    RUNTIME_FIELDS = ('auto', 'count', 'members')
 
     @property
     def is_single(self):

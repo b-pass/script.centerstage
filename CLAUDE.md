@@ -120,9 +120,7 @@ Layout rules (the numbers are in the XML):
   both lists, switched on the `recordings` window property; Newest, Movies, library and add-on
   titles use 200.
 - Newest stays our own Python rows (they skip hidden series) with our own small menu.
-- DVR titles (and Newest) show a watched icon:
-  `Entry.watched` counts watched recordings, and `entry_listitem` sets the `status` property,
-  a playcount when all are watched, and the usual `TotalEpisodes`/`WatchedEpisodes` properties.
+- The titles list shows no watched status; the user doesn't want icons there.
 - A title's picture is its `thumb`; for DVR series that's the series fanart, not pvr.mythtv's
   preview image, which is for episodes (as in the recordings window). No picture: `stage.jpg`.
 - The background is `Skin.String(centerstage.background)` of the running skin, a persistent

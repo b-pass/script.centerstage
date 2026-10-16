@@ -93,18 +93,9 @@
 						<texture colordiffuse="button_focus">lists/focus.png</texture>
 						<animation effect="fade" start="100" end="50" time="40" condition="!Control.HasFocus(100)">Conditional</animation>
 					</control>
-					<!-- watched state, for titles that know it (DVR series) -->
-					<control type="image">
-						<right>16</right>
-						<centertop>50%</centertop>
-						<width>32</width>
-						<height>32</height>
-						<texture>$VAR[ListWatchedIconVar]</texture>
-						<visible>String.IsEqual(ListItem.Property(status),true)</visible>
-					</control>
 					<control type="label">
 						<left>30</left>
-						<right>64</right>
+						<right>20</right>
 						<top>0</top>
 						<bottom>0</bottom>
 						<aligny>center</aligny>
@@ -115,18 +106,9 @@
 					</control>
 				</focusedlayout>
 				<itemlayout height="78">
-					<!-- watched state, for titles that know it (DVR series) -->
-					<control type="image">
-						<right>16</right>
-						<centertop>50%</centertop>
-						<width>32</width>
-						<height>32</height>
-						<texture colordiffuse="button_focus">$VAR[ListWatchedIconVar]</texture>
-						<visible>String.IsEqual(ListItem.Property(status),true)</visible>
-					</control>
 					<control type="label">
 						<left>30</left>
-						<right>64</right>
+						<right>20</right>
 						<top>0</top>
 						<bottom>0</bottom>
 						<aligny>center</aligny>

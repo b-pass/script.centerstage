@@ -212,15 +212,6 @@ def entry_listitem(entry, path=''):
     tag.setMediaType('movie' if entry.kind == 'movie' else 'tvshow')
     li.setProperty('entry_id', entry.id)
     li.setProperty('origin', origin_label(entry))
-    if entry.watched >= 0 and entry.count:
-        # DVR titles: watched when every recording is; the layouts show an icon (status)
-        done = entry.watched >= entry.count
-        tag.setPlaycount(1 if done else 0)
-        li.setProperty('status', 'true')
-        li.setProperty('watched', 'true' if done else '')
-        li.setProperty('TotalEpisodes', str(entry.count))
-        li.setProperty('WatchedEpisodes', str(entry.watched))
-        li.setProperty('UnWatchedEpisodes', str(entry.count - entry.watched))
     if path:
         li.setPath(path)
     return li
