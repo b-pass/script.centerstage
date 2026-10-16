@@ -215,7 +215,7 @@
 				<visible>Control.HasFocus(200)</visible>
 			</control>
 			<control type="textbox">
-				<left>860</left><top>12</top><width>400</width><height>96</height>
+				<left>860</left><top>12</top><width>400</width><height>102</height>
 				<font>font12</font>
 				<align>right</align>
 				<textcolor>FFA0A0A0</textcolor>
@@ -223,7 +223,7 @@
 				<visible>Control.HasFocus(200)</visible>
 			</control>
 			<control type="textbox">
-				<left>860</left><top>12</top><width>400</width><height>96</height>
+				<left>860</left><top>12</top><width>400</width><height>102</height>
 				<font>font12</font>
 				<align>right</align>
 				<textcolor>FFA0A0A0</textcolor>
