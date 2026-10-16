@@ -46,10 +46,13 @@ Three entry points, all in `addon.xml`; each puts `resources/lib` on `sys.path`.
 - `default.py` (`xbmc.python.script`, under Programs) opens the window. `RunScript` arguments:
   `id=<urlencoded entry id>`, `group=`, `ask=0`. A Home window property stops a second copy.
 - `plugin.py` (`xbmc.python.pluginsource`, under Video add-ons). The root opens the window, except
-  when Home is active (a widget pointed at the root), where it lists titles. `?action=list`
-  (`&group=`) is the widget listing, `?action=open&id=` opens a title, `?action=stages` lists the
-  Stages with each item's `stage` property holding the `RunScript` arguments (the skin's
-  `<onclick>` uses that, so the click doesn't go through `PlayMedia`). Widget items deliberately
+  when Home is active (a widget pointed at the root), where it lists titles. Opened from Video
+  add-ons, Kodi leaves its Videos window behind the window, so Back lands there; don't fix that
+  by sending that window "previous menu" from the script (tried and removed: it could close the
+  wrong window). The home screen routes start the script directly and don't have this.
+  `?action=list` (`&group=`) is the widget listing, `?action=open&id=` opens a title, and
+  `?action=stages` lists the Stages with each item's `stage` property holding the `RunScript`
+  arguments (the skin's `<onclick>` uses that, so the click doesn't go through `PlayMedia`). Widget items deliberately
   have **no video info tag**: with one, a click goes through the user's "select action" instead of
   `PlayMedia`, which we answer with `setResolvedUrl(False)`.
 - `context.py` (`kodi.context.item`) snapshots `sys.listitem`, `Container.PluginCategory` and
