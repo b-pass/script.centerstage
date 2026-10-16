@@ -119,6 +119,10 @@ Layout rules (the numbers are in the XML):
   `Episode`, `Date`, …), since Kodi labels a recording with the show's title. Every layout has
   both lists, switched on the `recordings` window property; Newest, Movies, library and add-on
   titles use 200.
+- No flicker while moving through titles: "Loading…" appears only after 250 ms, and 210 is
+  hidden while Kodi fetches (it would show the previous series' rows) unless it has focus
+  (`allowhiddenfocus`, so focus can still move there). No fade-ins: they make switching feel
+  slow.
 - Newest stays our own Python rows (they skip hidden series) with our own small menu.
 - The titles list shows no watched status; the user doesn't want icons there.
 - A title's picture is its `thumb`; for DVR series that's the series fanart, not pvr.mythtv's
