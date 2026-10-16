@@ -8,7 +8,7 @@ The top-right list is a small browser. Each title keeps a stack of the folders o
 always returns to the titles (the skin's onleft) without touching the stack, so right arrow comes
 back to the same folder.
 
-With more than one DVR recording group, show() first asks which group to show (the "ask_group"
+With more than one PVR recording group, show() first asks which group to show (the "ask_group"
 setting). The window then lists that group's recordings plus the stored entries meant for it or
 for every group, and Back on the titles returns to the question.
 """
@@ -29,7 +29,7 @@ from store import Store
 
 TITLES = 100
 EPISODES = 200     # our own list (library, add-ons, Newest, Movies)
-RECORDINGS = 210   # Kodi's own list of a DVR series' recordings (see _show_recordings)
+RECORDINGS = 210   # Kodi's own list of a PVR series' recordings (see _load)
 
 ACTION_PREVIOUS_MENU = 10
 ACTION_NAV_BACK = 92
@@ -94,16 +94,16 @@ class MainWindow(xbmcgui.WindowXML):
         stored = self.store.entries()
         pvr_rows = []
         self.recs = []
-        dvr = False
-        if K.setting_bool('include_dvr', True):
+        pvr_ok = False
+        if K.setting_bool('include_pvr', True):
             try:
                 self.recs = pvr.recordings(self.rpc)
-                dvr = True
+                pvr_ok = True
             except RpcError as e:
                 K.log(f'no PVR recordings: {e}')  # PVR disabled or not started yet
             self.recs = pvr.in_group(self.recs, self.group)
             pvr_rows = pvr.series_entries(self.recs, self.store.hidden_pvr(), self.store.renames())
-        self.setProperty('dvr', 'true' if dvr else '')
+        self.setProperty('pvr', 'true' if pvr_ok else '')
         rows = catalog.rows(stored, pvr_rows, K.setting_int('sort_order', catalog.SORT_TITLE),
                             self.group, K.movies_title(self.store), K.newest_title(self.group))
         with self.lock:
@@ -122,7 +122,7 @@ class MainWindow(xbmcgui.WindowXML):
                 return
             self.titles.selectItem(pos)
             if reload_current and rows[pos].id == self.shown_id:
-                # library and DVR state is cheap to re-read; add-ons are re-read quietly
+                # library and PVR state is cheap to re-read; add-ons are re-read quietly
                 for key in list(self.mem):
                     if not key.startswith(f'{ADDON}:'):
                         del self.mem[key]
@@ -151,7 +151,7 @@ class MainWindow(xbmcgui.WindowXML):
             except RuntimeError:
                 break  # the window is gone
             now = time.monotonic()
-            if now >= disk_next and self.getProperty('dvr'):
+            if now >= disk_next and self.getProperty('pvr'):
                 # reading the label asks Kodi to re-read the backend's disk space (reading
                 # PVR.BackendDiskSpaceProgr alone doesn't); the numbers arrive a little later
                 xbmc.getInfoLabel('PVR.BackendDiskSpace')
@@ -190,7 +190,7 @@ class MainWindow(xbmcgui.WindowXML):
         return folder, xbmc.getInfoLabel(f'Container({RECORDINGS}).NumItems')
 
     def _at_hand(self, entry):
-        """Whether entry's rows show without loading: DVR series (Kodi's list) and rows kept
+        """Whether entry's rows show without loading: PVR series (Kodi's list) and rows kept
         from earlier in this session."""
         stack = self.stacks.get(entry.id)
         browse = stack[-1][0] if stack else None

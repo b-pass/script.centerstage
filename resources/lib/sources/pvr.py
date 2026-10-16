@@ -129,7 +129,7 @@ def series_entries(recs, hidden=(), renames=None):
 
 
 def newest_entry(series, title):
-    """The "Newest" title, from the DVR series being shown (series_entries' result): their
+    """The "Newest" title, from the PVR series being shown (series_entries' result): their
     recordings, newest first. Its art is the newest series'."""
     latest = max(series, key=lambda e: e.added)
     return Entry(id=NEWEST_ID, source=NEWEST, kind=SHOW,

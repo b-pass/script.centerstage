@@ -44,8 +44,8 @@ class Entry:
     added: float = 0.0
     origin: str = ''          # human name of where it came from ("Library", an add-on's name, ...)
     group: str = ''           # the recording group it's shown in; "" for all of them
-    auto: bool = False        # computed on the fly (DVR series), never stored
-    count: int = 0            # number of recordings, for DVR series; never stored
+    auto: bool = False        # computed on the fly (PVR series), never stored
+    count: int = 0            # number of recordings, for PVR series; never stored
     members: list = field(default_factory=list)  # the "Movies" title's movies; never stored
 
     RUNTIME_FIELDS = ('auto', 'count', 'members')

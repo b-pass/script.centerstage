@@ -58,7 +58,7 @@ class Store:
         return next((e for e in self.entries() if e.id == entry_id), None)
 
     def hidden_pvr(self):
-        """{pvr_key: title} of the DVR series the user hid."""
+        """{pvr_key: title} of the PVR series the user hid."""
         return dict(self._load()['hidden_pvr'])
 
     def renames(self):
@@ -89,7 +89,7 @@ class Store:
         return len(data['entries']) != before
 
     def rename(self, entry_id, title):
-        """Stored entries get a new display_title; computed ones (DVR series) get an override."""
+        """Stored entries get a new display_title; computed ones (PVR series) get an override."""
         data = self._load()
         for d in data['entries']:
             if d.get('id') == entry_id:

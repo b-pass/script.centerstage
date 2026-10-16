@@ -22,7 +22,7 @@ def rows(stored, pvr_entries, sort_mode=SORT_TITLE, group=None, movies_title=Non
     """Every entry, all sources mixed together. With a recording group, only the stored entries
     for that group or for all groups (pvr_entries should already be limited to it). With a
     movies_title, the stored movies are gathered into one title of that name. With a
-    newest_title and any DVR series, a title of that name listing their recordings newest first
+    newest_title and any PVR series, a title of that name listing their recordings newest first
     comes before everything, whatever the sort order."""
     if group is not None:
         stored = [e for e in stored if not e.group or e.group == group]

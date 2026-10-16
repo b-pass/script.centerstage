@@ -178,7 +178,7 @@
 			<textureslidernib></textureslidernib>
 			<textureslidernibfocus></textureslidernibfocus>
 		</control>
-		<!-- A DVR series' recordings: Kodi's own list, filled from the series' pvr:// folder,
+		<!-- A PVR series' recordings: Kodi's own list, filled from the series' pvr:// folder,
 		     so its items get Kodi's recording menu (Delete, Edit, Information…), icons and
 		     play handling. The folder comes straight from the selected title (its folder
 		     property), so the list switches the moment the selection moves, as a skin's
@@ -460,12 +460,12 @@
 			<aligny>center</aligny>
 			<label>$INFO[System.Time]</label>
 		</control>
-		<!-- DVR backend disk space used, centred in the top bar, as text only.
+		<!-- PVR backend disk space used, centred in the top bar, as text only.
 		     PVR.BackendDiskSpaceProgr is 255 when the backend doesn't report it. The text is the
 		     diskspace property, worked out by window.py (kodiutil.disk_used_percent). -->
 		<control type="group">
 			<left>710</left><top>12</top><width>500</width>
-			<visible>String.IsEqual(Window.Property(dvr),true) + !Integer.IsGreater(PVR.BackendDiskSpaceProgr,100) + !Player.HasMedia</visible>
+			<visible>String.IsEqual(Window.Property(pvr),true) + !Integer.IsGreater(PVR.BackendDiskSpaceProgr,100) + !Player.HasMedia</visible>
 			<control type="label">
 				<left>0</left><top>0</top><width>500</width><height>30</height>
 				<font>font12</font>
