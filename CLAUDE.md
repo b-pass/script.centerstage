@@ -170,6 +170,19 @@ Layout rules (the numbers are in the XML):
 - **`Addon.openSettings()`** edits the calling `Addon` object's own settings, so `K.ADDON` is
   current afterwards.
 - **`UpdateAddonRepos`** checks every repository; Kodi can't check one add-on.
+- **Add-ons can't delete recordings** (no JSON-RPC method, builtin or `pvr://` file support), and
+  Kodi's item context menu (`CONTEXTMENU::ShowFor`) only opens for items Kodi listed itself. But a
+  list filled from `<content>` in any window gets it (`CDirectoryProvider::OnContextMenu`), and
+  `CGUIWindow::OnAction` gives the focused control the key before Python's `onAction`. So
+  `window.RecordingMenu` is an invisible dialog (`script-centerstage-recording.xml`, Default
+  only) listing the recording's `pvr://` folder; it selects the recording and sends
+  `Action(ContextMenu)`. The user approved this workaround knowing its oddities (entries that
+  switch screens, like Find similar, are untested).
+- **Clear and Delete have no action in add-on windows** (keymaps map them per window), so they
+  arrive as action 0; `window.DELETE_BUTTONS` matches their button codes. `ACTION_DELETE_ITEM`
+  is handled too, for users who map them.
+- **`Container(id)` from Python, with no window context, resolves to the topmost dialog**, then
+  the active window (`GUIInfoHelper::GetWindowWithCondition`).
 
 ## Not verified in a running Kodi yet
 

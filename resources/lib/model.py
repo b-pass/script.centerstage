@@ -95,6 +95,7 @@ class Episode:
     browse: dict = field(default_factory=dict)  # for folders: what to pass back to list it
     parent: bool = False      # the ".." row
     entry_id: str = ''        # in the "Movies" title: the stored movie entry this row is
+    path: str = ''            # recordings: the pvr:// file, to find it in Kodi's own listing
     show: str = ''            # in the "Newest" title: the series, shown before the label
 
     def to_dict(self):
