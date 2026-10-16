@@ -86,8 +86,17 @@ def _local(starttime):
     return time.strftime('%Y-%m-%d %H:%M', time.localtime(epoch)) if epoch else ''
 
 
+def folder_of(rec):
+    """The Kodi folder listing a recording's series flat (no subfolders), for the episodes list
+    Kodi fills itself: the recording's `file` without its file name."""
+    path = rec.get('file') or ''
+    return path.rsplit('/', 1)[0] + '?view=flat' if '/' in path else ''
+
+
 def series_entries(recs, hidden=(), renames=None):
-    """One Entry per recording title, newest recording's art and channel first."""
+    """One Entry per recording title, newest recording's art and channel first. ref['folder']
+    is the newest recording's Kodi folder (folder_of), so in All Stages a series recorded in
+    two Stages lists only the newest one's."""
     renames = renames or {}
     groups = {}
     for rec in recs:
@@ -111,7 +120,7 @@ def series_entries(recs, hidden=(), renames=None):
         if fanart:
             art['fanart'] = art['thumb'] = fanart
         out.append(Entry(
-            id=eid, source=PVR, kind=SHOW, ref={'title': title},
+            id=eid, source=PVR, kind=SHOW, ref={'title': title, 'folder': folder_of(newest)},
             display_title=renames.get(eid, title), show_title=title, art=art,
             plot=newest.get('plotoutline') or newest.get('plot') or '',
             added=_epoch(newest.get('starttime')), origin=', '.join(channels), auto=True,
@@ -128,15 +137,6 @@ def newest_entry(series, title):
                  display_title=title,
                  art=dict(latest.art), added=latest.added, auto=True,
                  count=sum(e.count for e in series), watched=sum(e.watched for e in series))
-
-
-def episodes(rpc, entry, recs=None):
-    if recs is None:
-        recs = recordings(rpc)
-    key = pvr_key(entry.ref['title'])
-    mine = [r for r in recs if pvr_key(_title(r)) == key]
-    mine.sort(key=lambda r: r.get('starttime') or '')
-    return [_episode(rec, (rec.get('starttime') or '',)) for rec in mine]
 
 
 def newest(rpc, entry, recs=None):

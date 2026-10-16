@@ -52,9 +52,13 @@ show name, you're asked for it.
     for titles you added, "Show hidden DVR series…", "Switch Stage…", "Settings…" and "Check
     for updates" (Kodi checks its add-on repositories, then installs or announces updates as
     its own update setting says).
+  - A DVR series' episodes are Kodi's own recordings list, so the **context menu** on one is
+    Kodi's (Delete, Edit, Information…), and **Clear** opens it too. Selecting one plays,
+    resumes or shows information as Kodi's own "select action" setting says.
 - **Widget:** point a skin widget at `plugin://script.centerstage/?action=list`, or
   `?action=list&group=Emily` for one Stage. Clicking a title opens the window on it.
-- **Settings:** title sort order (A-Z or recently added), episode order, hide watched episodes,
+- **Settings:** title sort order (A-Z or recently added), episode order, hide watched episodes
+  (not in DVR series, whose lists always show every recording),
   group movies under "Movies", include DVR recordings, ask for a Stage when opening,
   show the "Newest" title, how see-through the panels are, and how long add-on listings are
   cached.

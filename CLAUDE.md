@@ -95,7 +95,8 @@ directories). `Default/` itself uses `1080i`.
 Layout rules (the numbers are in the XML):
 - Modelled on Myth Estuary's recordings window (`../xbmc/addons/skin.estuary/xml/
   MyPVRRecordings.xml`), including its font sizes; users compare the two.
-- Every control stays put whichever list has focus; only contents swap (`Control.HasFocus(200)`).
+- Every control stays put whichever list has focus; only contents swap (`Control.HasFocus(200)`
+  and `(210)`).
   The details pane is pure XML.
 - Panels are 30px apart and 30px from the screen edges, all ending on the same line; lists are a
   whole number of rows; lists run up to their scrollbars; the details panel has equal inner
@@ -106,8 +107,19 @@ Layout rules (the numbers are in the XML):
   (`kodiutil.set_panel_colours()`) because a texture's `colordiffuse` is evaluated with no window
   context, so our own window's property isn't reliably found.
 - Control 100 (titles) is a plain `list`, not a `fixedlist` (the user rejected the gap above the
-  first title); its selected row stays dimly highlighted while 200 (episodes) has focus. 101 and
-  201 are mouse/touch-only scrollbars.
+  first title); its selected row stays dimly highlighted while 200 or 210 (episodes) has focus.
+  101, 201 and 211 are mouse/touch-only scrollbars.
+- **A DVR series' episodes are Kodi's own list (control 210, `<content>` of the series'
+  `pvr://` folder, `pvr.folder_of()`), not Python rows.** Kodi's recording menu (Delete, Edit,
+  …) only exists for items Kodi lists, and add-ons can't delete recordings any other way. Don't
+  replace it with Python rows, and don't fake the menu (an invisible dialog doing that was built
+  and removed). The user accepted the costs: "hide watched" doesn't apply there, a click follows
+  Kodi's video select action, in All Stages a series shows only the Stage of its newest
+  recording, and rows/details are built in XML from Kodi's fields (`EpisodeName`, `Season`,
+  `Episode`, `Date`, …), since Kodi labels a recording with the show's title. Every layout has
+  both lists, switched on the `recordings` window property; Newest, Movies, library and add-on
+  titles use 200.
+- Newest stays our own Python rows (they skip hidden series) with our own small menu.
 - DVR titles (and Newest) show a watched icon:
   `Entry.watched` counts watched recordings, and `entry_listitem` sets the `status` property,
   a playcount when all are watched, and the usual `TotalEpisodes`/`WatchedEpisodes` properties.
@@ -188,5 +200,8 @@ Only unit tests and stub-based smoke runs so far. To check in a real Kodi:
 - the widget click path (`PlayMedia` → `RunScript`)
 - Myth Estuary's "Center Stage" home entry and Stages panel (its `Home.xml`, group 24000/list
   24100; icon copied from `resources/sidemenu.png`; hidden by `HomeMenuNoCenterStageButton`)
+- Kodi's recordings list (210): that the folder lists the series, its context menu (Delete)
+  and refresh after a delete, Clear reaching the window, the sort order, the XML-built rows and
+  details, focus moving between the lists
 - the Movies and Newest titles; the Default group with "Show default recording group as
   root" on; panel opacity; "Check for updates"; Kodi 22

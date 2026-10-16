@@ -32,6 +32,13 @@ RECORDINGS = [
 ]
 
 
+def series_rows(rpc, title, recs=None):
+    """A series' recordings as Python rows (as the Newest title builds them), oldest first. DVR
+    series themselves are listed by Kodi."""
+    newest = pvr.newest_entry([entry(PVR, SHOW, {'title': title}, title)], 'N')
+    return list(reversed(pvr.newest(rpc, newest, recs)))
+
+
 def set_tz(tz):
     old = os.environ.get('TZ')
     if tz is None:
@@ -69,8 +76,7 @@ class Pvr(unittest.TestCase):
             {'PVR.GetRecordings': lambda p: {'recordings': recs}})))}
         self.assertEqual(rows['News'].art['thumb'], 'series.jpg')
         self.assertEqual(rows['The Office'].art['thumb'], 'office-s1.jpg')
-        news = entry(PVR, SHOW, {'title': 'News'})
-        eps = pvr.episodes(self.rpc, news, recs)
+        eps = series_rows(self.rpc, 'News', recs)
         self.assertEqual(eps[0].art['thumb'], 'preview.jpg')  # episodes keep the preview
 
     def test_newest_first_whatever_the_sort_with_every_shown_series(self):
@@ -95,6 +101,16 @@ class Pvr(unittest.TestCase):
                           for e in catalog.arrange(eps, hide_watched=True, limit=1)], [3])
         self.assertEqual(catalog.rows(stored, [], newest_title='X')[0].display_title, 'Aardvarks')
 
+    def test_series_folder_is_the_newest_recordings(self):
+        recs = [{'recordingid': 1, 'title': 'Nova', 'starttime': '2026-09-01 18:00:00',
+                 'file': 'pvr://recordings/tv/active/Emily/Nova/Nova, TV (PBS), 2026.pvr'},
+                {'recordingid': 2, 'title': 'Nova', 'starttime': '2026-09-08 18:00:00',
+                 'file': 'pvr://recordings/tv/active/Default/Nova/Nova, TV (PBS), 2026.pvr'}]
+        (nova,) = pvr.series_entries(recs)
+        self.assertEqual(nova.ref['folder'], 'pvr://recordings/tv/active/Default/Nova?view=flat')
+        self.assertEqual(nova.id, 'pvr:nova')  # the folder isn't part of the id
+        self.assertEqual(pvr.folder_of({}), '')
+
     def test_hidden_and_renamed(self):
         recs = pvr.recordings(self.rpc)
         rows = pvr.series_entries(recs, hidden={'news': 'News'},
@@ -102,16 +118,14 @@ class Pvr(unittest.TestCase):
         self.assertEqual([e.display_title for e in rows], ['Office (US)'])
 
     def test_episodes_oldest_first_with_episode_names(self):
-        office = entry(PVR, SHOW, {'title': 'The Office'})
-        eps = pvr.episodes(self.rpc, office)
+        eps = series_rows(self.rpc, 'The Office')
         self.assertEqual([e.label for e in eps], ['Pilot', 'Diversity Day'])  # no S01E02 in rows
         self.assertEqual(eps[1].play, {'recordingid': 2})
         self.assertEqual((eps[1].resume, eps[1].total), (300.0, 1320.0))
 
     def test_episode_without_name_uses_local_date(self):
-        news = entry(PVR, SHOW, {'title': 'News'})
         set_tz('America/New_York')
-        (ep,) = pvr.episodes(self.rpc, news)
+        (ep,) = series_rows(self.rpc, 'News')
         self.assertEqual(ep.label, '2026-09-01 14:00')  # Kodi gives recording times in UTC
         self.assertEqual(ep.date, '2026-09-01 14:00')
         self.assertEqual(ep.channel, 'BBC One')
@@ -128,7 +142,7 @@ class Pvr(unittest.TestCase):
              'starttime': '2026-09-07 20:00:00', 'season': 3, 'episode': 6},
         ]
         rpc = FakeRpc({'PVR.GetRecordings': lambda p: {'recordings': recs}})
-        eps = pvr.episodes(rpc, entry(PVR, SHOW, {'title': 'Nova'}))
+        eps = series_rows(rpc, 'Nova')
         self.assertEqual([e.untitled for e in eps], [True, True, False])
         self.assertEqual(eps[0].label, '2026-09-05 20:00')  # never "Untitled"
         self.assertEqual(eps[0].title, 'Nova')
@@ -157,9 +171,9 @@ class Pvr(unittest.TestCase):
         saved = pvr.in_group(recs, 'Saved for Later')
         (alone,) = pvr.series_entries(saved)
         self.assertEqual((alone.display_title, alone.count), ('Alone', 2))
-        rpc = FakeRpc({})
-        eps = pvr.episodes(rpc, alone, saved)
-        self.assertEqual(eps[1].label, '[COLOR yellow]Damaged[/COLOR]')
+        damaged = next(e for e in series_rows(FakeRpc({}), 'Alone', saved)
+                       if e.play == {'recordingid': 2})
+        self.assertEqual(damaged.label, '[COLOR yellow]Damaged[/COLOR]')
 
 
 class Library(unittest.TestCase):
@@ -395,8 +409,8 @@ class Catalog(unittest.TestCase):
 
     def test_dispatch(self):
         rpc = FakeRpc({'PVR.GetRecordings': lambda p: {'recordings': RECORDINGS}})
-        rows = catalog.load_rows(rpc, entry(PVR, SHOW, {'title': 'News'}), 21)
-        self.assertEqual(len(rows), 1)
+        newest = pvr.newest_entry([entry(PVR, SHOW, {'title': 'News'}, 'News')], 'N')
+        self.assertEqual(len(catalog.load_rows(rpc, newest, 21)), 1)
 
 
 if __name__ == '__main__':

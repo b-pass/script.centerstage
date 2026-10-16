@@ -244,7 +244,7 @@ msgid "Newest first"
 msgstr ""
 
 msgctxt "#32107"
-msgid "Hide watched episodes"
+msgid "Hide watched episodes (not in DVR series)"
 msgstr ""
 
 msgctxt "#32108"
@@ -269,4 +269,8 @@ msgstr ""
 
 msgctxt "#32113"
 msgid "Panel opacity"
+msgstr ""
+
+msgctxt "#32114"
+msgid "Hides watched episodes of library and add-on titles, and watched recordings in Newest. A DVR series' own list is Kodi's, which always shows all of its recordings."
 msgstr ""
