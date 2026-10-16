@@ -207,6 +207,10 @@ msgctxt "#32058"
 msgid "Settings…"
 msgstr ""
 
+msgctxt "#32059"
+msgid "Show watched episodes"
+msgstr ""
+
 msgctxt "#32100"
 msgid "General"
 msgstr ""

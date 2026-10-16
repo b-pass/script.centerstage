@@ -57,6 +57,17 @@ class StoreTest(unittest.TestCase):
         self.store.rename(pid, 'The News')
         self.assertEqual(self.store.renames(), {pid: 'The News'})
 
+    def test_hide_watched_override(self):
+        a = show()
+        self.store.add(a)
+        self.store.set_hide_watched(a.id, False, default=True)
+        self.assertEqual(Store(self.store.folder).hide_watched(), {a.id: False})
+        self.store.set_hide_watched(a.id, True, default=True)  # back to following the setting
+        self.assertEqual(self.store.hide_watched(), {})
+        self.store.set_hide_watched(a.id, True, default=False)
+        self.store.remove(a.id)
+        self.assertEqual(self.store.hide_watched(), {})
+
     def test_groups(self):
         a = show()
         self.store.add(a)

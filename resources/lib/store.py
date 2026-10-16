@@ -32,6 +32,7 @@ class Store:
         data.setdefault('entries', [])
         data.setdefault('hidden_pvr', {})  # pvr_key -> title as it was shown
         data.setdefault('renames', {})
+        data.setdefault('hide_watched', {})  # entry id -> its own "hide watched", over the setting
         data.setdefault('last_group', None)  # recording group last picked; None for all
         return data
 
@@ -64,6 +65,10 @@ class Store:
     def renames(self):
         return dict(self._load()['renames'])
 
+    def hide_watched(self):
+        """{entry_id: bool} of the titles that don't follow the "hide watched" setting."""
+        return dict(self._load()['hide_watched'])
+
     def last_group(self):
         return self._load()['last_group']
 
@@ -85,6 +90,7 @@ class Store:
         before = len(data['entries'])
         data['entries'] = [d for d in data['entries'] if d.get('id') != entry_id]
         data['renames'].pop(entry_id, None)
+        data['hide_watched'].pop(entry_id, None)
         self._save(data)
         return len(data['entries']) != before
 
@@ -97,6 +103,16 @@ class Store:
                 break
         else:
             data['renames'][entry_id] = title
+        self._save(data)
+
+    def set_hide_watched(self, entry_id, hide, default):
+        """Hide (or show) a title's watched episodes; the same as the setting (default) means
+        it follows the setting again."""
+        data = self._load()
+        if hide == default:
+            data['hide_watched'].pop(entry_id, None)
+        else:
+            data['hide_watched'][entry_id] = hide
         self._save(data)
 
     def set_group(self, entry_id, group):
