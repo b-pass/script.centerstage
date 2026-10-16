@@ -35,6 +35,16 @@
                     <default>true</default>
                     <control type="toggle"/>
                 </setting>
+                <setting id="panel_opacity" type="integer" label="32113">
+                    <level>0</level>
+                    <default>80</default>
+                    <constraints>
+                        <minimum>40</minimum>
+                        <step>5</step>
+                        <maximum>100</maximum>
+                    </constraints>
+                    <control type="slider" format="percentage"/>
+                </setting>
                 <setting id="include_dvr" type="boolean" label="32108">
                     <level>0</level>
                     <default>true</default>

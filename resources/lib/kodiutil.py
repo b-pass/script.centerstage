@@ -113,6 +113,18 @@ def movies_title(store):
     return store.renames().get(MOVIES_ID) or tr('movies')
 
 
+def set_panel_colours():
+    """The panels' colours, from the panel_opacity setting, as Home window properties:
+    script.centerstage.panel tints Estuary's panel texture, script.centerstage.panel_dark is the
+    Default layout's flat colour. (On Home because a texture's colour is read with no window
+    context, so a property of our own window might not be found.)"""
+    pct = min(100, max(0, setting_int('panel_opacity', 80)))
+    alpha = f'{round(pct * 255 / 100):02X}'
+    home = xbmcgui.Window(10000)
+    home.setProperty(f'{ADDON_ID}.panel', alpha + 'FFFFFF')
+    home.setProperty(f'{ADDON_ID}.panel_dark', alpha + '181C22')
+
+
 def newest_title(group):
     """The "Newest" title's name, "<group> - Newest", or None when it's turned off."""
     if not (setting_bool('include_dvr', True) and setting_bool('show_newest', True)):

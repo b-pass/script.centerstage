@@ -262,3 +262,7 @@ msgstr ""
 msgctxt "#32112"
 msgid "Show a \"Newest\" title first, with the newest recordings"
 msgstr ""
+
+msgctxt "#32113"
+msgid "Panel opacity"
+msgstr ""

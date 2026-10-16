@@ -2,7 +2,7 @@
 <!-- Center Stage main window, Estuary version. Kodi picks this file over resources/skins/Default
      when the current skin is skin.estuary (WindowXML looks in resources/skins/<skin id>/ first).
      It uses Estuary's own includes, fonts, colours and textures, all present in Kodi 21 and 22:
-     ColoredBackgroundImages, TopBar, ContentPanel, OpenClose_*, ListWatchedIconVar, button_focus,
+     ColoredBackgroundImages, TopBar, OpenClose_*, ListWatchedIconVar, button_focus,
      grey, text_shadow, lists/focus.png, and Estuary's scrollbar and progress defaults.
      Control ids and window properties match the Default version. -->
 <window>
@@ -43,12 +43,18 @@
 		     shadow, so 10..600 x 110..1070 shows 30..580 x 130..1050.) -->
 		<control type="group">
 			<include>OpenClose_Left</include>
-			<include content="ContentPanel">
-				<param name="left" value="10" />
-				<param name="width" value="590" />
-				<param name="top" value="110" />
-				<param name="height" value="960" />
-			</include>
+			<!-- Estuary's ContentPanel, but with the opacity from the panel_opacity setting (80%
+			     by default, where Estuary uses 93%), like the right-hand panels. window.py puts
+			     the colour on Home (kodiutil.set_panel_colours). -->
+			<control type="image">
+				<left>10</left>
+				<top>110</top>
+				<width>590</width>
+				<height>960</height>
+				<texture colordiffuse="$INFO[Window(Home).Property(script.centerstage.panel)]">lists/panel.png</texture>
+				<bordertexture border="21" infill="false">overlays/shadow.png</bordertexture>
+				<bordersize>20</bordersize>
+			</control>
 			<!-- the list (and its focus bar) runs up to the scrollbar -->
 			<control type="list" id="100">
 				<left>30</left>
@@ -136,7 +142,7 @@
 					<top>-20</top>
 					<right>-20</right>
 					<height>520</height>
-					<texture colordiffuse="EDFFFFFF">lists/panel.png</texture>
+					<texture colordiffuse="$INFO[Window(Home).Property(script.centerstage.panel)]">lists/panel.png</texture>
 					<bordertexture border="21" infill="false">overlays/shadow.png</bordertexture>
 					<bordersize>20</bordersize>
 				</control>
@@ -265,7 +271,7 @@
 					<top>-20</top>
 					<right>-20</right>
 					<height>430</height>
-					<texture colordiffuse="EDFFFFFF">lists/panel.png</texture>
+					<texture colordiffuse="$INFO[Window(Home).Property(script.centerstage.panel)]">lists/panel.png</texture>
 					<bordertexture border="21" infill="false">overlays/shadow.png</bordertexture>
 					<bordersize>20</bordersize>
 				</control>

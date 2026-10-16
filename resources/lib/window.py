@@ -494,6 +494,7 @@ def show(preselect=None, group=None, ask=True):
             if not ok:
                 return
             store.set_last_group(group)
+        K.set_panel_colours()
         win = MainWindow(XML, K.ADDON_PATH, 'Default', '1080i')
         win.preselect = preselect
         win.group = group

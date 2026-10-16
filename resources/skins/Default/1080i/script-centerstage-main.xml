@@ -41,7 +41,7 @@
 		     starts below the top bar, level with them. -->
 		<control type="image">
 			<left>30</left><top>130</top><width>550</width><height>920</height>
-			<texture colordiffuse="C0181C22">uv-white.png</texture>
+			<texture colordiffuse="$INFO[Window(Home).Property(script.centerstage.panel_dark)]">uv-white.png</texture>
 		</control>
 		<control type="list" id="100">
 			<left>30</left><top>130</top><width>538</width><height>920</height>
@@ -100,7 +100,7 @@
 		     scrollbar sits flush against its edge. -->
 		<control type="image">
 			<left>610</left><top>130</top><width>1280</width><height>480</height>
-			<texture colordiffuse="C0181C22">uv-white.png</texture>
+			<texture colordiffuse="$INFO[Window(Home).Property(script.centerstage.panel_dark)]">uv-white.png</texture>
 		</control>
 		<control type="list" id="200">
 			<left>610</left><top>130</top><width>1268</width><height>480</height>
@@ -196,7 +196,7 @@
 		     stays in place whichever list has focus; only the contents change. -->
 		<control type="image">
 			<left>610</left><top>640</top><width>1280</width><height>390</height>
-			<texture colordiffuse="C0181C22">uv-white.png</texture>
+			<texture colordiffuse="$INFO[Window(Home).Property(script.centerstage.panel_dark)]">uv-white.png</texture>
 		</control>
 		<control type="group">
 			<left>610</left><top>640</top><width>1280</width><height>390</height>
