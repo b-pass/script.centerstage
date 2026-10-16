@@ -36,18 +36,23 @@
 			</control>
 		</control>
 
-		<!-- left: titles. A plain list, so the first title sits at the top. -->
+		<!-- left: titles. A plain list, so the first title sits at the top. Its panel is 30px in
+		     from the left and bottom of the screen and 30px from the right-hand panels, and
+		     starts below the top bar, level with them. (The panel image's 20px border is
+		     shadow, so 10..600 x 110..1070 shows 30..580 x 130..1050.) -->
 		<control type="group">
 			<include>OpenClose_Left</include>
 			<include content="ContentPanel">
-				<param name="left" value="-40" />
-				<param name="width" value="640" />
+				<param name="left" value="10" />
+				<param name="width" value="590" />
+				<param name="top" value="110" />
+				<param name="height" value="960" />
 			</include>
 			<control type="list" id="100">
-				<left>0</left>
+				<left>30</left>
 				<top>130</top>
-				<width>550</width>
-				<height>880</height>
+				<width>520</width>
+				<height>920</height>
 				<onright>200</onright>
 				<onup>100</onup>
 				<ondown>100</ondown>
@@ -93,16 +98,16 @@
 				<left>568</left>
 				<top>130</top>
 				<width>12</width>
-				<height>880</height>
+				<height>920</height>
 				<onleft>100</onleft>
 				<onright>200</onright>
 				<orientation>vertical</orientation>
 				<animation effect="zoom" end="50,100" time="300" tween="sine" center="568,0" easing="inout" condition="!Control.HasFocus(101)">conditional</animation>
 			</control>
 			<control type="textbox">
-				<left>30</left>
+				<left>60</left>
 				<top>160</top>
-				<width>500</width>
+				<width>470</width>
 				<height>500</height>
 				<font>font13</font>
 				<textcolor>grey</textcolor>
@@ -355,11 +360,12 @@
 			</control>
 		</control>
 
-		<!-- Estuary's top bar (clock, what's playing) with no breadcrumbs: the user didn't want
-		     the "Center Stage / group" heading -->
+		<!-- Estuary's top bar, as in the recordings window: "Center Stage" as the breadcrumbs and
+		     the Stage shown under it (the group property: "All Stages" or the group's name),
+		     plus the clock and what's playing. -->
 		<include content="TopBar">
-			<param name="breadcrumbs_label" value="" />
-			<param name="sublabel" value="" />
+			<param name="breadcrumbs_label" value="$ADDON[script.centerstage 32001]" />
+			<param name="sublabel" value="$INFO[Window.Property(group)]" />
 		</include>
 		<!-- DVR backend disk space used, centred in the top bar, as text only (the user didn't
 		     want a bar). Hidden while something plays, when the top bar shows what's playing
