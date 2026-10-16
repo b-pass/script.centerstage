@@ -120,7 +120,9 @@ def set_home_properties():
     - script.centerstage.panel / panel_dark: the panels' colours, from the panel_opacity setting
       (Estuary's panel tint, and the Default layout's flat colour). On Home because a texture's
       colour is read with no window context, so a property of our own window might not be found.
-    - script.centerstage.order: the sort order of Kodi's recordings list, from episode_order."""
+    - script.centerstage.order: the sort order of Kodi's recordings list, from episode_order.
+    - script.centerstage.stage: the empty stage picture, the layouts' fallback for a missing
+      picture (a layout only finds our own images in its own skin folder's media)."""
     pct = min(100, max(0, setting_int('panel_opacity', 80)))
     alpha = f'{round(pct * 255 / 100):02X}'
     home = xbmcgui.Window(10000)
@@ -128,6 +130,7 @@ def set_home_properties():
     home.setProperty(f'{ADDON_ID}.panel_dark', alpha + '181C22')
     home.setProperty(f'{ADDON_ID}.order',
                      'descending' if setting_int('episode_order', 0) == 1 else 'ascending')
+    home.setProperty(f'{ADDON_ID}.stage', STAGE_ART)
 
 
 def newest_title(group):

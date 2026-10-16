@@ -136,7 +136,10 @@ Layout rules (the numbers are in the XML):
 - Newest stays our own Python rows (they skip hidden series) with our own small menu.
 - The titles list shows no watched status; the user doesn't want icons there.
 - A title's picture is its `thumb`; for PVR series that's the series fanart, not pvr.mythtv's
-  preview image, which is for episodes (as in the recordings window). No picture: `stage.jpg`.
+  preview image, which is for episodes (as in the recordings window). No picture, or one that
+  won't load: `stage.jpg`, as a `fallback` from the `script.centerstage.stage` Home property (a
+  layout only finds our images in its own skin folder's `media`); in Kodi's recordings list,
+  after the preview and the fanart.
 - The background is `Skin.String(centerstage.background)` of the running skin, a persistent
   string so nothing has to run at start-up (the user rejected a Home property). Myth Estuary sets
   it alongside its own background settings; its "Monthly background" clears it and reaches us
