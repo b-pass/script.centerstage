@@ -83,9 +83,9 @@ window.
 
 ### A home menu entry with its Stages
 
-`plugin://script.centerstage/?action=stages` lists the Stages: "All Stages", then each recording
-group, Default first. Each item's `stage` property holds the `RunScript` arguments that open it,
-so a list of them needs only one `onclick`:
+`plugin://script.centerstage/?action=stages` lists the Stages: each recording group, Default
+first, then "All Stages". Each item's `stage` property holds the `RunScript` arguments that open
+it, so a list of them needs only one `onclick`:
 
 ```xml
 <control type="list" id="24100">
