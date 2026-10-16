@@ -140,7 +140,7 @@ instead. `Default/` itself does use `1080i`: that last fallback scans the folder
     `../xbmc/addons/skin.estuary/xml/MyPVRRecordings.xml`:
     - the title's name, with the episode's name (with S01E02) under it
     - opposite them, right-aligned in grey: the episode's `details`, or the title's `origin`
-    - **below** those, the picture on the left in a 480x270 box (16:9 fills it, 4:3 fills its
+    - **below** those, the picture on the left in a 526x296 box (16:9 fills it, 4:3 fills its
       height), with the plot beside it in `font14`. The picture is the title's `thumb` (a
       landscape image when there is one; see `kodiutil.listitem_art()`) or the episode's.
       For a DVR title, `thumb` is its recordings' `fanart` (MythTV's series artwork; newest
@@ -157,9 +157,15 @@ instead. `Default/` itself does use `1080i`: that last fallback scans the folder
       navigating; only the contents swap (`Control.HasFocus(200)`)
     - the panes are 30px apart, and 30px from the screen's left, right and bottom edges (the
       user asked for the same gap all round): the titles panel shows at x 30..580, the
-      right-hand panels from x 610 to 30px short of the right edge, all from y 130 (below the
-      top bar) to 1050. Scrollbars sit flush with their panel's visible edge, and each list
-      (so its focus bar) runs right up to its scrollbar, with no gap.
+      right-hand panels from x 610 to 30px short of the right edge, all from y 114 (about 30px
+      under the heading text) to 1050. The episodes panel is 114..594 (8 rows of 60), the
+      details 624..1050, and the titles list 12 rows of 78 (no part-row at the bottom).
+      Remember a panel image's 20px border is shadow: it must be 40px bigger than what shows
+      (the details panel was once 20px short of the titles panel because of this).
+      Scrollbars sit flush with their panel's visible edge, and each list (so its focus bar)
+      runs right up to its scrollbar, with no gap.
+    - inside the details panel the margins are 20px on every side (text tops a few px higher,
+      for the fonts' leading); the user wanted them symmetrical.
     - the panels' opacity is the `panel_opacity` setting (40-100%, default 80%, below
       Estuary's usual 93%: the user wanted more background to show while staying readable).
       `kodiutil.set_panel_colours()` puts the colours on **Home** as
@@ -173,7 +179,10 @@ instead. `Default/` itself does use `1080i`: that last fallback scans the folder
     - the top bar is like the recordings window's: "Center Stage" as the breadcrumbs and the
       Stage under it as the sublabel (Estuary's `TopBar` with `breadcrumbs_label` and
       `sublabel`; plain labels in Default). The user removed the breadcrumbs once, then
-      wanted them back in this form.
+      wanted them back in this form. The clock's right edge lines up with the right-hand
+      panels: Estuary's `TopBar` is wrapped in a group with `<right>10</right>` (its clock sits
+      20px in from its group), and is drawn before the panels so its shading stays behind
+      them. Default draws its own clock (`System.Time`, `font14`) the same way.
 - Control 100 is the titles list. It is a plain `list`, so the first title is at the top. The user
   rejected a `fixedlist` (the recordings window's choice), because it leaves empty space above
   the first title. Its selected row keeps a dimmed highlight while the episodes have
