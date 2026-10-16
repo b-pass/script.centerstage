@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""The "Center Stage…" context menu entry: add (or remove) whatever it was opened on."""
+"""The "Add to Center Stage" context menu entry: add (or remove) whatever it was opened on."""
 import os
 import sys
 
@@ -60,7 +60,8 @@ def snapshot(li, rpc):
 
 def menu_label(cand, stored_ids):
     e = cand.entry
-    title = e.display_title or e.season_label or '…'
+    title = (classify.season_description(e) if e.kind == SEASON
+             else e.display_title or e.season_label) or '…'
     if e.id in stored_ids:
         return K.tr('remove_named', title)
     if cand.verb == classify.ADD_ITEM:

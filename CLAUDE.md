@@ -10,8 +10,8 @@ left, the selected title's episodes top right, and details bottom right. Titles 
 - the video library: added by the user
 - other add-ons' folders and items: added by the user
 
-Users add titles with the "Center Stage…" context menu entry. The same list is also exposed as a
-plugin folder, for widgets.
+Users add titles with the "Add to Center Stage" context menu entry. The same list is also exposed
+as a plugin folder, for widgets.
 
 The design constraints (no Kodi core changes allowed) and the feasibility analysis are in the
 approved plan: `~/.claude/plans/we-want-to-make-linear-magpie.md`. `../xbmc` is a Kodi master
@@ -42,7 +42,7 @@ The add-on has three entry points, all declared in `addon.xml`. Each one puts `r
     anywhere else activates the Videos window before the plugin runs.
   - `?action=list`: widget listing. `&group=` limits it to one recording group.
   - `?action=open&id=`: opens the window on a title (`&group=` and `&ask=0` too).
-  - `?action=stages`: the recording groups ("Stages" in the skin), "All groups" first, for Myth
+  - `?action=stages`: the recording groups (Stages), "All Stages" first, for Myth
     Estuary's "Center Stage" home menu entry. Each item's `stage` property is the urlencoded
     `RunScript` arguments that open it without asking; the skin's `<onclick>` uses that rather
     than the item's path, so the click doesn't go through `PlayMedia`.
@@ -113,7 +113,8 @@ instead. `Default/` itself does use `1080i`: that last fallback scans the folder
 - `resources/skins/skin.myth-estuary/xml/`: for Myth Estuary, the user's Estuary fork (the skin
   in `../xbmc/addons/skin.estuary`, with id `skin.myth-estuary`). From `<window>` down it is a
   byte-for-byte copy of the Estuary layout; `tests/test_skins.py` enforces this. Edit the Estuary
-  file, then copy it over.
+  file, then copy it over. Myth Estuary is unreleased and may never be released, so keep it out of
+  the README and anything else users read; describe skin hooks generically there.
 - `resources/skins/Default/1080i/`: for every other skin. It reproduces the Estuary layout with
   nothing from the skin. It uses the same positions (fixed 1920x1080, which matches Estuary's
   16:9 space), Estuary's default blue `FF12A0C7` and grey `FFA0A0A0`, and `[B]` where Estuary
@@ -131,14 +132,21 @@ instead. `Default/` itself does use `1080i`: that last fallback scans the folder
     - the title's name, with the episode's name (with S01E02) under it
     - opposite them, right-aligned in grey: the episode's `details`, or the title's `origin`
     - **below** those, the picture on the left in a 480x270 box (16:9 fills it, 4:3 fills its
-      height), with the plot beside it in `font12`, smaller than the lists' `font27`. The picture
-      is the title's `thumb` (a landscape image when there is one; see
-      `kodiutil.listitem_art()`) or the episode's.
+      height), with the plot beside it in `font14`. The picture is the title's `thumb` (a
+      landscape image when there is one; see `kodiutil.listitem_art()`) or the episode's.
+      For a DVR title, `thumb` is its recordings' `fanart` (MythTV's series artwork; newest
+      recording that has one), not the newest recording's `thumb`, which is pvr.mythtv's
+      preview image: the recordings window shows `Art(fanart)` with the left list focused and
+      the preview only on an episode, and users expect the same.
+    - font sizes are the recordings window's, which users compare us with: titles in `font14`,
+      the focused one in `font36_title`; episodes in `font13` with the date in `font12`; the
+      title's name in `font32_title` and the episode's in `font36_title`. (They were smaller,
+      `font27` rows and a `font12` plot, and users said so.)
     - every control is in the same place whichever list has focus, so nothing jumps while
       navigating; only the contents swap (`Control.HasFocus(200)`)
-    - the panes are 30px apart, and the right-hand panels run off the right edge of the screen.
-      Scrollbars sit flush with their panel's visible edge, and the episodes' one is at the
-      screen edge.
+    - the panes are 30px apart, and the right-hand panels stop 30px short of the right edge
+      of the screen (the user asked for the same gap there). The titles panel still runs off
+      the left edge. Scrollbars sit flush with their panel's visible edge.
 - Control 100 is the titles list. It is a plain `list`, so the first title is at the top. The user
   rejected a `fixedlist` (the recordings window's choice), because it leaves empty space above
   the first title. Its selected row keeps a dimmed highlight while the episodes have
@@ -147,9 +155,13 @@ instead. `Default/` itself does use `1080i`: that last fallback scans the folder
 - The details pane is pure XML (`Container(100|200).ListItem.*` switched on `Control.HasFocus(200)`).
 - Window properties used:
   - `loading`, `message`, `empty`
-  - `group`: the recording group shown, empty for all of them (in the breadcrumbs)
-  - `level`: the path of the open folder, e.g. "Season 2 / Extras"
-  - `dvr`: PVR answered, which gates the backend disk-space bar
+  - `dvr`: PVR answered, which gates the disk-space text
+  - `diskspace`: that text, e.g. "62% backend disk space used", empty when unknown
+  - `group` (the recording group shown, empty for all of them) and `level` (the path of the
+    open folder, e.g. "Season 2 / Extras") are still set, for a skin's own layout, but our
+    layouts no longer show them: the user removed the "Center Stage / group" breadcrumbs.
+    Estuary's `TopBar` is still included, with an empty `breadcrumbs_label`, for its clock
+    and what's playing.
 - The skin-facing hooks (RunScript arguments, `?action=stages`, widgets, the background
   string, per-skin layouts) are documented for skin authors in README "Integrating a skin";
   keep it in step. The background is `Skin.String(centerstage.background)` of the running skin:
@@ -161,14 +173,28 @@ instead. `Default/` itself does use `1080i`: that last fallback scans the folder
   the string, and reaches our window only through `ColoredBackgroundImages` in the Myth layout. Every layout draws it at 75% over black when set, below the fanart;
   in the Estuary/Myth layout that covers `ColoredBackgroundImages`, so Myth Estuary's own copy of
   the picture isn't drawn twice over itself.
-- The disk-space bar reads `PVR.BackendDiskSpaceProgr` (255 when not reported). Only reading the
-  `PVR.BackendDiskSpace` label makes Kodi refresh those numbers, so `_refresh` reads it.
-- The Default layout uses only fonts that every skin has (`font12`/`font13`; Kodi falls back to
-  `font13`), plus `uv-white.png`. Its panels, focus bars, scrollbars and progress bar set every
-  texture, so the current skin's defaults don't leak in. Where Estuary shows a watched icon, it
-  shows a dot for unwatched items, at half brightness when partly watched.
+- The disk-space text is shown when `PVR.BackendDiskSpaceProgr` is reported (it's 255 when not);
+  there's no progress bar under it (the user removed it). Only reading the
+  `PVR.BackendDiskSpace` label makes Kodi refresh those numbers. That
+  label is free/total bytes, which users found useless; they want the percentage used, as Myth
+  Estuary shows. `PVR.BackendDiskSpaceProgr` has no label form (`CGUIInfoManager::GetLabel`
+  doesn't fall back to ints, so `$INFO[]` and `getInfoLabel` give nothing), and Myth Estuary's
+  101-step `$VAR[PVRDiskSpacePercent]` isn't in stock Estuary. So `_watch` reads the label when
+  the window opens and then every 15 minutes (`DISK_EVERY`; the user asked for that), and for
+  `DISK_WAIT` seconds after each read bisects the percentage with `Integer.IsGreater` once a
+  second (`kodiutil.disk_used_percent()`) and sets `diskspace`. Kodi's answer comes a little
+  after the label read, which is why it keeps checking for a while.
+- The Default layout uses only common font names (`font12`/`font13`/`font14`; Kodi falls back to
+  `font13` for a name the skin lacks), plus `uv-white.png`. Its panels, focus bars, scrollbars
+  and progress bar set every texture, so the current skin's defaults don't leak in. Where
+  Estuary shows a watched icon, it shows a dot for unwatched items, at half brightness when
+  partly watched.
 
 ## Recording groups
+
+- Users see recording groups as **Stages** ("Stage", "All Stages", "Stage…", "Switch Stage…",
+  "Ask for a Stage when opening"); the user asked for that word everywhere they read. The code,
+  the `group=` arguments and the `group` window property still say group.
 
 - A recording's group is its JSON-RPC `directory` minus the trailing title folder
   (`pvr.group_of()`). pvr.mythtv files recordings as `<recording group>/<title>`, or just
@@ -180,13 +206,13 @@ instead. `Default/` itself does use `1080i`: that last fallback scans the folder
   `pvr._title()` strips so they join their series. Only the episode row keeps the colour:
   titles go through `model.plain()`, and the details pane shows the episode's `name` property
   (its label without tags) instead of `ListItem.Label`.
-- `window.show()` asks for a group (`Dialog.select`: "All groups" plus each group, preselecting
+- `window.show()` asks for a group (`Dialog.select`: "All Stages" plus each group, preselecting
   `last_group`) when there are two or more groups, the `ask_group` setting is on, and nothing was
-  preselected. Back on the titles (or "Switch recording group…") closes the window and asks
+  preselected. Back on the titles (or "Switch Stage…") closes the window and asks
   again. Cancelling the question closes everything.
 - In a group, the window shows only that group's recordings, so a DVR title's episodes are that
   group's only. Stored entries have `Entry.group`: `""` means all groups, otherwise one group
-  name (`catalog.rows(..., group)` filters). "Recording group…" in the title menu changes it.
+  name (`catalog.rows(..., group)` filters). "Stage…" in the title menu changes it.
 
 ## Movies
 
@@ -199,9 +225,40 @@ instead. `Default/` itself does use `1080i`: that last fallback scans the folder
   "hide watched" settings don't apply to it.
 - The "Movies" title can be renamed (stored in `renames` under `movies`, read by
   `kodiutil.movies_title()`), but not removed or given a group. Each movie's own context menu in
-  the episode list has "Recording group…" and "Remove" instead.
+  the episode list has "Stage…" and "Remove" instead.
 - With the setting off, every movie is its own title, as before.
 - DVR recordings of movies aren't detected; they're titles like any other recording.
+
+## Newest
+
+- With the `show_newest` setting on (the default; it needs `include_dvr`), `catalog.rows(...,
+  newest_title)` puts a computed `Entry` (`source=NEWEST`, id `newest`, built by
+  `pvr.newest_entry()`) first, whatever the sort order. Its name is "<group> - Newest"
+  (`kodiutil.newest_title()`, the group label, so "All Stages - Newest"). It isn't renamable,
+  removable or hideable.
+- Its `ref['titles']` maps each shown DVR series' `pvr_key` to its shown name, so hidden series
+  stay out and renames show. `pvr.newest()` lists those recordings newest first (the sort key is
+  the negated start time), each with `Episode.show` set; `kodiutil.episode_label()` puts
+  "Series · " before the row's label. The episode order setting doesn't apply; hide watched does.
+  The window shows the first `pvr.NEWEST_LIMIT` (25) rows, counted after hiding watched ones
+  (`catalog.arrange(..., limit)`), so it stays full.
+- It's rebuilt from the recordings on every `_refresh`, which drops its cached rows.
+
+## Merged titles
+
+- Titles whose names match (`model.name_key()`: no formatting tags, case or extra spaces) are
+  shown as one computed `Entry` (`source=MERGED`, id `merged:<name_key>`, the titles in
+  `members`), made by `catalog.merge()` in `catalog.rows()`. The "Movies" and "Newest" titles
+  never merge. Members are ordered library, add-ons, DVR (`catalog.MERGE_ORDER`), and the merged
+  title takes the first one's name, and the first art and plot it finds.
+- `catalog.merged_rows()` lists every member's top level in turn (sort keys prefixed with the
+  member's index); folder rows' `browse` becomes `{"member": id, "browse": its own}`, so opening
+  one loads that member's folder. A member that fails is skipped unless all of them fail.
+  `window._member_loader()` loads add-on members through the disk cache, as their own rows would.
+- Its title menu has Rename (renames every member, so they stay together), Refresh, and each
+  member's own Hide / "Stage…" / Remove, marked with the member's origin.
+- Selecting by id (`_refresh`, `RunScript` `id=`, widget clicks) also finds the merged row a
+  member id is now in, and a merged title's members after it splits (one is removed).
 
 ## Kodi facts this code relies on (checked in ../xbmc)
 
@@ -240,13 +297,14 @@ Only the unit tests and a stub-based smoke run have been done. Things to check i
 - resume points for add-on items
 - what hoopla and the-chosen report for `TVShowTitle` and `PluginCategory` on season folders
 - all three layouts (only checked as XML; Myth Estuary isn't installed in the Flatpak Kodi), and the
-  disk-space bar
+  disk-space text
 - folder browsing in real add-ons
 - the widget click path (`PlayMedia` → `RunScript`) and whether it shows an error
 - Myth Estuary's "Center Stage" home entry (in that skin's `Home.xml`: the first menu item,
   and the Stages panel, group 24000 with list 24100, modelled on Recordings' 22000/22100;
   icon `media/icons/sidemenu/centerstage.png`, copied from `resources/sidemenu.png`; hidden by
   the `HomeMenuNoCenterStageButton` toggle in Skin settings → Main menu items)
+- the "Newest" title and merged titles
 - the "Movies" title, and the Default group with pvr.mythtv's "Show default recording group as
   root" on
 - Kodi 22

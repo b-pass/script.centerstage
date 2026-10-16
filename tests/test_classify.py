@@ -31,16 +31,17 @@ class AddonSeasonNaming(unittest.TestCase):
     def test_show_title_from_item(self):
         c = candidates(self.season(tvshowtitle='The Office', plugin_category='Whatever'))[0]
         self.assertEqual(c.verb, classify.ADD_SEASON)
-        self.assertEqual(c.entry.display_title, 'The Office - Season 1')
+        self.assertEqual(c.entry.display_title, 'The Office')
         self.assertEqual(c.entry.show_title, 'The Office')
         self.assertEqual(c.entry.season_label, 'Season 1')
+        self.assertEqual(classify.season_description(c.entry), 'The Office - Season 1')  # menus
         self.assertEqual(c.entry.source, ADDON)
         self.assertEqual(c.entry.ref, {'path': SEASON1})
         self.assertFalse(c.needs_show_name)
 
     def test_show_title_from_plugin_category(self):
         c = candidates(self.season(plugin_category='The Office'))[0]
-        self.assertEqual(c.entry.display_title, 'The Office - Season 1')
+        self.assertEqual(c.entry.display_title, 'The Office')
 
     def test_category_that_is_the_addon_name_is_ignored(self):
         c = candidates(self.season(plugin_category='Demo'))[0]
@@ -55,7 +56,7 @@ class AddonSeasonNaming(unittest.TestCase):
         c = candidates(self.season())[0]
         self.assertTrue(c.needs_show_name)
         with_show_name(c, 'The Office')
-        self.assertEqual(c.entry.display_title, 'The Office - Season 1')
+        self.assertEqual(c.entry.display_title, 'The Office')
         self.assertFalse(c.needs_show_name)
 
     def test_parent_offered_as_the_show(self):
@@ -73,7 +74,7 @@ class AddonSeasonNaming(unittest.TestCase):
     def test_season_number_without_a_season_label(self):
         c = candidates(self.season(label='Year one', media_type='season', season=1,
                                    tvshowtitle='The Office'))[0]
-        self.assertEqual(c.entry.display_title, 'The Office - Season 1')
+        self.assertEqual(c.entry.display_title, 'The Office')
 
 
 class AddonOther(unittest.TestCase):
@@ -95,7 +96,7 @@ class AddonOther(unittest.TestCase):
                         plugin_category='Season 1', addon_name='Demo')
         folder, item = candidates(snap)
         self.assertEqual((folder.verb, folder.entry.display_title, folder.entry.ref),
-                         (classify.ADD_SEASON, 'The Office - Season 1', {'path': SEASON1}))
+                         (classify.ADD_SEASON, 'The Office', {'path': SEASON1}))
         self.assertEqual((item.verb, item.entry.kind, item.entry.display_title),
                          (classify.ADD_ITEM, ITEM, 'The Office - S01E01 Pilot'))
 
@@ -128,7 +129,7 @@ class Library(unittest.TestCase):
                         tvshowid=4)
         season, show = candidates(snap)
         self.assertEqual((season.entry.kind, season.entry.ref, season.entry.display_title),
-                         (SEASON, {'tvshowid': 4, 'season': 2}, 'The Office - Season 2'))
+                         (SEASON, {'tvshowid': 4, 'season': 2}, 'The Office'))
         self.assertEqual((show.entry.ref, show.entry.display_title),
                          ({'tvshowid': 4}, 'The Office'))
 

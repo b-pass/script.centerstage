@@ -14,9 +14,10 @@ seasons and movies, and shows or videos from other add-ons.
   shows where it comes from.
 
 DVR recordings appear automatically, one row per recording title. Everything else you add with
-**Center Stage…** in the context menu, which appears on library items, recordings, add-on listings,
-Favourites and home-screen widgets. If you add a season folder from another add-on, it's named
-"Show - Season N". When the add-on doesn't provide the show name, you're asked for it.
+**Add to Center Stage** in the context menu, which appears on library items, recordings, add-on listings,
+Favourites and home-screen widgets. A season you add is named after its show (so it joins any
+other title of that name, such as the show's DVR recordings). When an add-on doesn't provide the
+show name, you're asked for it.
 
 ## Contents
 
@@ -33,48 +34,54 @@ Favourites and home-screen widgets. If you add a season folder from another add-
 ## Using it
 
 - Open it from **Programs** or **Video add-ons**.
-- **Recording groups:** if your DVR files recordings in groups (MythTV recording groups), you're
-  first asked which group to show, or "All groups". When you add something with the context menu,
-  you pick the group it belongs to, or all of them. Recordings outside any group folder (MythTV's
-  "Show default recording group as root") are in the "Default" group.
+- **Stages:** if your DVR files recordings in groups (MythTV recording groups), each group is a
+  Stage. You're first asked which Stage to show, or "All Stages". When you add something with the
+  context menu, you pick the Stage it belongs to, or all of them. Recordings outside any group
+  folder (MythTV's "Show default recording group as root") are in the "Default" Stage.
+- **Newest:** the first title, "<Stage> - Newest" (e.g. "All Stages - Newest"), lists the 25
+  newest DVR recordings you see in the window, newest first, each named with its series. It
+  stays first whatever the sort order. It can be turned off in the settings.
+- **Same names:** titles with the same name (ignoring case) are shown as one, e.g. a DVR series
+  and the same show from an add-on. Its episodes list the library's first, then the add-ons',
+  then the recordings. Renaming it renames them all; its context menu has each one's Remove or
+  Hide, marked with where it comes from.
 - **Movies:** add library movies, or movies from other add-ons, with the context menu, and pick
-  their group like anything else. They're gathered under one "Movies" title (renamable); its
-  context menu on each movie has "Recording group…" and "Remove". Turn off "Group movies under
+  their Stage like anything else. They're gathered under one "Movies" title (renamable); its
+  context menu on each movie has "Stage…" and "Remove". Turn off "Group movies under
   one "Movies" title" in the settings to show each movie as its own title instead.
 - In the window:
   - **Left/right** moves between titles and episodes.
-  - **Back** returns to the titles, then to the group question (or closes the window).
-  - **Context menu** on a title: Rename, Refresh, Remove (or Hide, for a DVR series), "Recording
-    group…" for titles you added, "Show hidden DVR series…" and "Switch recording group…".
+  - **Back** returns to the titles, then to the Stage question (or closes the window).
+  - **Context menu** on a title: Rename, Refresh, Remove (or Hide, for a DVR series), "Stage…"
+    for titles you added, "Show hidden DVR series…" and "Switch Stage…".
 - **Widget:** point a skin widget at `plugin://script.centerstage/?action=list`, or
-  `?action=list&group=Emily` for one recording group. Clicking a title opens the window on it.
+  `?action=list&group=Emily` for one Stage. Clicking a title opens the window on it.
 - **Settings:** title sort order (A-Z or recently added), episode order, hide watched episodes,
-  group movies under "Movies", include DVR recordings, ask for a recording group when opening,
-  and how long add-on listings are cached.
+  group movies under "Movies", include DVR recordings, ask for a Stage when opening,
+  show the "Newest" title, and how long add-on listings are cached.
 
 ## Integrating a skin
 
 Center Stage works with any skin as it is. A skin can go further with the hooks below, all
-optional. Myth Estuary (`skin.myth-estuary`) uses every one of them; its `Home.xml`
-(the menu entry and Stages) and `SkinSettings.xml` (the background) are working examples.
+optional.
 
 ### Opening the window
 
 ```
-RunScript(script.centerstage)                      the window; asks for a recording group first
-RunScript(script.centerstage,group=Default)        straight into one group (a "Stage")
-RunScript(script.centerstage,ask=0)                all groups, without asking
+RunScript(script.centerstage)                      the window; asks for a Stage first
+RunScript(script.centerstage,group=Default)        straight into one Stage (a recording group)
+RunScript(script.centerstage,ask=0)                All Stages, without asking
 RunScript(script.centerstage,id=<entry id>)        on one title
 ```
 
 Arguments are URL-encoded and joined with `&`, e.g. `group=Saved+for+Later&ask=0`. Recordings
-outside any group folder are in the group `Default`, so `group=Default` works on every MythTV
-setup. Opening from a group or a title skips the question, and Back on the titles closes the
+outside any group folder are in the Stage `Default`, so `group=Default` works on every MythTV
+setup. Opening on a Stage or a title skips the question, and Back on the titles closes the
 window.
 
 ### A home menu entry with its Stages
 
-`plugin://script.centerstage/?action=stages` lists the Stages: "All groups", then each recording
+`plugin://script.centerstage/?action=stages` lists the Stages: "All Stages", then each recording
 group, Default first. Each item's `stage` property holds the `RunScript` arguments that open it,
 so a list of them needs only one `onclick`:
 
@@ -93,7 +100,7 @@ in `resources/sidemenu.png` (`tools/art.py` draws it).
 ### Widgets
 
 `plugin://script.centerstage/?action=list` lists the titles, and `&group=<name>` limits them to
-one group. Clicking one opens the window on it. The items have art but no video info tag, so a
+one Stage. Clicking one opens the window on it. The items have art but no video info tag, so a
 click opens the window instead of going through the user's "select action".
 
 ### The background picture
@@ -125,11 +132,7 @@ and draw it in the skin's own background with `$INFO[Skin.String(centerstage.bac
 visible when `!String.IsEmpty(Skin.String(centerstage.background))`.
 
 A skin that already has its own setting keeps it, and sets `centerstage.background` alongside it
-from the same buttons. Myth Estuary has an on/off switch (`use_custom_bg`) and a picture it
-remembers while it's off (`custom_background`). It copies the picture into the string when the
-switch is turned on or the picture changes, and resets the string when the switch is turned off.
-All of an `onclick`'s conditions are checked before any of its actions run, so they see the
-switch as it was:
+from the same buttons.  For example:
 
 ```xml
 <control type="radiobutton">
@@ -149,10 +152,8 @@ switch as it was:
 
 The quotes keep a path with commas in one piece.
 
-A background that changes by itself can't be stored as one path. Myth Estuary's "Monthly
-background", for example, picks a picture by date. For those, leave the string empty and draw
-the background in a layout of your own (below). Myth Estuary's layout uses the skin's own
-`ColoredBackgroundImages` include, so it shows the monthly picture too.
+
+Or leave the string empty and draw the background in a layout of your own (below).
 
 ### A layout of your own
 
