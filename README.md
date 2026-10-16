@@ -51,13 +51,9 @@ show name, you're asked for it.
   - **Back** returns to the titles, then to the Stage question (or closes the window).
   - **Context menu** on a title: Rename, Refresh, Remove (or Hide, for a PVR series), "Stage…"
     for titles you added, "Show hidden PVR series…", "Switch Stage…" and "Settings…".
-  - A PVR series' episodes are Kodi's own recordings list, so the **context menu** on one is
-    Kodi's (Delete, Edit, Information…), and **Clear** opens it too. Selecting one plays,
-    resumes or shows information as Kodi's own "select action" setting says.
 - **Widget:** point a skin widget at `plugin://script.centerstage/?action=list`, or
   `?action=list&group=Emily` for one Stage. Clicking a title opens the window on it.
-- **Settings:** title sort order (A-Z or recently added), episode order, hide watched episodes
-  (not in PVR series, whose lists always show every recording),
+- **Settings:** title sort order (A-Z or recently added), episode order, hide watched episodes,
   group movies under "Movies", include PVR recordings, ask for a Stage when opening,
   show the "Newest" title, how see-through the panels are, and how long add-on listings are
   cached.

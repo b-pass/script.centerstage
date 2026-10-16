@@ -23,21 +23,16 @@ import catalog
 import kodiutil as K
 from cache import EpisodeCache
 from jsonrpc import RpcError
-from model import ADDON, MOVIES, NEWEST, NEWEST_ID, PVR, format_time, parent_row, pvr_key
+from model import ADDON, MOVIES, NEWEST, PVR, format_time, parent_row, pvr_key
 from sources import addon, pvr
 from store import Store
 
 TITLES = 100
-EPISODES = 200     # our own list (library, add-ons, Newest, Movies)
-RECORDINGS = 210   # Kodi's own list of a PVR series' recordings (see _load)
+EPISODES = 200
 
 ACTION_PREVIOUS_MENU = 10
 ACTION_NAV_BACK = 92
 ACTION_CONTEXT_MENU = 117
-# Clear and Delete have no action in add-on windows (Kodi's keymaps map them per window), so
-# they arrive as action 0 with these button codes: XINPUT_IR_REMOTE_CLEAR (IR and CEC remotes)
-# and KEY_VKEY | XBMCVK_DELETE (keyboard)
-DELETE_BUTTONS = (249, 0xF087)
 
 POLL = 0.03     # seconds between checks of the left list's selection
 SETTLE = 0.1    # how long the selection must stay put before rows that need loading load
@@ -109,7 +104,6 @@ class MainWindow(xbmcgui.WindowXML):
                             self.group, K.movies_title(self.store), K.newest_title(self.group))
         with self.lock:
             self.rows = rows
-            self.mem.pop(NEWEST_ID, None)  # made from the recordings and series just read
             pos = next((n for n, e in enumerate(rows) if e.id == select), None)
             if pos is None:  # gone (e.g. its last recording was deleted): stay at the same place
                 pos = min(max(was_at, 0), len(rows) - 1) if keep else 0
@@ -133,7 +127,7 @@ class MainWindow(xbmcgui.WindowXML):
                 self._select(pos)
             else:
                 self.current = rows[pos]  # same entry, possibly renamed
-        if self.getFocusId() not in (TITLES, EPISODES, RECORDINGS):
+        if self.getFocusId() not in (TITLES, EPISODES):
             self.setFocusId(TITLES)
 
     def _watch(self):
@@ -168,11 +162,11 @@ class MainWindow(xbmcgui.WindowXML):
                     self._select(pos)
 
     def _at_hand(self, entry):
-        """Whether entry's rows show without loading: PVR series (Kodi's list) and rows kept
-        from earlier in this session."""
+        """Whether entry's rows show without loading: PVR series and Newest (made from the
+        recordings already read) and rows kept from earlier in this session."""
         stack = self.stacks.get(entry.id)
         browse = stack[-1][0] if stack else None
-        return entry.source == PVR or level_key(entry.id, browse) in self.mem
+        return entry.source in (PVR, NEWEST) or level_key(entry.id, browse) in self.mem
 
     # the top-right list
 
@@ -189,14 +183,12 @@ class MainWindow(xbmcgui.WindowXML):
         self.gen += 1
         gen = self.gen
         self.setProperty('level', ' / '.join(label for _, label in stack))
-        if entry.source == PVR:
-            # Kodi's own list shows it, filled straight from the selected title's folder property
-            # by the layouts (as a skin's onfocus would): only items Kodi lists get its recording
-            # menu (Delete, …), and add-ons can't delete recordings any other way
-            self._clear_episodes()
-            return
         if entry.source == ADDON and entry.is_single:
             self._show(gen, entry, addon.rows(None, entry, self.major))
+            return
+        if entry.source in (PVR, NEWEST):
+            # made from the recordings already read, so shown at once
+            self._show(gen, entry, catalog.load_rows(self.rpc, entry, self.major, self.recs))
             return
         if not force:
             rows, stale = self.mem.get(key), False
@@ -215,8 +207,7 @@ class MainWindow(xbmcgui.WindowXML):
 
     def _fetch(self, gen, entry, browse, key, quiet, reselect):
         try:
-            recs = self.recs if entry.source == NEWEST else None
-            rows = catalog.load_rows(self.rpc, entry, self.major, recs, browse,
+            rows = catalog.load_rows(self.rpc, entry, self.major, None, browse,
                                      K.tr('season_watched'))
         except Exception as e:  # an add-on can fail in any way; never take the window down
             K.log(f'loading {key} failed: {e}', xbmc.LOGWARNING)
@@ -294,9 +285,7 @@ class MainWindow(xbmcgui.WindowXML):
                 pos = self.titles.getSelectedPosition()
                 if 0 <= pos < len(self.rows) and self.rows[pos].id != self.shown_id:
                     self._select(pos)
-            if self.current and self.current.source == PVR:
-                self.setFocusId(RECORDINGS)
-            elif self.list.size():
+            if self.list.size():
                 self.setFocusId(EPISODES)
         elif control_id == EPISODES:
             pos = self.list.getSelectedPosition()
@@ -312,26 +301,20 @@ class MainWindow(xbmcgui.WindowXML):
 
     def onAction(self, action):
         aid = action.getId()
-        focus = self.getFocusId()
-        if aid == ACTION_NAV_BACK and focus == EPISODES:
+        if aid == ACTION_NAV_BACK and self.getFocusId() == EPISODES:
             if self._stack():
                 self._up()
             else:
                 self.setFocusId(TITLES)
-        elif aid == ACTION_NAV_BACK and focus == RECORDINGS:
-            self.setFocusId(TITLES)
         elif aid == ACTION_NAV_BACK and self.groups_asked:
             self._switch_group()
         elif aid in (ACTION_PREVIOUS_MENU, ACTION_NAV_BACK):
             self._close()
         elif aid == ACTION_CONTEXT_MENU:
-            # on RECORDINGS, Kodi has already shown its own menu
-            if focus == EPISODES:
+            if self.getFocusId() == EPISODES:
                 self._episode_menu()
-            elif focus == TITLES:
+            elif self.getFocusId() == TITLES:
                 self._title_menu()
-        elif aid == 0 and action.getButtonCode() in DELETE_BUTTONS and focus == RECORDINGS:
-            xbmc.executebuiltin('Action(ContextMenu)')  # Kodi's menu, where Delete is
         else:
             # navigation (including left from the episodes, which the skin sends to the titles)
             self.wake.set()

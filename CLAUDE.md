@@ -100,8 +100,7 @@ directories). `Default/` itself uses `1080i`.
 Layout rules (the numbers are in the XML):
 - Modelled on Myth Estuary's recordings window (`../xbmc/addons/skin.estuary/xml/
   MyPVRRecordings.xml`), including its font sizes; users compare the two.
-- Every control stays put whichever list has focus; only contents swap (`Control.HasFocus(200)`
-  and `(210)`).
+- Every control stays put whichever list has focus; only contents swap (`Control.HasFocus(200)`).
   The details pane is pure XML.
 - Panels are 30px apart and 30px from the screen edges, all ending on the same line; lists are a
   whole number of rows; lists run up to their scrollbars; the details panel has equal inner
@@ -109,40 +108,30 @@ Layout rules (the numbers are in the XML):
 - Top bar: "Center Stage" over the Stage (`group` property), as `TopBar`'s breadcrumbs and
   sublabel. Its clock ends where the right panels do (`TopBar` sits in a group 10px narrower).
 - Panel opacity is the `panel_opacity` setting. The colours are Home properties
-  (`kodiutil.set_home_properties()`, with the recordings sort order) because a texture's
-  `colordiffuse` is evaluated with no window context, so our own window's property isn't
-  reliably found.
+  (`kodiutil.set_home_properties()`) because a texture's `colordiffuse` is evaluated with no
+  window context, so our own window's property isn't reliably found.
 - Control 100 (titles) is a plain `list`, not a `fixedlist` (the user rejected the gap above the
-  first title); its selected row stays dimly highlighted while 200 or 210 (episodes) has focus.
-  101, 201 and 211 are mouse/touch-only scrollbars. In the episodes lists the selected row
-  looks like the others while the list isn't focused (its icon and date switch on
+  first title); its selected row stays dimly highlighted while 200 (episodes) has focus.
+  101 and 201 are mouse/touch-only scrollbars. In the episodes list the selected row looks
+  like the others while the list isn't focused (its icon and date switch on
   `Control.HasFocus`).
-- **A PVR series' episodes are Kodi's own list (control 210, `<content>` of the series'
-  `pvr://` folder, `pvr.folder_of()`), not Python rows.** Kodi's recording menu (Delete, Edit,
-  …) only exists for items Kodi lists, and add-ons can't delete recordings any other way. Don't
-  replace it with Python rows, and don't fake the menu (an invisible dialog doing that was built
-  and removed). The user accepted the costs: "hide watched" doesn't apply there, a click follows
-  Kodi's video select action, in All Stages a series shows only the Stage of its newest
-  recording, and rows/details are built in XML from Kodi's fields (`EpisodeName`, `Season`,
-  `Episode`, `Date`, …), since Kodi labels a recording with the show's title. Every layout has
-  both lists; Newest, Movies, library and add-on titles use 200.
+- **A PVR series' episodes are our own rows in 200, like every other title's.** Kodi's own list
+  (a `<content>` list of the series' `pvr://` folder) was built and removed: it lost "hide
+  watched", our play and resume handling (a click followed Kodi's select action) and some
+  recordings in All Stages, and it needed a second list in every layout plus a polling watcher
+  to notice deletes. Don't bring it back.
 - **Switching must be as quick as Myth Estuary's** (whose title rows `Container.Update` the
-  episodes `onfocus`). So 210's `<content>` and the 200/210 switch read the selected title's
-  `folder` property (`Container(100).ListItem.Property(folder)`, set in `entry_listitem`) and
-  change the moment the selection moves, with no Python in between. `_watch` also switches at
-  once to rows it already has (`_at_hand`); only rows that need loading wait for `SETTLE`.
-- No flicker while moving through titles: "Loading…" appears only after 250 ms, and 210 is
-  hidden while Kodi fetches (it would show the previous series' rows) unless it has focus
-  (`allowhiddenfocus`, so focus can still move there). No fade-ins: they make switching feel
-  slow.
-- Newest stays our own Python rows (they skip hidden series) with our own small menu.
+  episodes `onfocus`). PVR series and Newest are made from the recordings already read, with no
+  thread, and rows kept from earlier in the session also show at once (`_at_hand`); only rows
+  that need loading wait for `SETTLE`.
+- No flicker while moving through titles: "Loading…" appears only after 250 ms. No fade-ins:
+  they make switching feel slow.
 - The titles list shows no watched status; the user doesn't want icons there.
 - A title's picture is its `thumb`; for PVR series that's the series fanart, not pvr.mythtv's
   preview image, which is for episodes (as in the recordings window). No picture, or one that
   won't load: `stage.jpg` (a muted grey stage with a question mark, so it doesn't pass for a
   show's artwork), as a `fallback` from the `script.centerstage.stage` Home property (a
-  layout only finds our images in its own skin folder's `media`); in Kodi's recordings list,
-  after the preview and the fanart.
+  layout only finds our images in its own skin folder's `media`).
 - The background is `Skin.String(centerstage.background)` of the running skin, a persistent
   string so nothing has to run at start-up (the user rejected a Home property). Myth Estuary sets
   it alongside its own background settings; its "Monthly background" clears it and reaches us
@@ -219,8 +208,5 @@ Only unit tests and stub-based smoke runs so far. To check in a real Kodi:
 - the widget click path (`PlayMedia` → `RunScript`)
 - Myth Estuary's "Center Stage" home entry and Stages panel (its `Home.xml`, group 24000/list
   24100; icon copied from `resources/sidemenu.png`; hidden by `HomeMenuNoCenterStageButton`)
-- Kodi's recordings list (210): that the folder lists the series, its context menu (Delete)
-  and refresh after a delete, Clear reaching the window, the sort order, the XML-built rows and
-  details, focus moving between the lists
 - the Movies and Newest titles; the Default group with "Show default recording group as
   root" on; panel opacity; Kodi 22
