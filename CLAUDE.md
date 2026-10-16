@@ -146,7 +146,9 @@ instead. `Default/` itself does use `1080i`: that last fallback scans the folder
       For a DVR title, `thumb` is its recordings' `fanart` (MythTV's series artwork; newest
       recording that has one), not the newest recording's `thumb`, which is pvr.mythtv's
       preview image: the recordings window shows `Art(fanart)` with the left list focused and
-      the preview only on an episode, and users expect the same.
+      the preview only on an episode, and users expect the same. A title with no picture at
+      all gets `resources/stage.jpg` (`kodiutil.title_art()`, also used for widget items): the
+      add-on's curtains and spotlight without the play button, drawn by `tools/art.py`.
     - font sizes are the recordings window's, which users compare us with: titles in `font14`,
       the focused one in `font36_title`; episodes in `font13` with the date in `font12`; the
       title's name in `font32_title` and the episode's in `font36_title`. (They were smaller,

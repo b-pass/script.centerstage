@@ -1,5 +1,6 @@
 """Draws resources/icon.png and resources/fanart.jpg: a play button in a spotlight, between stage
-curtains. Also resources/sidemenu.png, the same picture as a white silhouette in the style of
+curtains. Also resources/stage.jpg, the empty stage (no play button) that stands in for titles
+with no picture of their own, and resources/sidemenu.png, the same picture as a white silhouette in the style of
 Estuary's home menu icons (copied into Myth Estuary as media/icons/sidemenu/centerstage.png).
 
 Usage: python3 tools/art.py (needs Pillow)
@@ -29,7 +30,7 @@ def bezier(p0, p1, p2, p3, n=60):
     return out
 
 
-def draw(width, height, curtain_scale=1.0):
+def draw(width, height, curtain_scale=1.0, play=True):
     """The picture is laid out 512 units tall, and `width` / `height` * 512 units wide."""
     k = height * S / 512
     w = 512 * width / height    # the width in units
@@ -88,9 +89,10 @@ def draw(width, height, curtain_scale=1.0):
         x0 = i * w / n
         d.pieslice([p(x0, 14), p(x0 + w / n, 66)], 0, 180, fill=BLUE_DARK)
 
-    # the play button, centre stage
-    cy, r = 300, 76
-    d.polygon([p(c - r * 0.55, cy - r), p(c - r * 0.55, cy + r), p(c + r, cy)], fill=WHITE)
+    if play:
+        # the play button, centre stage
+        cy, r = 300, 76
+        d.polygon([p(c - r * 0.55, cy - r), p(c - r * 0.55, cy + r), p(c + r, cy)], fill=WHITE)
 
     return img.resize((width, height), Image.LANCZOS)
 
@@ -130,3 +132,5 @@ if __name__ == '__main__':
     draw(512, 512).save(os.path.join(RESOURCES, 'icon.png'), optimize=True)
     draw(1920, 1080, curtain_scale=1.5).save(os.path.join(RESOURCES, 'fanart.jpg'),
                                               quality=90, optimize=True)
+    draw(960, 540, curtain_scale=1.5, play=False).save(os.path.join(RESOURCES, 'stage.jpg'),
+                                                       quality=90, optimize=True)

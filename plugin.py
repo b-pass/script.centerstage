@@ -68,7 +68,7 @@ def title_item(entry, group):
     # Label and art only: an item with a video info tag would go through the user's "select
     # action" (e.g. show information) when clicked in a widget instead of opening our window.
     li = xbmcgui.ListItem(plain(entry.display_title), offscreen=True)
-    li.setArt(K.listitem_art(entry.art))
+    li.setArt(K.title_art(entry))
     li.setProperty('IsPlayable', 'false')
     return url(action='open', id=entry.id, **group_params(group)), li, False
 
