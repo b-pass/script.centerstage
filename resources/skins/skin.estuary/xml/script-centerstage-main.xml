@@ -184,13 +184,22 @@
 							<texture colordiffuse="button_focus">lists/focus.png</texture>
 							<visible>Control.HasFocus(200)</visible>
 						</control>
+						<!-- the selected row looks like the others while the list isn't focused -->
 						<control type="image">
 							<left>16</left>
 							<centertop>50%</centertop>
 							<width>32</width>
 							<height>32</height>
 							<texture>$VAR[ListWatchedIconVar]</texture>
-							<visible>!String.IsEqual(ListItem.Property(parent),true)</visible>
+							<visible>!String.IsEqual(ListItem.Property(parent),true) + Control.HasFocus(200)</visible>
+						</control>
+						<control type="image">
+							<left>16</left>
+							<centertop>50%</centertop>
+							<width>32</width>
+							<height>32</height>
+							<texture colordiffuse="button_focus">$VAR[ListWatchedIconVar]</texture>
+							<visible>!String.IsEqual(ListItem.Property(parent),true) + !Control.HasFocus(200)</visible>
 						</control>
 						<control type="label">
 							<left>64</left>
@@ -213,6 +222,20 @@
 							<font>font12</font>
 							<label>$INFO[ListItem.Label2]</label>
 							<shadowcolor>text_shadow</shadowcolor>
+							<visible>Control.HasFocus(200)</visible>
+						</control>
+						<control type="label">
+							<width>280</width>
+							<right>20</right>
+							<top>0</top>
+							<bottom>0</bottom>
+							<align>right</align>
+							<aligny>center</aligny>
+							<font>font12</font>
+							<textcolor>grey</textcolor>
+							<label>$INFO[ListItem.Label2]</label>
+							<shadowcolor>text_shadow</shadowcolor>
+							<visible>!Control.HasFocus(200)</visible>
 						</control>
 					</focusedlayout>
 					<itemlayout height="60">
@@ -290,12 +313,22 @@
 							<texture colordiffuse="button_focus">lists/focus.png</texture>
 							<visible>Control.HasFocus(210)</visible>
 						</control>
+						<!-- the selected row looks like the others while the list isn't focused -->
 						<control type="image">
 							<left>16</left>
 							<centertop>50%</centertop>
 							<width>32</width>
 							<height>32</height>
 							<texture>$VAR[ListWatchedIconVar]</texture>
+							<visible>Control.HasFocus(210)</visible>
+						</control>
+						<control type="image">
+							<left>16</left>
+							<centertop>50%</centertop>
+							<width>32</width>
+							<height>32</height>
+							<texture colordiffuse="button_focus">$VAR[ListWatchedIconVar]</texture>
+							<visible>!Control.HasFocus(210)</visible>
 						</control>
 						<control type="label">
 							<left>64</left>
@@ -343,6 +376,20 @@
 							<font>font12</font>
 							<label>$INFO[ListItem.Date]</label>
 							<shadowcolor>text_shadow</shadowcolor>
+							<visible>Control.HasFocus(210)</visible>
+						</control>
+						<control type="label">
+							<width>280</width>
+							<right>20</right>
+							<top>0</top>
+							<bottom>0</bottom>
+							<align>right</align>
+							<aligny>center</aligny>
+							<font>font12</font>
+							<textcolor>grey</textcolor>
+							<label>$INFO[ListItem.Date]</label>
+							<shadowcolor>text_shadow</shadowcolor>
+							<visible>!Control.HasFocus(210)</visible>
 						</control>
 					</focusedlayout>
 					<itemlayout height="60">

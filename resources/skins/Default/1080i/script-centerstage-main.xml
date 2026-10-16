@@ -121,10 +121,17 @@
 				</control>
 				<!-- where Estuary has its watched icon: a dot for unwatched, half-bright when
 				     partly watched -->
+				<!-- the selected row looks like the others while the list isn't focused -->
 				<control type="image">
 					<left>26</left><top>24</top><width>12</width><height>12</height>
 					<texture colordiffuse="FFFFFFFF">uv-white.png</texture>
-					<visible>!ListItem.IsFolder + !String.IsEqual(ListItem.Property(watched),true)</visible>
+					<visible>!ListItem.IsFolder + !String.IsEqual(ListItem.Property(watched),true) + Control.HasFocus(200)</visible>
+					<animation effect="fade" start="100" end="50" time="0" condition="ListItem.IsResumable">Conditional</animation>
+				</control>
+				<control type="image">
+					<left>26</left><top>24</top><width>12</width><height>12</height>
+					<texture colordiffuse="FF12A0C7">uv-white.png</texture>
+					<visible>!ListItem.IsFolder + !String.IsEqual(ListItem.Property(watched),true) + !Control.HasFocus(200)</visible>
 					<animation effect="fade" start="100" end="50" time="0" condition="ListItem.IsResumable">Conditional</animation>
 				</control>
 				<control type="label">
@@ -140,6 +147,16 @@
 					<align>right</align>
 					<aligny>center</aligny>
 					<label>$INFO[ListItem.Label2]</label>
+					<visible>Control.HasFocus(200)</visible>
+				</control>
+				<control type="label">
+					<left>968</left><top>0</top><width>280</width><height>60</height>
+					<font>font12</font>
+					<align>right</align>
+					<aligny>center</aligny>
+					<textcolor>FFA0A0A0</textcolor>
+					<label>$INFO[ListItem.Label2]</label>
+					<visible>!Control.HasFocus(200)</visible>
 				</control>
 			</focusedlayout>
 			<itemlayout height="60" width="1268">
@@ -202,10 +219,17 @@
 					<texture colordiffuse="FF12A0C7">uv-white.png</texture>
 					<visible>Control.HasFocus(210)</visible>
 				</control>
+				<!-- the selected row looks like the others while the list isn't focused -->
 				<control type="image">
 					<left>26</left><top>24</top><width>12</width><height>12</height>
 					<texture colordiffuse="FFFFFFFF">uv-white.png</texture>
-					<visible>!Integer.IsGreater(ListItem.PlayCount,0)</visible>
+					<visible>!Integer.IsGreater(ListItem.PlayCount,0) + Control.HasFocus(210)</visible>
+					<animation effect="fade" start="100" end="50" time="0" condition="ListItem.IsResumable">Conditional</animation>
+				</control>
+				<control type="image">
+					<left>26</left><top>24</top><width>12</width><height>12</height>
+					<texture colordiffuse="FF12A0C7">uv-white.png</texture>
+					<visible>!Integer.IsGreater(ListItem.PlayCount,0) + !Control.HasFocus(210)</visible>
 					<animation effect="fade" start="100" end="50" time="0" condition="ListItem.IsResumable">Conditional</animation>
 				</control>
 				<control type="label">
@@ -238,6 +262,16 @@
 					<align>right</align>
 					<aligny>center</aligny>
 					<label>$INFO[ListItem.Date]</label>
+					<visible>Control.HasFocus(210)</visible>
+				</control>
+				<control type="label">
+					<left>968</left><top>0</top><width>280</width><height>60</height>
+					<font>font12</font>
+					<align>right</align>
+					<aligny>center</aligny>
+					<textcolor>FFA0A0A0</textcolor>
+					<label>$INFO[ListItem.Date]</label>
+					<visible>!Control.HasFocus(210)</visible>
 				</control>
 			</focusedlayout>
 			<itemlayout height="60" width="1268">
