@@ -127,6 +127,11 @@ Layout rules (the numbers are in the XML):
   hidden while Kodi fetches (it would show the previous series' rows) unless it has focus
   (`allowhiddenfocus`, so focus can still move there). No fade-ins: they make switching feel
   slow.
+- Kodi tells add-ons nothing when recordings change (no PVR announcement), so `_watch` also
+  reads Kodi's list (`_recordings_shown`: the selected series' folder and 210's count, once it's
+  done filling and two reads agree) and refreshes the titles when the count changes for the same
+  series: a delete from Kodi's menu, or a recording finishing. The user chose this over
+  refreshing after the menu closes.
 - Newest stays our own Python rows (they skip hidden series) with our own small menu.
 - The titles list shows no watched status; the user doesn't want icons there.
 - A title's picture is its `thumb`; for DVR series that's the series fanart, not pvr.mythtv's
