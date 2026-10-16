@@ -23,8 +23,7 @@ import catalog
 import kodiutil as K
 from cache import EpisodeCache
 from jsonrpc import RpcError
-from model import (ADDON, MERGED, MOVIES, NEWEST, NEWEST_ID, PVR, format_time, parent_row,
-                   plain, pvr_key)
+from model import ADDON, MOVIES, NEWEST, NEWEST_ID, PVR, format_time, parent_row, pvr_key
 from sources import addon, pvr
 from store import Store
 
@@ -94,9 +93,6 @@ class MainWindow(xbmcgui.WindowXML):
     def _refresh(self, keep=False, select=None, reload_current=False):
         if keep and select is None:
             select = self.shown_id
-        # the title to land on: select, or the row it was merged into or split out of
-        wanted = [select] + ([m.id for m in self.current.members]
-                             if keep and self.current and self.current.source == MERGED else [])
         stored = self.store.entries()
         pvr_rows = []
         self.recs = []
@@ -115,8 +111,7 @@ class MainWindow(xbmcgui.WindowXML):
         with self.lock:
             self.rows = rows
             self.mem.pop(NEWEST_ID, None)  # made from the recordings and series just read
-            pos = next((n for want in wanted for n, e in enumerate(rows)
-                        if want and (e.id == want or any(m.id == want for m in e.members))), 0)
+            pos = next((n for n, e in enumerate(rows) if e.id == select), 0)
             self.titles.reset()
             self.titles.addItems([K.entry_listitem(e) for e in rows])
             self.setProperty('empty', '' if rows else 'true')
@@ -200,18 +195,14 @@ class MainWindow(xbmcgui.WindowXML):
                 quiet = True
         if not quiet:
             self._clear_episodes(loading=True, parent=bool(stack))
-        threading.Thread(target=self._fetch,
-                         args=(gen, entry, browse, key, quiet, reselect, force),
+        threading.Thread(target=self._fetch, args=(gen, entry, browse, key, quiet, reselect),
                          daemon=True).start()
 
-    def _fetch(self, gen, entry, browse, key, quiet, reselect, force=False):
+    def _fetch(self, gen, entry, browse, key, quiet, reselect):
         try:
-            if entry.source == MERGED:
-                rows = catalog.merged_rows(entry, browse, self._member_loader(force))
-            else:
-                recs = self.recs if entry.source in (PVR, NEWEST) else None
-                rows = catalog.load_rows(self.rpc, entry, self.major, recs, browse,
-                                         K.tr('season_watched'))
+            recs = self.recs if entry.source in (PVR, NEWEST) else None
+            rows = catalog.load_rows(self.rpc, entry, self.major, recs, browse,
+                                     K.tr('season_watched'))
         except Exception as e:  # an add-on can fail in any way; never take the window down
             K.log(f'loading {key} failed: {e}', xbmc.LOGWARNING)
             with self.lock:
@@ -228,27 +219,6 @@ class MainWindow(xbmcgui.WindowXML):
                     K.log(f'caching {key} failed: {e}', xbmc.LOGWARNING)
             if not self.closing.is_set():
                 self._show(gen, entry, rows, keep_position=quiet, reselect=reselect)
-
-    def _member_loader(self, force):
-        """Loads one member of a merged title, through the disk cache for add-ons as their own
-        rows do. force skips the cache where a fresh listing has more to say (watched state,
-        which add-on listings carry on Kodi 22 only)."""
-        def load(member, browse):
-            if member.source != ADDON or member.is_single:
-                return catalog.load_rows(self.rpc, member, self.major, self.recs, browse,
-                                         K.tr('season_watched'))
-            key = level_key(member.id, browse)
-            if not (force and self.major >= 22):
-                rows, age = self.cache.get(key)
-                if rows is not None and age <= 60 * K.setting_int('cache_minutes', 60):
-                    return rows
-            rows = catalog.load_rows(self.rpc, member, self.major, None, browse)
-            try:
-                self.cache.put(key, rows)
-            except OSError as e:
-                K.log(f'caching {key} failed: {e}', xbmc.LOGWARNING)
-            return rows
-        return load
 
     def _show(self, gen, entry, rows, keep_position=False, reselect=None):
         with self.lock:
@@ -439,14 +409,12 @@ class MainWindow(xbmcgui.WindowXML):
         if entry.source != NEWEST:  # named after the group: nothing to rename, hide or remove
             actions.append((K.tr('rename'), lambda: self._rename(entry)))
         actions.append((K.tr('refresh'), self._refresh_current))
-        if entry.source == MERGED:
-            # each member's own actions, marked with where it comes from
-            for member in entry.members:
-                where = plain(K.origin_label(member).split('[CR]')[0])
-                actions += [(f'{label} ({where})', act)
-                            for label, act in self._member_actions(member)]
-        else:
-            actions += self._member_actions(entry)
+        if entry.source == PVR:
+            actions.append((K.tr('hide_pvr'), lambda: self._hide(entry)))
+        elif entry.source not in (MOVIES, NEWEST):  # movies are removed from their own rows' menu
+            if self.groups_asked or entry.group:
+                actions.append((K.tr('set_group'), lambda: self._set_group(entry)))
+            actions.append((K.tr('remove'), lambda: self._remove(entry)))
         if self.store.hidden_pvr():
             actions.append((K.tr('show_hidden'), self._unhide))
         if self.groups_asked:
@@ -454,18 +422,6 @@ class MainWindow(xbmcgui.WindowXML):
         actions.append((K.tr('settings'), self._settings))
         actions.append((K.tr('check_updates'), self._check_updates))
         self._menu(actions)
-
-    def _member_actions(self, entry):
-        """Hide, or "Stage…" and Remove: what can be done to one title."""
-        if entry.source == PVR:
-            return [(K.tr('hide_pvr'), lambda: self._hide(entry))]
-        if entry.source in (MOVIES, NEWEST):  # movies are removed from their own rows' menu
-            return []
-        actions = []
-        if self.groups_asked or entry.group:
-            actions.append((K.tr('set_group'), lambda: self._set_group(entry)))
-        actions.append((K.tr('remove'), lambda: self._remove(entry)))
-        return actions
 
     @staticmethod
     def _menu(actions):
@@ -481,21 +437,15 @@ class MainWindow(xbmcgui.WindowXML):
             key = level_key(self.current.id, stack[-1][0] if stack else None)
             self.mem.pop(key, None)
             self.cache.drop(key)
-            for member in self.current.members if self.current.source == MERGED else []:
-                inner = stack[-1][0] if stack else None
-                if inner is None or inner['member'] == member.id:
-                    self.cache.drop(level_key(member.id, inner and inner['browse']))
-            if self.current.source in (PVR, NEWEST, MERGED):
+            if self.current.source in (PVR, NEWEST):
                 self._refresh(keep=True, reload_current=True)
             else:
                 self._load(force=True)
 
     def _rename(self, entry):
-        """A merged title renames all its members, so they stay together."""
         title = xbmcgui.Dialog().input(K.tr('rename'), entry.display_title)
         if title and title.strip() and title.strip() != entry.display_title:
-            for member in entry.members if entry.source == MERGED else [entry]:
-                self.store.rename(member.id, title.strip())
+            self.store.rename(entry.id, title.strip())
             self._refresh(keep=True)
 
     def _remove(self, entry):

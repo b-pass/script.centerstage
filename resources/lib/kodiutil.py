@@ -10,7 +10,7 @@ import xbmcgui
 import xbmcvfs
 
 from jsonrpc import Rpc, RpcError
-from model import (LIBRARY, MERGED, MOVIES, MOVIES_ID, NEWEST, PVR, details_code, episode_code,
+from model import (LIBRARY, MOVIES, MOVIES_ID, NEWEST, PVR, details_code, episode_code,
                    format_time, parse_date, plain)
 from sources import pvr
 
@@ -165,8 +165,6 @@ def origin_label(entry):
     if entry.source == MOVIES:
         n = len(entry.members)
         return tr('one_movie') if n == 1 else tr('n_movies', n)
-    if entry.source == MERGED:
-        return '[CR]'.join(origin_label(m) for m in entry.members)
     if entry.source == NEWEST:
         return tr('dvr') + '[CR]' + (tr('one_recording') if entry.count == 1
                                      else tr('recordings', entry.count))

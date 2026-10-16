@@ -12,7 +12,6 @@ MOVIES = 'movies'  # the "Movies" title: the stored movies, gathered into one ro
 MOVIES_ID = 'movies'
 NEWEST = 'newest'  # the "<group> - Newest" title: the shown recordings, newest first (never stored)
 NEWEST_ID = 'newest'
-MERGED = 'merged'  # titles with the same name, shown as one row (never stored)
 
 # what an entry is
 SHOW = 'show'      # a whole series
@@ -48,8 +47,7 @@ class Entry:
     auto: bool = False        # computed on the fly (DVR series), never stored
     count: int = 0            # number of recordings, for DVR series; never stored
     watched: int = -1         # how many of those are watched; -1 when not known; never stored
-    members: list = field(default_factory=list)  # the "Movies" title's movies, or a merged
-                                                 # title's entries; never stored
+    members: list = field(default_factory=list)  # the "Movies" title's movies; never stored
 
     RUNTIME_FIELDS = ('auto', 'count', 'watched', 'members')
 
@@ -136,12 +134,6 @@ def plain(text):
 
 def pvr_key(title):
     return ' '.join(title.split()).casefold()
-
-
-def name_key(title):
-    """Titles with the same name_key are merged into one row: case, spacing and formatting tags
-    don't count."""
-    return pvr_key(plain(title))
 
 
 def sort_title(title):

@@ -108,7 +108,7 @@ Layout rules (the numbers are in the XML):
 - Control 100 (titles) is a plain `list`, not a `fixedlist` (the user rejected the gap above the
   first title); its selected row stays dimly highlighted while 200 (episodes) has focus. 101 and
   201 are mouse/touch-only scrollbars.
-- DVR titles (and Newest, and merged titles made only of DVR series) show a watched icon:
+- DVR titles (and Newest) show a watched icon:
   `Entry.watched` counts watched recordings, and `entry_listitem` sets the `status` property,
   a playcount when all are watched, and the usual `TotalEpisodes`/`WatchedEpisodes` properties.
 - A title's picture is its `thumb`; for DVR series that's the series fanart, not pvr.mythtv's
@@ -144,12 +144,10 @@ Layout rules (the numbers are in the XML):
 - **Newest** (`show_newest`): "<Stage> - Newest", always first, the 25 newest shown recordings
   (`pvr.NEWEST_LIMIT`, counted after hiding watched ones), each prefixed with its series.
   `ref['titles']` holds the shown series, so hidden ones stay out and renames show.
-- **Merged** titles: titles whose `model.name_key()` matches become one (`catalog.merge()`),
-  members' rows in turn (library, add-ons, DVR). Folder rows' `browse` is
-  `{"member": id, "browse": …}`. Rename renames every member; the menu has each member's own
-  actions. Selecting by id also finds the merged row a member is in. Movies/Newest never merge.
-- Added seasons are named after the show (so they merge with its other titles); menus still say
-  "Show - Season N" via `classify.season_description()`.
+- **Same-named titles are deliberately not merged**: each title's rows come from one place and
+  its menu acts on one thing. Merging was built and removed as too complex for what it gave.
+- Added seasons are named after the show; menus still say "Show - Season N" via
+  `classify.season_description()`.
 
 ## Kodi facts this code relies on (checked in ../xbmc)
 
@@ -195,5 +193,5 @@ Only unit tests and stub-based smoke runs so far. To check in a real Kodi:
 - the widget click path (`PlayMedia` → `RunScript`)
 - Myth Estuary's "Center Stage" home entry and Stages panel (its `Home.xml`, group 24000/list
   24100; icon copied from `resources/sidemenu.png`; hidden by `HomeMenuNoCenterStageButton`)
-- the Movies, Newest and merged titles; the Default group with "Show default recording group as
+- the Movies and Newest titles; the Default group with "Show default recording group as
   root" on; panel opacity; "Check for updates"; Kodi 22
