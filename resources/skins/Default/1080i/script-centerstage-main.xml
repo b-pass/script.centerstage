@@ -44,31 +44,31 @@
 			<texture colordiffuse="C0181C22">uv-white.png</texture>
 		</control>
 		<control type="list" id="100">
-			<left>30</left><top>130</top><width>520</width><height>920</height>
+			<left>30</left><top>130</top><width>538</width><height>920</height>
 			<onright>200</onright>
 			<onup>100</onup>
 			<ondown>100</ondown>
 			<pagecontrol>101</pagecontrol>
 			<scrolltime tween="cubic" easing="out">300</scrolltime>
 			<orientation>vertical</orientation>
-			<focusedlayout height="80" width="520">
+			<focusedlayout height="80" width="538">
 				<!-- stays, dimmed, while the episodes have focus, to mark whose they are -->
 				<control type="image">
-					<left>0</left><top>0</top><width>520</width><height>80</height>
+					<left>0</left><top>0</top><width>538</width><height>80</height>
 					<texture colordiffuse="FF12A0C7">uv-white.png</texture>
 					<animation effect="fade" start="100" end="50" time="40" condition="!Control.HasFocus(100)">Conditional</animation>
 				</control>
 				<control type="label">
-					<left>30</left><top>0</top><width>470</width><height>80</height>
+					<left>30</left><top>0</top><width>488</width><height>80</height>
 					<font>font14</font>
 					<aligny>center</aligny>
 					<scroll>true</scroll>
 					<label>[B]$INFO[ListItem.Label][/B]</label>
 				</control>
 			</focusedlayout>
-			<itemlayout height="80" width="520">
+			<itemlayout height="80" width="538">
 				<control type="label">
-					<left>30</left><top>0</top><width>470</width><height>80</height>
+					<left>30</left><top>0</top><width>488</width><height>80</height>
 					<font>font14</font>
 					<aligny>center</aligny>
 					<label>$INFO[ListItem.Label]</label>
@@ -103,16 +103,16 @@
 			<texture colordiffuse="C0181C22">uv-white.png</texture>
 		</control>
 		<control type="list" id="200">
-			<left>610</left><top>130</top><width>1256</width><height>480</height>
+			<left>610</left><top>130</top><width>1268</width><height>480</height>
 			<onleft>100</onleft>
 			<onup>200</onup>
 			<ondown>200</ondown>
 			<pagecontrol>201</pagecontrol>
 			<scrolltime tween="cubic" easing="out">300</scrolltime>
 			<orientation>vertical</orientation>
-			<focusedlayout height="60" width="1256">
+			<focusedlayout height="60" width="1268">
 				<control type="image">
-					<left>0</left><top>0</top><width>1256</width><height>60</height>
+					<left>0</left><top>0</top><width>1268</width><height>60</height>
 					<texture colordiffuse="FF12A0C7">uv-white.png</texture>
 					<visible>Control.HasFocus(200)</visible>
 				</control>
@@ -125,21 +125,21 @@
 					<animation effect="fade" start="100" end="50" time="0" condition="ListItem.IsResumable">Conditional</animation>
 				</control>
 				<control type="label">
-					<left>64</left><top>0</top><width>892</width><height>60</height>
+					<left>64</left><top>0</top><width>904</width><height>60</height>
 					<font>font13</font>
 					<aligny>center</aligny>
 					<scroll>true</scroll>
 					<label>$INFO[ListItem.Label]</label>
 				</control>
 				<control type="label">
-					<left>956</left><top>0</top><width>280</width><height>60</height>
+					<left>968</left><top>0</top><width>280</width><height>60</height>
 					<font>font12</font>
 					<align>right</align>
 					<aligny>center</aligny>
 					<label>$INFO[ListItem.Label2]</label>
 				</control>
 			</focusedlayout>
-			<itemlayout height="60" width="1256">
+			<itemlayout height="60" width="1268">
 				<control type="image">
 					<left>26</left><top>24</top><width>12</width><height>12</height>
 					<texture colordiffuse="FF12A0C7">uv-white.png</texture>
@@ -147,13 +147,13 @@
 					<animation effect="fade" start="100" end="50" time="0" condition="ListItem.IsResumable">Conditional</animation>
 				</control>
 				<control type="label">
-					<left>64</left><top>0</top><width>892</width><height>60</height>
+					<left>64</left><top>0</top><width>904</width><height>60</height>
 					<font>font13</font>
 					<aligny>center</aligny>
 					<label>$INFO[ListItem.Label]</label>
 				</control>
 				<control type="label">
-					<left>956</left><top>0</top><width>280</width><height>60</height>
+					<left>968</left><top>0</top><width>280</width><height>60</height>
 					<font>font12</font>
 					<align>right</align>
 					<aligny>center</aligny>

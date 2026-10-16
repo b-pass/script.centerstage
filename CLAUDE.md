@@ -156,7 +156,8 @@ instead. `Default/` itself does use `1080i`: that last fallback scans the folder
     - the panes are 30px apart, and 30px from the screen's left, right and bottom edges (the
       user asked for the same gap all round): the titles panel shows at x 30..580, the
       right-hand panels from x 610 to 30px short of the right edge, all from y 130 (below the
-      top bar) to 1050. Scrollbars sit flush with their panel's visible edge.
+      top bar) to 1050. Scrollbars sit flush with their panel's visible edge, and each list
+      (so its focus bar) runs right up to its scrollbar, with no gap.
     - the top bar is like the recordings window's: "Center Stage" as the breadcrumbs and the
       Stage under it as the sublabel (Estuary's `TopBar` with `breadcrumbs_label` and
       `sublabel`; plain labels in Default). The user removed the breadcrumbs once, then
