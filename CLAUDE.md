@@ -192,7 +192,6 @@ Layout rules (the numbers are in the XML):
 - **`Player.Open` shows no resume prompt**, so `_play` asks and passes `options.resume`.
 - **`Addon.openSettings()`** edits the calling `Addon` object's own settings, so `K.ADDON` is
   current afterwards.
-- **`UpdateAddonRepos`** checks every repository; Kodi can't check one add-on.
 - **Add-ons can't delete recordings** (no JSON-RPC method, builtin or `pvr://` file support), and
   Kodi's item context menu (`CONTEXTMENU::ShowFor`) only opens for items Kodi listed itself. But a
   list filled from `<content>` in any window gets it (`CDirectoryProvider::OnContextMenu`), and
@@ -217,4 +216,4 @@ Only unit tests and stub-based smoke runs so far. To check in a real Kodi:
   and refresh after a delete, Clear reaching the window, the sort order, the XML-built rows and
   details, focus moving between the lists
 - the Movies and Newest titles; the Default group with "Show default recording group as
-  root" on; panel opacity; "Check for updates"; Kodi 22
+  root" on; panel opacity; Kodi 22
