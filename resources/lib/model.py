@@ -162,6 +162,13 @@ def episode_code(season, episode):
     return ''
 
 
+def details_code(season, episode):
+    """The details pane's form of episode_code(): "S2 E09"."""
+    if episode_code(season, episode):
+        return f'S{season} E{episode:02d}'
+    return ''
+
+
 def parse_date(text):
     """An Episode.date as (struct_time, has_time), or None when it isn't one."""
     text = (text or '').strip()
