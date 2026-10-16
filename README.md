@@ -41,10 +41,6 @@ show name, you're asked for it.
 - **Newest:** the first title, "<Stage> - Newest" (e.g. "All Stages - Newest"), lists the 25
   newest DVR recordings you see in the window, newest first, each named with its series. It
   stays first whatever the sort order. It can be turned off in the settings.
-- **Same names:** titles with the same name (ignoring case) are shown as one, e.g. a DVR series
-  and the same show from an add-on. Its episodes list the library's first, then the add-ons',
-  then the recordings. Renaming it renames them all; its context menu has each one's Remove or
-  Hide, marked with where it comes from.
 - **Movies:** add library movies, or movies from other add-ons, with the context menu, and pick
   their Stage like anything else. They're gathered under one "Movies" title (renamable); its
   context menu on each movie has "Stage…" and "Remove". Turn off "Group movies under
