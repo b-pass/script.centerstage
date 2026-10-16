@@ -367,7 +367,7 @@
 				<left>20</left><top>110</top><width>526</width><height>296</height>
 				<aspectratio>keep</aspectratio>
 				<fadetime>200</fadetime>
-				<texture background="true">$INFO[Container(100).ListItem.Art(thumb)]</texture>
+				<texture background="true" fallback="$INFO[Window(Home).Property(script.centerstage.stage)]">$INFO[Container(100).ListItem.Art(thumb)]</texture>
 				<visible>!Control.HasFocus(200) + !Control.HasFocus(210)</visible>
 			</control>
 			<control type="image">
@@ -426,8 +426,16 @@
 				<left>20</left><top>110</top><width>526</width><height>296</height>
 				<aspectratio>keep</aspectratio>
 				<fadetime>200</fadetime>
-				<texture background="true" fallback="$INFO[Container(210).ListItem.Art(fanart)]">$INFO[Container(210).ListItem.Art(thumb)]</texture>
-				<visible>Control.HasFocus(210)</visible>
+				<texture background="true" fallback="$INFO[Window(Home).Property(script.centerstage.stage)]">$INFO[Container(210).ListItem.Art(thumb)]</texture>
+				<visible>Control.HasFocus(210) + !String.IsEmpty(Container(210).ListItem.Art(thumb))</visible>
+			</control>
+			<!-- no preview picture: the series fanart; neither (or one that won't load): the empty stage -->
+			<control type="image">
+				<left>20</left><top>110</top><width>526</width><height>296</height>
+				<aspectratio>keep</aspectratio>
+				<fadetime>200</fadetime>
+				<texture background="true" fallback="$INFO[Window(Home).Property(script.centerstage.stage)]">$INFO[Container(210).ListItem.Art(fanart)]</texture>
+				<visible>Control.HasFocus(210) + String.IsEmpty(Container(210).ListItem.Art(thumb))</visible>
 			</control>
 			<control type="textbox">
 				<left>566</left><top>110</top><width>694</width><height>296</height>
