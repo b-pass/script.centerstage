@@ -109,7 +109,7 @@ the skin's addon.xml). The branch that would scan it for `1080i` etc. is guarded
 rejects `S_ISDIR`). A `1080i` folder there was silently skipped, and the Default layout was used
 instead. `Default/` itself does use `1080i`: that last fallback scans the folder.
 - `resources/skins/skin.estuary/xml/`: uses Estuary's includes (`ColoredBackgroundImages`,
-  `TopBar`, `ContentPanel`, `OpenClose_*`), `$VAR[ListWatchedIconVar]`, its fonts and its colours
+  `TopBar`, `OpenClose_*`), `$VAR[ListWatchedIconVar]`, its fonts and its colours
   (`button_focus`, `grey`, `text_shadow`), and its scrollbar and progress defaults. All of these
   exist in stock Estuary 21.3 and 22.
   **Don't reference a colour name the skin lacks: it becomes fully transparent.**
@@ -158,6 +158,15 @@ instead. `Default/` itself does use `1080i`: that last fallback scans the folder
       right-hand panels from x 610 to 30px short of the right edge, all from y 130 (below the
       top bar) to 1050. Scrollbars sit flush with their panel's visible edge, and each list
       (so its focus bar) runs right up to its scrollbar, with no gap.
+    - the panels' opacity is the `panel_opacity` setting (40-100%, default 80%, below
+      Estuary's usual 93%: the user wanted more background to show while staying readable).
+      `kodiutil.set_panel_colours()` puts the colours on **Home** as
+      `script.centerstage.panel` (`AAFFFFFF`, tinting Estuary's `lists/panel.png`) and
+      `script.centerstage.panel_dark` (`AA181C22`, Default's flat panels), and the layouts use
+      `$INFO[Window(Home).Property(...)]` as `colordiffuse`. Home, because a texture's colour
+      is evaluated with no window context (`CGUIInfoColor::Update`, `DEFAULT_CONTEXT`), so our
+      own window's property isn't reliably found. It's set before the window opens. The titles panel is our own image, not Estuary's `ContentPanel`
+      include, which hard-codes 93%.
     - the top bar is like the recordings window's: "Center Stage" as the breadcrumbs and the
       Stage under it as the sublabel (Estuary's `TopBar` with `breadcrumbs_label` and
       `sublabel`; plain labels in Default). The user removed the breadcrumbs once, then
