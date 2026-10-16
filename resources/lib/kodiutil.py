@@ -32,7 +32,7 @@ S = {
     'resume_from': 32020, 'from_start': 32021, 'remove': 32022, 'rename': 32023,
     'refresh': 32024, 'hide_pvr': 32025, 'show_hidden': 32026,
     'loading': 32028, 'empty': 32029, 'load_failed': 32030, 'no_episodes': 32031,
-    'library': 32032, 'dvr': 32033, 'watched': 32034, 'left': 32035, 'recordings': 32036,
+    'library': 32032, 'pvr': 32033, 'watched': 32034, 'left': 32035, 'recordings': 32036,
     'play_failed': 32040, 'one_recording': 32041, 'season_watched': 32042,
     'season_episode': 32043, 'episode_n': 32044, 'group': 32045, 'all_groups': 32046,
     'which_group': 32048, 'set_group': 32049, 'switch_group': 32050, 'movies': 32051,
@@ -55,7 +55,7 @@ def notify(msg, icon=xbmcgui.NOTIFICATION_INFO):
 
 
 def disk_used_percent():
-    """How full the DVR backend's disk is, 0-100, or None when it isn't reported.
+    """How full the PVR backend's disk is, 0-100, or None when it isn't reported.
 
     PVR.BackendDiskSpaceProgr is a number with no label form ($INFO and getInfoLabel give
     nothing), so it is found by bisecting with Integer.IsGreater. It is 255 when unreported."""
@@ -98,8 +98,8 @@ def setting_bool(key, default=False):
 
 
 def recording_groups(rpc):
-    """The DVR's recording groups (Default first), or [] with the DVR off."""
-    if not setting_bool('include_dvr', True):
+    """The PVR's recording groups (Default first), or [] with the PVR off."""
+    if not setting_bool('include_pvr', True):
         return []
     try:
         return pvr.groups(pvr.recordings(rpc))
@@ -132,7 +132,7 @@ def set_home_properties():
 
 def newest_title(group):
     """The "Newest" title's name, "<group> - Newest", or None when it's turned off."""
-    if not (setting_bool('include_dvr', True) and setting_bool('show_newest', True)):
+    if not (setting_bool('include_pvr', True) and setting_bool('show_newest', True)):
         return None
     return tr('newest', group_label(group))
 
@@ -169,11 +169,11 @@ def origin_label(entry):
         n = len(entry.members)
         return tr('one_movie') if n == 1 else tr('n_movies', n)
     if entry.source == NEWEST:
-        return tr('dvr') + '[CR]' + (tr('one_recording') if entry.count == 1
+        return tr('pvr') + '[CR]' + (tr('one_recording') if entry.count == 1
                                      else tr('recordings', entry.count))
     if entry.source == PVR:
-        # "DVR - BBC One[CR]12 recordings"
-        text = tr('dvr') + (' - ' + entry.origin if entry.origin else '')
+        # "PVR - BBC One[CR]12 recordings"
+        text = tr('pvr') + (' - ' + entry.origin if entry.origin else '')
         if entry.count:
             text += '[CR]' + (tr('one_recording') if entry.count == 1
                               else tr('recordings', entry.count))

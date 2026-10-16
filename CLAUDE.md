@@ -150,7 +150,7 @@ Layout rules (the numbers are in the XML):
 ## Recording groups ("Stages")
 
 - Users only ever see "Stage"; code, `group=` arguments and the `group` property say group.
-- Users see "PVR", as Kodi says it, never "DVR".
+- Say "PVR", as Kodi does, never "DVR": in what users see and in the code.
 - A recording's group is its JSON-RPC `directory` minus the title folder (`pvr.group_of()`).
   Recordings with no group folder (pvr.mythtv's "Show default recording group as root") are in
   `pvr.DEFAULT_GROUP`, so `group=Default` works either way. The user keeps the name "Default".

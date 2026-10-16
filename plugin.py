@@ -54,7 +54,7 @@ def open_window(entry_id=None, group=None, ask=True):
 def all_rows(group=None):
     store = Store(K.PROFILE)
     pvr_rows = []
-    if K.setting_bool('include_dvr', True):
+    if K.setting_bool('include_pvr', True):
         try:
             recs = pvr.in_group(pvr.recordings(K.rpc()), group)
             pvr_rows = pvr.series_entries(recs, store.hidden_pvr(), store.renames())

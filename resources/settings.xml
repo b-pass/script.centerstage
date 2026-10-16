@@ -45,24 +45,24 @@
                     </constraints>
                     <control type="slider" format="percentage"/>
                 </setting>
-                <setting id="include_dvr" type="boolean" label="32108">
+                <setting id="include_pvr" type="boolean" label="32108">
                     <level>0</level>
                     <default>true</default>
                     <control type="toggle"/>
                 </setting>
-                <setting id="ask_group" type="boolean" label="32110" parent="include_dvr">
+                <setting id="ask_group" type="boolean" label="32110" parent="include_pvr">
                     <level>0</level>
                     <default>true</default>
                     <dependencies>
-                        <dependency type="enable" setting="include_dvr">true</dependency>
+                        <dependency type="enable" setting="include_pvr">true</dependency>
                     </dependencies>
                     <control type="toggle"/>
                 </setting>
-                <setting id="show_newest" type="boolean" label="32112" parent="include_dvr">
+                <setting id="show_newest" type="boolean" label="32112" parent="include_pvr">
                     <level>0</level>
                     <default>true</default>
                     <dependencies>
-                        <dependency type="enable" setting="include_dvr">true</dependency>
+                        <dependency type="enable" setting="include_pvr">true</dependency>
                     </dependencies>
                     <control type="toggle"/>
                 </setting>

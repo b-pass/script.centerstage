@@ -33,7 +33,7 @@ RECORDINGS = [
 
 
 def series_rows(rpc, title, recs=None):
-    """A series' recordings as Python rows (as the Newest title builds them), oldest first. DVR
+    """A series' recordings as Python rows (as the Newest title builds them), oldest first. PVR
     series themselves are listed by Kodi."""
     newest = pvr.newest_entry([entry(PVR, SHOW, {'title': title}, title)], 'N')
     return list(reversed(pvr.newest(rpc, newest, recs)))

@@ -260,7 +260,7 @@
 					<orientation>vertical</orientation>
 					<animation effect="zoom" end="50,100" time="300" tween="sine" center="auto" easing="inout" condition="!Control.HasFocus(201)">conditional</animation>
 				</control>
-				<!-- A DVR series' recordings: Kodi's own list, filled from the series' pvr:// folder,
+				<!-- A PVR series' recordings: Kodi's own list, filled from the series' pvr:// folder,
 				     so its items get Kodi's recording menu (Delete, Edit, Information…), icons and
 				     play handling. The folder comes straight from the selected title (its folder
 				     property), so the list switches the moment the selection moves, as a skin's
@@ -627,7 +627,7 @@
 			</control>
 		</control>
 
-		<!-- DVR backend disk space used, centred in the top bar, as text only (the user didn't
+		<!-- PVR backend disk space used, centred in the top bar, as text only (the user didn't
 		     want a bar). Hidden while something plays, when the top bar shows what's playing
 		     there, and when the backend doesn't report it (PVR.BackendDiskSpaceProgr is then
 		     255). The text, e.g. "62% backend disk space used", is the diskspace property: that
@@ -638,7 +638,7 @@
 			<top>12</top>
 			<width>500</width>
 			<include>OpenClose_Right</include>
-			<visible>String.IsEqual(Window.Property(dvr),true) + !Integer.IsGreater(PVR.BackendDiskSpaceProgr,100) + !Player.HasMedia</visible>
+			<visible>String.IsEqual(Window.Property(pvr),true) + !Integer.IsGreater(PVR.BackendDiskSpaceProgr,100) + !Player.HasMedia</visible>
 			<control type="label">
 				<left>0</left>
 				<top>0</top>
