@@ -25,7 +25,7 @@ NEWEST_LIMIT = 25  # rows in the "Newest" title
 
 RECORDING_PROPS = ['title', 'plot', 'plotoutline', 'playcount', 'resume', 'channel', 'starttime',
                    'runtime', 'art', 'icon', 'radio', 'isdeleted', 'season', 'episode',
-                   'showtitle', 'directory']
+                   'showtitle', 'directory', 'file']
 
 
 def recordings(rpc):
@@ -169,4 +169,4 @@ def _episode(rec, sort):
         season=season, episode=number, plot=rec.get('plot') or rec.get('plotoutline') or '',
         art=_art(rec), playcount=as_int(rec.get('playcount'), 0), resume=position,
         total=total, runtime=as_int(rec.get('runtime'), 0), date=when,
-        channel=rec.get('channel') or '', untitled=untitled, sort=sort)
+        channel=rec.get('channel') or '', untitled=untitled, sort=sort, path=rec.get('file') or '')
