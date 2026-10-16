@@ -18,6 +18,8 @@ ADDON = xbmcaddon.Addon()
 ADDON_ID = ADDON.getAddonInfo('id')
 ADDON_NAME = ADDON.getAddonInfo('name')
 ADDON_PATH = ADDON.getAddonInfo('path')
+# the empty stage (tools/art.py), for titles with no picture of their own
+STAGE_ART = os.path.join(ADDON_PATH, 'resources', 'stage.jpg')
 PROFILE = xbmcvfs.translatePath(ADDON.getAddonInfo('profile'))
 CACHE_DIR = os.path.join(PROFILE, 'cache')
 
@@ -192,10 +194,18 @@ def listitem_art(art):
     return {k: v for k, v in art.items() if v}
 
 
+def title_art(entry):
+    """A title's art; the empty stage when it has no picture."""
+    art = listitem_art(entry.art)
+    if not art.get('thumb'):
+        art['thumb'] = STAGE_ART
+    return art
+
+
 def entry_listitem(entry, path=''):
     title = plain(entry.display_title)  # titles are never coloured, whatever the source sent
     li = xbmcgui.ListItem(title, offscreen=True)
-    li.setArt(listitem_art(entry.art))
+    li.setArt(title_art(entry))
     tag = li.getVideoInfoTag()
     tag.setTitle(title)
     tag.setPlot(entry.plot)
