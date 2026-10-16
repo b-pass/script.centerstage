@@ -21,6 +21,15 @@ Estuary against the Flatpak 21.3 copy
 (`/var/lib/flatpak/app/tv.kodi.Kodi/x86_64/stable/active/files/share/kodi/addons/skin.estuary`),
 and ask the user if you need a particular version checked out.
 
+## Before building something big or awkward
+
+If a requested feature turns out to be exceptionally cumbersome, stop and ask the user before
+implementing it. That means a lot of code, or a fight with Kodi: an info label that has no text
+form, a missing callback, something only a core change could do cleanly. Say briefly what makes
+it costly and offer the options, including a simpler version or dropping it. The user often can't
+tell from the conversation how much work a request is, and wants to weigh that first. Ordinary
+features don't need this; just build them.
+
 ## Commands
 
 - Tests: `python3 -m unittest discover tests`
