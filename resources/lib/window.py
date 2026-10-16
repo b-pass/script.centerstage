@@ -41,6 +41,7 @@ DELETE_BUTTONS = (249, 0xF087)
 
 POLL = 0.03     # seconds between checks of the left list's selection
 SETTLE = 0.1    # how long the selection must stay put before rows that need loading load
+STEADY = 0.3    # how long a series must stay selected before its recordings count is trusted
 DISK_EVERY = 900   # seconds between asking Kodi to re-read the backend's disk space
 DISK_WAIT = 30     # for this long after asking, read the answer every second (it comes later)
 
@@ -88,9 +89,10 @@ class MainWindow(xbmcgui.WindowXML):
     # the left list
 
     def _refresh(self, keep=False, select=None, reload_current=False):
-        if keep and select is None:
-            select = self.shown_id
         was_at = self.titles.getSelectedPosition()
+        if keep and select is None:
+            # the row the user is on: the episodes shown can lag behind it while they scroll
+            select = self.rows[was_at].id if 0 <= was_at < len(self.rows) else self.shown_id
         stored = self.store.entries()
         pvr_rows = []
         self.recs = []
@@ -141,6 +143,7 @@ class MainWindow(xbmcgui.WindowXML):
         """WindowXML has no "selection changed" callback, so poll the left list."""
         seen, since, disk_next, disk_until, disk_at = None, 0.0, 0.0, 0.0, 0.0
         shown, last = None, None   # Kodi's recordings list: (folder, count) as learned, last read
+        folder, folder_since = None, 0.0
         while not self.closing.is_set():
             self.wake.wait(POLL)
             self.wake.clear()
@@ -172,8 +175,12 @@ class MainWindow(xbmcgui.WindowXML):
             # finishing), but its own list for the selected series changes: refresh the titles
             # (counts, details, a series that's gone) when its count does
             now_shown = self._recordings_shown()
-            if now_shown is None or now_shown != last:
-                last = now_shown  # settling: learn it once two reads agree
+            if (now_shown and now_shown[0]) != folder:
+                folder, folder_since = now_shown and now_shown[0], now
+            if now_shown is None or now_shown != last or now - folder_since < STEADY:
+                # settling: learn it once the series has stayed selected and two reads agree
+                # (while flipping quickly, the new folder can briefly show the old count)
+                last = now_shown
             elif shown is not None and now_shown[0] == shown[0] and now_shown[1] != shown[1]:
                 shown = None
                 self._refresh(keep=True)
