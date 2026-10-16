@@ -139,7 +139,9 @@ instead. `Default/` itself does use `1080i`: that last fallback scans the folder
     In the Estuary layout, which was reworked at the user's request, the details pane follows
     `../xbmc/addons/skin.estuary/xml/MyPVRRecordings.xml`:
     - the title's name, with the episode's name (with S01E02) under it
-    - opposite them, right-aligned in grey: the episode's `details`, or the title's `origin`
+    - opposite them, right-aligned in grey: the episode's `details` (channel; date;
+      time · length · watched, one per line, so nothing wraps mid-time), or the title's
+      `origin`
     - **below** those, the picture on the left in a 526x296 box (16:9 fills it, 4:3 fills its
       height), with the plot beside it in `font14`. The picture is the title's `thumb` (a
       landscape image when there is one; see `kodiutil.listitem_art()`) or the episode's.

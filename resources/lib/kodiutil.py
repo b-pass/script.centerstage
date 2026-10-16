@@ -226,27 +226,20 @@ def _strftime(fmt, when):
         return ''
 
 
-def _date(text, region):
-    """An Episode.date in the user's date format (region "dateshort" or "datelong"), plus the
-    time (without seconds) when it has one, as recordings do."""
+def _date_time(text, region):
+    """An Episode.date as (date in the user's format for region, "dateshort" or "datelong";
+    time without seconds, or '' when it has none)."""
     parsed = parse_date(text)
     if not parsed:
-        return ''
+        return '', ''
     when, has_time = parsed
-    out = _strftime(xbmc.getRegion(region), when)
-    if has_time:
-        out += '  ' + _strftime(xbmc.getRegion('time').replace(':%S', ''), when)
-    return out
+    clock = _strftime(xbmc.getRegion('time').replace(':%S', ''), when) if has_time else ''
+    return _strftime(xbmc.getRegion(region), when), clock
 
 
 def short_date(text):
-    """For the episode list."""
-    return _date(text, 'dateshort')
-
-
-def long_date(text):
-    """For the details pane."""
-    return _date(text, 'datelong')
+    """For the episode list: the date, and the time when it has one (recordings)."""
+    return '  '.join(p for p in _date_time(text, 'dateshort') if p)
 
 
 def episode_status(ep):
@@ -263,10 +256,13 @@ def episode_status(ep):
 
 
 def episode_details(ep):
-    """The grey lines at the top right of the details pane."""
+    """The grey lines at the top right of the details pane: the channel; the date; then the
+    time, length and watched state. (Date and time on one line wrapped badly.)"""
     if ep.is_folder:
         return ep.label2
-    return '[CR]'.join(p for p in (ep.channel, long_date(ep.date), episode_status(ep)) if p)
+    day, clock = _date_time(ep.date, 'datelong')
+    last = ' · '.join(p for p in (clock, episode_status(ep)) if p)
+    return '[CR]'.join(p for p in (ep.channel, day, last) if p)
 
 
 def episode_label(ep):
