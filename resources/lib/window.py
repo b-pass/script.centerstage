@@ -39,8 +39,8 @@ ACTION_CONTEXT_MENU = 117
 # and KEY_VKEY | XBMCVK_DELETE (keyboard)
 DELETE_BUTTONS = (249, 0xF087)
 
-POLL = 0.05     # seconds between checks of the left list's selection
-SETTLE = 0.1    # how long the selection must stay put before its episodes load
+POLL = 0.03     # seconds between checks of the left list's selection
+SETTLE = 0.1    # how long the selection must stay put before rows that need loading load
 DISK_EVERY = 900   # seconds between asking Kodi to re-read the backend's disk space
 DISK_WAIT = 30     # for this long after asking, read the answer every second (it comes later)
 
@@ -115,7 +115,6 @@ class MainWindow(xbmcgui.WindowXML):
             if not rows:
                 self.current = None
                 self.setProperty('level', '')
-                self.setProperty('recordings', '')
                 self._clear_episodes()
                 return
             self.titles.selectItem(pos)
@@ -157,11 +156,19 @@ class MainWindow(xbmcgui.WindowXML):
                 self.setProperty('diskspace', '' if used is None else K.tr('disk_used', used))
             if pos != seen:
                 seen, since = pos, now
-                continue
             with self.lock:
+                # rows that are at hand switch at once; others wait until the selection settles,
+                # so scrolling past titles doesn't load each one
                 if 0 <= pos < len(self.rows) and self.rows[pos].id != self.shown_id \
-                        and now - since >= SETTLE:
+                        and (now - since >= SETTLE or self._at_hand(self.rows[pos])):
                     self._select(pos)
+
+    def _at_hand(self, entry):
+        """Whether entry's rows show without loading: DVR series (Kodi's list) and rows kept
+        from earlier in this session."""
+        stack = self.stacks.get(entry.id)
+        browse = stack[-1][0] if stack else None
+        return entry.source == PVR or level_key(entry.id, browse) in self.mem
 
     # the top-right list
 
@@ -179,9 +186,11 @@ class MainWindow(xbmcgui.WindowXML):
         gen = self.gen
         self.setProperty('level', ' / '.join(label for _, label in stack))
         if entry.source == PVR:
-            self._show_recordings(entry)
+            # Kodi's own list shows it, filled straight from the selected title's folder property
+            # by the layouts (as a skin's onfocus would): only items Kodi lists get its recording
+            # menu (Delete, …), and add-ons can't delete recordings any other way
+            self._clear_episodes()
             return
-        self.setProperty('recordings', '')
         if entry.source == ADDON and entry.is_single:
             self._show(gen, entry, addon.rows(None, entry, self.major))
             return
@@ -250,17 +259,6 @@ class MainWindow(xbmcgui.WindowXML):
             self.setProperty('loading', '')
             self.setProperty('message', '' if arranged else K.tr('no_episodes'))
 
-    def _show_recordings(self, entry):
-        """A DVR series' episodes are Kodi's own list (RECORDINGS), filled from its pvr:// folder:
-        only items Kodi lists get its recording menu (Delete, …), and add-ons can't delete
-        recordings any other way. Kodi keeps the list current itself."""
-        home = xbmcgui.Window(10000)
-        home.setProperty(f'{K.ADDON_ID}.order',
-                         'descending' if K.setting_int('episode_order', 0) == 1 else 'ascending')
-        home.setProperty(f'{K.ADDON_ID}.recordings', entry.ref.get('folder', ''))
-        self._clear_episodes()
-        self.setProperty('recordings', 'true')
-
     def _clear_episodes(self, loading=False, message='', parent=False):
         self.list.reset()
         self.episodes = [parent_row()] if parent else []
@@ -289,7 +287,7 @@ class MainWindow(xbmcgui.WindowXML):
                 pos = self.titles.getSelectedPosition()
                 if 0 <= pos < len(self.rows) and self.rows[pos].id != self.shown_id:
                     self._select(pos)
-            if self.getProperty('recordings'):
+            if self.current and self.current.source == PVR:
                 self.setFocusId(RECORDINGS)
             elif self.list.size():
                 self.setFocusId(EPISODES)
@@ -339,7 +337,7 @@ class MainWindow(xbmcgui.WindowXML):
     def _settings(self):
         """The add-on's settings, then everything they affect: panels, titles, episodes."""
         K.ADDON.openSettings()  # modal; it updates K.ADDON's own settings
-        K.set_panel_colours()
+        K.set_home_properties()
         self._refresh(keep=True, reload_current=True)
 
     @staticmethod
@@ -480,7 +478,7 @@ def show(preselect=None, group=None, ask=True):
             if not ok:
                 return
             store.set_last_group(group)
-        K.set_panel_colours()
+        K.set_home_properties()
         win = MainWindow(XML, K.ADDON_PATH, 'Default', '1080i')
         win.preselect = preselect
         win.group = group

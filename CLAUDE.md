@@ -104,7 +104,7 @@ Layout rules (the numbers are in the XML):
 - Top bar: "Center Stage" over the Stage (`group` property), as `TopBar`'s breadcrumbs and
   sublabel. Its clock ends where the right panels do (`TopBar` sits in a group 10px narrower).
 - Panel opacity is the `panel_opacity` setting. The colours are Home properties
-  (`kodiutil.set_panel_colours()`) because a texture's `colordiffuse` is evaluated with no window
+  (`kodiutil.set_home_properties()`, with the recordings sort order) because a texture's `colordiffuse` is evaluated with no window
   context, so our own window's property isn't reliably found.
 - Control 100 (titles) is a plain `list`, not a `fixedlist` (the user rejected the gap above the
   first title); its selected row stays dimly highlighted while 200 or 210 (episodes) has focus.
@@ -117,8 +117,12 @@ Layout rules (the numbers are in the XML):
   Kodi's video select action, in All Stages a series shows only the Stage of its newest
   recording, and rows/details are built in XML from Kodi's fields (`EpisodeName`, `Season`,
   `Episode`, `Date`, …), since Kodi labels a recording with the show's title. Every layout has
-  both lists, switched on the `recordings` window property; Newest, Movies, library and add-on
-  titles use 200.
+  both lists; Newest, Movies, library and add-on titles use 200.
+- **Switching must be as quick as Myth Estuary's** (whose title rows `Container.Update` the
+  episodes `onfocus`). So 210's `<content>` and the 200/210 switch read the selected title's
+  `folder` property (`Container(100).ListItem.Property(folder)`, set in `entry_listitem`) and
+  change the moment the selection moves, with no Python in between. `_watch` also switches at
+  once to rows it already has (`_at_hand`); only rows that need loading wait for `SETTLE`.
 - No flicker while moving through titles: "Loading…" appears only after 250 ms, and 210 is
   hidden while Kodi fetches (it would show the previous series' rows) unless it has focus
   (`allowhiddenfocus`, so focus can still move there). No fade-ins: they make switching feel
