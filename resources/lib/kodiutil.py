@@ -37,7 +37,7 @@ S = {
     'season_episode': 32043, 'episode_n': 32044, 'group': 32045, 'all_groups': 32046,
     'which_group': 32048, 'set_group': 32049, 'switch_group': 32050, 'movies': 32051,
     'one_movie': 32052, 'n_movies': 32053, 'disk_used': 32054, 'newest': 32055,
-    'settings': 32058,
+    'settings': 32058, 'cant_delete': 32114,
 }
 
 

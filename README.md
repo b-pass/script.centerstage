@@ -29,6 +29,7 @@ show name, you're asked for it.
   - [Widgets](#widgets)
   - [The background picture](#the-background-picture)
   - [A layout of your own](#a-layout-of-your-own)
+  - [Deleting without the menu showing](#deleting-without-the-menu-showing)
 - [Limits](#limits)
 - [Development](#development)
 
@@ -51,8 +52,8 @@ show name, you're asked for it.
   - **Back** returns to the titles, then to the Stage question (or closes the window).
   - **Context menu** on a title: Rename, Refresh, Remove (or Hide, for a PVR series), "Stage…"
     for titles you added, "Show hidden PVR series…", "Switch Stage…" and "Settings…".
-  - **Context menu** (or **Clear**) on a recording: Kodi's own recording menu, with Delete,
-    Edit, Information and the rest, just as in the TV recordings window.
+  - **Clear** (or Delete in the context menu) on a recording: Kodi asks "Delete this
+    recording?", just as in the TV recordings window.
 - **Widget:** point a skin widget at `plugin://script.centerstage/?action=list`, or
   `?action=list&group=Emily` for one Stage. Clicking a title opens the window on it.
 - **Settings:** title sort order (A-Z or recently added), episode order, hide watched episodes,
@@ -163,6 +164,17 @@ resolution folder name (`<res folder=...>` in its `addon.xml`, e.g. `xml` for Es
 Estuary layout is the one to start from. It shows the control ids (100 titles, 101 their
 scrollbar, 200 episodes, 201 its scrollbar) and the window and list item properties the add-on
 fills in. `tests/test_skins.py` checks that every layout has them.
+
+### Deleting without the menu showing
+
+To delete a recording, Center Stage opens Kodi's own context menu on it and picks Delete for
+the user. The menu shows for a moment. A skin can hide it by adding this to each control in
+its `DialogContextMenu.xml` that draws something (in Estuary: the dimmed backdrop and the group
+holding the menu). It's an animation, not `<visible>`, so the buttons can still be focused:
+
+```xml
+<animation effect="fade" start="0" end="0" time="0" condition="!String.IsEmpty(Window(Home).Property(script.centerstage.deleting))">Conditional</animation>
+```
 
 ## Limits
 

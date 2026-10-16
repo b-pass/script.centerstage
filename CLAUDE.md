@@ -192,10 +192,15 @@ Layout rules (the numbers are in the XML):
   Kodi's item context menu (`CONTEXTMENU::ShowFor`) only opens for items Kodi listed itself. But a
   list filled from `<content>` in any window gets it (`CDirectoryProvider::OnContextMenu`), and
   `CGUIWindow::OnAction` gives the focused control the key before Python's `onAction`. So
-  `window.RecordingMenu` is an invisible dialog (`script-centerstage-recording.xml`, Default
-  only) listing the recording's `pvr://` folder; it selects the recording and sends
-  `Action(ContextMenu)`. The user approved this workaround knowing its oddities (entries that
-  switch screens, like Find similar, are untested).
+  `window.RecordingDelete` is an invisible dialog (`script-centerstage-recording.xml`, Default
+  only) listing the recording's `pvr://` folder: it opens Kodi's menu on the recording and picks
+  the button labelled with Kodi's own "Delete" (string 117, `Control.GetLabel(1001+n)`; the
+  menu is the topmost dialog), so Clear goes straight to Kodi's "Delete this recording?", as in
+  the recordings window. **Delete only**: don't let the user use Kodi's whole menu through it
+  (Play, Find similar and the like would run under an invisible dialog). Kodi lists a deleted
+  recording until the PVR add-on reports it, so `_refresh_when_gone` checks
+  `PVR.GetRecordingDetails` for a few seconds. While it runs, `script.centerstage.deleting` is
+  set on Home, so a skin can hide its context menu (README).
 - **Clear and Delete have no action in add-on windows** (keymaps map them per window), so they
   arrive as action 0; `window.DELETE_BUTTONS` matches their button codes. `ACTION_DELETE_ITEM`
   is handled too, for users who map them.
@@ -213,5 +218,8 @@ Only unit tests and stub-based smoke runs so far. To check in a real Kodi:
 - the widget click path (`PlayMedia` → `RunScript`)
 - Myth Estuary's "Center Stage" home entry and Stages panel (its `Home.xml`, group 24000/list
   24100; icon copied from `resources/sidemenu.png`; hidden by `HomeMenuNoCenterStageButton`)
+- deleting (`RecordingDelete`): finding the recording in Kodi's listing, picking Delete in
+  Kodi's menu (hidden on Myth Estuary), a recording still in progress, the refresh afterwards,
+  Clear arriving from the user's remote
 - the Movies and Newest titles; the Default group with "Show default recording group as
   root" on; panel opacity; Kodi 22
