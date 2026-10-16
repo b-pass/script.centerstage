@@ -81,7 +81,15 @@ def season_label(snap):
 
 
 def season_title(show, season):
-    return f'{show} - {season}' if show else season
+    """A season's default name in Center Stage: just the show's (the user didn't want
+    " - Season N"), or the season's own label when the show isn't known."""
+    return show or season
+
+
+def season_description(entry):
+    """"Show - Season N", for menus that must tell a season from its show."""
+    parts = [p for p in (entry.show_title, entry.season_label) if p]
+    return ' - '.join(parts) or entry.display_title
 
 
 def resolve_show_name(snap, *not_names):

@@ -10,6 +10,9 @@ PVR = 'pvr'
 ADDON = 'addon'  # any other plugin:// (or plain VFS) folder or item, listed through Files.GetDirectory
 MOVIES = 'movies'  # the "Movies" title: the stored movies, gathered into one row (never stored)
 MOVIES_ID = 'movies'
+NEWEST = 'newest'  # the "<group> - Newest" title: the shown recordings, newest first (never stored)
+NEWEST_ID = 'newest'
+MERGED = 'merged'  # titles with the same name, shown as one row (never stored)
 
 # what an entry is
 SHOW = 'show'      # a whole series
@@ -44,7 +47,8 @@ class Entry:
     group: str = ''           # the recording group it's shown in; "" for all of them
     auto: bool = False        # computed on the fly (DVR series), never stored
     count: int = 0            # number of recordings, for DVR series; never stored
-    members: list = field(default_factory=list)  # the "Movies" title's movie entries; never stored
+    members: list = field(default_factory=list)  # the "Movies" title's movies, or a merged
+                                                 # title's entries; never stored
 
     RUNTIME_FIELDS = ('auto', 'count', 'members')
 
@@ -90,6 +94,7 @@ class Episode:
     browse: dict = field(default_factory=dict)  # for folders: what to pass back to list it
     parent: bool = False      # the ".." row
     entry_id: str = ''        # in the "Movies" title: the stored movie entry this row is
+    show: str = ''            # in the "Newest" title: the series, shown before the label
 
     def to_dict(self):
         d = asdict(self)
@@ -129,6 +134,12 @@ def plain(text):
 
 def pvr_key(title):
     return ' '.join(title.split()).casefold()
+
+
+def name_key(title):
+    """Titles with the same name_key are merged into one row: case, spacing and formatting tags
+    don't count."""
+    return pvr_key(plain(title))
 
 
 def sort_title(title):

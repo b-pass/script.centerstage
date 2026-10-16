@@ -10,7 +10,8 @@ import xbmcgui
 import xbmcvfs
 
 from jsonrpc import Rpc, RpcError
-from model import LIBRARY, MOVIES, MOVIES_ID, PVR, episode_code, format_time, parse_date, plain
+from model import (LIBRARY, MERGED, MOVIES, MOVIES_ID, NEWEST, PVR, episode_code, format_time, parse_date,
+                   plain)
 from sources import pvr
 
 ADDON = xbmcaddon.Addon()
@@ -33,7 +34,7 @@ S = {
     'play_failed': 32040, 'one_recording': 32041, 'season_watched': 32042,
     'season_episode': 32043, 'episode_n': 32044, 'group': 32045, 'all_groups': 32046,
     'which_group': 32048, 'set_group': 32049, 'switch_group': 32050, 'movies': 32051,
-    'one_movie': 32052, 'n_movies': 32053,
+    'one_movie': 32052, 'n_movies': 32053, 'disk_used': 32054, 'newest': 32055,
 }
 
 
@@ -48,6 +49,24 @@ def log(txt, level=xbmc.LOGINFO):
 
 def notify(msg, icon=xbmcgui.NOTIFICATION_INFO):
     xbmcgui.Dialog().notification(ADDON_NAME, msg, icon, 3000)
+
+
+def disk_used_percent():
+    """How full the DVR backend's disk is, 0-100, or None when it isn't reported.
+
+    PVR.BackendDiskSpaceProgr is a number with no label form ($INFO and getInfoLabel give
+    nothing), so it is found by bisecting with Integer.IsGreater. It is 255 when unreported."""
+    info = 'PVR.BackendDiskSpaceProgr'
+    if xbmc.getCondVisibility(f'Integer.IsGreater({info},100)'):
+        return None
+    low, high = 0, 100
+    while low < high:
+        mid = (low + high) // 2
+        if xbmc.getCondVisibility(f'Integer.IsGreater({info},{mid})'):
+            low = mid + 1
+        else:
+            high = mid
+    return low
 
 
 def kodi_major():
@@ -93,6 +112,13 @@ def movies_title(store):
     return store.renames().get(MOVIES_ID) or tr('movies')
 
 
+def newest_title(group):
+    """The "Newest" title's name, "<group> - Newest", or None when it's turned off."""
+    if not (setting_bool('include_dvr', True) and setting_bool('show_newest', True)):
+        return None
+    return tr('newest', group_label(group))
+
+
 def group_label(group):
     """None is every group."""
     return tr('all_groups') if group is None else group
@@ -124,6 +150,11 @@ def origin_label(entry):
     if entry.source == MOVIES:
         n = len(entry.members)
         return tr('one_movie') if n == 1 else tr('n_movies', n)
+    if entry.source == MERGED:
+        return '[CR]'.join(origin_label(m) for m in entry.members)
+    if entry.source == NEWEST:
+        return tr('dvr') + '[CR]' + (tr('one_recording') if entry.count == 1
+                                     else tr('recordings', entry.count))
     if entry.source == PVR:
         # "DVR - BBC One[CR]12 recordings"
         text = tr('dvr') + (' - ' + entry.origin if entry.origin else '')
@@ -216,12 +247,15 @@ def episode_details(ep):
 
 
 def episode_label(ep):
-    """"Season 1, Episode 2" for an episode with no name of its own, else its label."""
+    """"Season 1, Episode 2" for an episode with no name of its own, else its label; after
+    "Series · " in the "Newest" title, where the series are mixed."""
+    label = ep.label
     if ep.untitled and not ep.is_folder and ep.episode > 0:
         if ep.season >= 0:
-            return tr('season_episode', ep.season, ep.episode)
-        return tr('episode_n', ep.episode)
-    return ep.label
+            label = tr('season_episode', ep.season, ep.episode)
+        else:
+            label = tr('episode_n', ep.episode)
+    return f'{ep.show} · {label}' if ep.show else label
 
 
 def details_name(ep):

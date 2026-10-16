@@ -61,7 +61,7 @@ def all_rows(group=None):
         except RpcError as e:
             K.log(f'no PVR recordings: {e}')
     return catalog.rows(store.entries(), pvr_rows, K.setting_int('sort_order', catalog.SORT_TITLE),
-                        group, K.movies_title(store))
+                        group, K.movies_title(store), K.newest_title(group))
 
 
 def title_item(entry, group):

@@ -31,9 +31,9 @@ class Skins(unittest.TestCase):
             text = body(path)
             for needed in ('id="100"', 'id="101"', 'id="200"', 'id="201"',
                            'Property(name)', 'Property(details)', 'Property(origin)',
-                           'Window.Property(group)', 'Window.Property(level)',
                            'Window.Property(loading)', 'Window.Property(message)',
                            'Window.Property(empty)', 'Window.Property(dvr)',
+                           'Window.Property(diskspace)',
                            'Skin.String(centerstage.background)'):
                 self.assertIn(needed, text, f'{needed} missing from {path}')
 

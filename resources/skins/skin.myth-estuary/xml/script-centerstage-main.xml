@@ -71,7 +71,7 @@
 						<bottom>0</bottom>
 						<aligny>center</aligny>
 						<scroll>true</scroll>
-						<font>font27</font>
+						<font>font36_title</font>
 						<label>$INFO[ListItem.Label]</label>
 						<shadowcolor>text_shadow</shadowcolor>
 					</control>
@@ -83,7 +83,7 @@
 						<top>0</top>
 						<bottom>0</bottom>
 						<aligny>center</aligny>
-						<font>font27</font>
+						<font>font14</font>
 						<label>$INFO[ListItem.Label]</label>
 						<shadowcolor>text_shadow</shadowcolor>
 					</control>
@@ -104,28 +104,30 @@
 				<top>160</top>
 				<width>500</width>
 				<height>500</height>
-				<font>font27</font>
+				<font>font13</font>
 				<textcolor>grey</textcolor>
 				<label>$ADDON[script.centerstage 32029]</label>
 				<visible>String.IsEqual(Window.Property(empty),true)</visible>
 			</control>
 		</control>
 
-		<!-- right: episodes (or folders) on top, details below. The panels run off the right edge
-		     of the screen, as the titles panel runs off the left. Everything here is placed from
-		     the right edge (<right>), never with a width that assumes 1920: Kodi picks the
-		     Estuary coordinate space closest to the window's aspect (e.g. 2040 or 2160 wide). -->
+		<!-- right: episodes (or folders) on top, details below. The panels stop 30px short of the
+		     right edge of the screen, the same gap as between the two sides (the panel images'
+		     20px borders are shadow, so -20 puts the visible edge on the group's). Everything
+		     here is placed from the right edge (<right>), never with a width that assumes 1920:
+		     Kodi picks the Estuary coordinate space closest to the window's aspect (e.g. 2040 or
+		     2160 wide). -->
 		<control type="group">
 			<include>OpenClose_Right</include>
 			<left>610</left>
-			<right>0</right>
+			<right>30</right>
 			<control type="group">
 				<top>130</top>
 				<right>0</right>
 				<control type="image">
 					<left>-20</left>
 					<top>-20</top>
-					<right>-40</right>
+					<right>-20</right>
 					<height>520</height>
 					<texture colordiffuse="EDFFFFFF">lists/panel.png</texture>
 					<bordertexture border="21" infill="false">overlays/shadow.png</bordertexture>
@@ -166,7 +168,7 @@
 							<bottom>0</bottom>
 							<aligny>center</aligny>
 							<scroll>true</scroll>
-							<font>font27</font>
+							<font>font13</font>
 							<label>$INFO[ListItem.Label]</label>
 							<shadowcolor>text_shadow</shadowcolor>
 						</control>
@@ -197,7 +199,7 @@
 							<top>0</top>
 							<bottom>0</bottom>
 							<aligny>center</aligny>
-							<font>font27</font>
+							<font>font13</font>
 							<label>$INFO[ListItem.Label]</label>
 							<shadowcolor>text_shadow</shadowcolor>
 						</control>
@@ -215,7 +217,7 @@
 						</control>
 					</itemlayout>
 				</control>
-				<!-- flush with the right edge of its panel (the screen's edge) -->
+				<!-- flush with the right edge of its panel -->
 				<control type="scrollbar" id="201">
 					<right>0</right>
 					<top>0</top>
@@ -231,7 +233,7 @@
 					<top>90</top>
 					<right>64</right>
 					<height>60</height>
-					<font>font27</font>
+					<font>font13</font>
 					<textcolor>grey</textcolor>
 					<label>$ADDON[script.centerstage 32028]</label>
 					<visible>String.IsEqual(Window.Property(loading),true)</visible>
@@ -241,7 +243,7 @@
 					<top>90</top>
 					<right>64</right>
 					<height>300</height>
-					<font>font27</font>
+					<font>font13</font>
 					<textcolor>grey</textcolor>
 					<label>$INFO[Window.Property(message)]</label>
 					<visible>!String.IsEmpty(Window.Property(message))</visible>
@@ -254,7 +256,7 @@
 				<control type="image">
 					<left>-20</left>
 					<top>-20</top>
-					<right>-40</right>
+					<right>-20</right>
 					<height>430</height>
 					<texture colordiffuse="EDFFFFFF">lists/panel.png</texture>
 					<bordertexture border="21" infill="false">overlays/shadow.png</bordertexture>
@@ -282,7 +284,7 @@
 					<top>55</top>
 					<right>450</right>
 					<height>45</height>
-					<font>font30_title</font>
+					<font>font36_title</font>
 					<scroll>true</scroll>
 					<label>$INFO[Container(200).ListItem.Property(name)]</label>
 					<shadowcolor>text_shadow</shadowcolor>
@@ -335,7 +337,7 @@
 					<top>110</top>
 					<right>30</right>
 					<height>270</height>
-					<font>font12</font>
+					<font>font14</font>
 					<label>$INFO[Container(100).ListItem.Plot]</label>
 					<autoscroll delay="10000" time="3000" repeat="10000">Skin.HasSetting(autoscroll)</autoscroll>
 					<visible>!Control.HasFocus(200)</visible>
@@ -345,7 +347,7 @@
 					<top>110</top>
 					<right>30</right>
 					<height>270</height>
-					<font>font12</font>
+					<font>font14</font>
 					<label>$INFO[Container(200).ListItem.Plot]</label>
 					<autoscroll delay="10000" time="3000" repeat="10000">Skin.HasSetting(autoscroll)</autoscroll>
 					<visible>Control.HasFocus(200)</visible>
@@ -353,13 +355,17 @@
 			</control>
 		</control>
 
+		<!-- Estuary's top bar (clock, what's playing) with no breadcrumbs: the user didn't want
+		     the "Center Stage / group" heading -->
 		<include content="TopBar">
-			<param name="breadcrumbs_label" value="$ADDON[script.centerstage 32001]$INFO[Window.Property(group), / ]$INFO[Window.Property(level), / ]" />
+			<param name="breadcrumbs_label" value="" />
 			<param name="sublabel" value="" />
 		</include>
-		<!-- DVR backend disk space, centred in the top bar. Hidden while something plays, when
-		     the top bar shows what's playing there, and when the backend doesn't report it
-		     (PVR.BackendDiskSpaceProgr is then 255). -->
+		<!-- DVR backend disk space used, centred in the top bar, as text only (the user didn't
+		     want a bar). Hidden while something plays, when the top bar shows what's playing
+		     there, and when the backend doesn't report it (PVR.BackendDiskSpaceProgr is then
+		     255). The text, e.g. "62% backend disk space used", is the diskspace property: that
+		     number has no label form, so window.py works it out (kodiutil.disk_used_percent). -->
 		<control type="group">
 			<depth>DepthBars</depth>
 			<centerleft>50%</centerleft>
@@ -374,15 +380,8 @@
 				<height>30</height>
 				<align>center</align>
 				<font>font25_narrow</font>
-				<label>$INFO[PVR.BackendDiskSpace]</label>
+				<label>$INFO[Window.Property(diskspace)]</label>
 				<shadowcolor>text_shadow</shadowcolor>
-			</control>
-			<control type="progress">
-				<left>100</left>
-				<top>40</top>
-				<width>300</width>
-				<height>10</height>
-				<info>PVR.BackendDiskSpaceProgr</info>
 			</control>
 		</control>
 	</controls>

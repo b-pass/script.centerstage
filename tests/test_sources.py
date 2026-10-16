@@ -7,7 +7,7 @@ from tests.fakes import FakeRpc
 import catalog
 from jsonrpc import RpcError
 from model import (Entry, ADDON, LIBRARY, PVR, SHOW, SEASON, MOVIE, ITEM, MOVIES, MOVIES_ID,
-                   entry_id)
+                   MERGED, NEWEST, NEWEST_ID, Episode, entry_id)
 from sources import addon, library, pvr
 
 
@@ -56,6 +56,40 @@ class Pvr(unittest.TestCase):
         self.assertTrue(office.auto)
         self.assertEqual(office.origin, 'NBC')
         self.assertEqual(office.art['thumb'], 'nbc.png')  # newest recording's, via its icon
+
+    def test_series_picture_is_fanart_not_preview(self):
+        recs = [dict(r) for r in RECORDINGS]
+        recs[0]['art'] = {'thumb': 'preview.jpg', 'fanart': 'series.jpg'}
+        recs[2]['art'] = {'thumb': 'o1.jpg', 'fanart': 'office-s1.jpg'}  # older; newest has none
+        rows = {e.display_title: e for e in pvr.series_entries(pvr.recordings(FakeRpc(
+            {'PVR.GetRecordings': lambda p: {'recordings': recs}})))}
+        self.assertEqual(rows['News'].art['thumb'], 'series.jpg')
+        self.assertEqual(rows['The Office'].art['thumb'], 'office-s1.jpg')
+        news = entry(PVR, SHOW, {'title': 'News'})
+        eps = pvr.episodes(self.rpc, news, recs)
+        self.assertEqual(eps[0].art['thumb'], 'preview.jpg')  # episodes keep the preview
+
+    def test_newest_first_whatever_the_sort_with_every_shown_series(self):
+        recs = pvr.recordings(self.rpc)
+        series = pvr.series_entries(recs, hidden={'news': 'News'})
+        stored = [entry(ADDON, SHOW, {'path': 'p://a'}, 'Aardvarks', added=2e9)]
+        for mode in (catalog.SORT_TITLE, catalog.SORT_ADDED):
+            rows = catalog.rows(stored, series, mode, newest_title='All Stages - Newest')
+            self.assertEqual([e.display_title for e in rows],
+                             ['All Stages - Newest', 'Aardvarks', 'The Office'])
+        newest = rows[0]
+        self.assertEqual((newest.id, newest.source, newest.count), (NEWEST_ID, NEWEST, 2))
+        self.assertEqual(newest.to_dict().get('count'), None)
+        eps = catalog.load_rows(self.rpc, newest, 21, recs)
+        self.assertEqual([(e.show, e.label) for e in eps],  # News is hidden
+                         [('The Office', 'Diversity Day'), ('The Office', 'Pilot')])
+        arranged = catalog.arrange(eps)
+        self.assertEqual([e.play['recordingid'] for e in arranged], [2, 3])
+        eps[0].playcount = 1
+        self.assertEqual([e.play['recordingid'] for e in catalog.arrange(eps, limit=1)], [2])
+        self.assertEqual([e.play['recordingid']
+                          for e in catalog.arrange(eps, hide_watched=True, limit=1)], [3])
+        self.assertEqual(catalog.rows(stored, [], newest_title='X')[0].display_title, 'Aardvarks')
 
     def test_hidden_and_renamed(self):
         recs = pvr.recordings(self.rpc)
@@ -327,6 +361,50 @@ class Catalog(unittest.TestCase):
         self.assertEqual(movies.to_dict().get('members'), None)
         self.assertEqual([e.display_title for e in catalog.rows(stored[3:], [], movies_title='M')],
                          ['Nova'])  # no movies, no "Movies" title
+
+    def test_same_names_merge_into_one_title(self):
+        stored = [entry(ADDON, SHOW, {'path': 'p://nova'}, 'NOVA ', added=3,
+                        art={'thumb': 'addon.jpg'}),
+                  entry(LIBRARY, SHOW, {'tvshowid': 7}, '[B]Nova[/B]', added=1),
+                  entry(ADDON, SHOW, {'path': 'p://other'}, 'Other', added=2)]
+        dvr = [entry(PVR, SHOW, {'title': 'nova'}, 'nova', added=9, count=4, auto=True)]
+        rows = catalog.rows(stored, dvr)
+        self.assertEqual([e.source for e in rows], [MERGED, ADDON])
+        nova = rows[0]
+        self.assertEqual(nova.id, 'merged:nova')
+        self.assertEqual([m.source for m in nova.members], [LIBRARY, ADDON, PVR])
+        self.assertEqual((nova.display_title, nova.added, nova.count), ('[B]Nova[/B]', 9, 4))
+        self.assertEqual(nova.art, {'thumb': 'addon.jpg'})  # the first member with art
+        movies = [entry(LIBRARY, MOVIE, {'movieid': 1}, 'Movies'),
+                  entry(LIBRARY, MOVIE, {'movieid': 2}, 'Up')]
+        self.assertEqual([e.source for e in catalog.rows(movies, [], movies_title='Movies')],
+                         [MOVIES])  # "Movies" never merges, not even with a movie of that name
+
+    def test_merged_rows_list_members_in_turn_and_browse_into_the_right_one(self):
+        lib = entry(LIBRARY, SHOW, {'tvshowid': 7}, 'Nova')
+        dvr = entry(PVR, SHOW, {'title': 'Nova'}, 'Nova', auto=True)
+        bad = entry(ADDON, SHOW, {'path': 'p://broken'}, 'Nova')
+        nova = catalog.merged_entry([dvr, bad, lib])
+        calls = []
+
+        def load(member, browse):
+            calls.append((member.id, browse))
+            if member is bad:
+                raise RpcError('add-on failed')
+            if member is lib and browse is None:
+                return [Episode(label='Season 1', play={}, is_folder=True,
+                                browse={'season': 1}, sort=('s', 1))]
+            if member is lib:
+                return [Episode(label='Pilot', play={'episodeid': 1}, sort=(1, 1))]
+            return [Episode(label='Rec', play={'recordingid': 5}, sort=('2026-09-01',))]
+        top = catalog.arrange(catalog.merged_rows(nova, None, load))
+        self.assertEqual([r.label for r in top], ['Season 1', 'Rec'])  # library, then DVR
+        self.assertEqual(top[0].browse, {'member': lib.id, 'browse': {'season': 1}})
+        inner = catalog.merged_rows(nova, top[0].browse, load)
+        self.assertEqual([r.label for r in inner], ['Pilot'])
+        self.assertEqual(calls[-1], (lib.id, {'season': 1}))
+        with self.assertRaises(RpcError):
+            catalog.merged_rows(catalog.merged_entry([bad, bad]), None, load)
 
     def test_movie_rows(self):
         def details(p):

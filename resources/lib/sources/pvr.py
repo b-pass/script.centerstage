@@ -16,10 +16,12 @@ import calendar
 import re
 import time
 
-from model import Entry, Episode, PVR, SHOW, entry_id, is_untitled, plain, pvr_key
+from model import (Entry, Episode, NEWEST, NEWEST_ID, PVR, SHOW, entry_id, is_untitled, plain,
+                   pvr_key)
 from sources.common import as_int, resume_of, episode_label
 
 DEFAULT_GROUP = 'Default'
+NEWEST_LIMIT = 25  # rows in the "Newest" title
 
 RECORDING_PROPS = ['title', 'plot', 'plotoutline', 'playcount', 'resume', 'channel', 'starttime',
                    'runtime', 'art', 'icon', 'radio', 'isdeleted', 'season', 'episode',
@@ -102,6 +104,12 @@ def series_entries(recs, hidden=(), renames=None):
         art = _art(newest)
         if not art.get('poster') and art.get('thumb'):
             art['poster'] = art['thumb']
+        # The title shows the series artwork, as the recordings window does with the left list
+        # focused (Art(fanart)); the preview image ("thumb") is for its episodes.
+        fanart = next((r['art']['fanart'] for r in group if (r.get('art') or {}).get('fanart')),
+                      '')
+        if fanart:
+            art['fanart'] = art['thumb'] = fanart
         out.append(Entry(
             id=eid, source=PVR, kind=SHOW, ref={'title': title},
             display_title=renames.get(eid, title), show_title=title, art=art,
@@ -111,26 +119,54 @@ def series_entries(recs, hidden=(), renames=None):
     return out
 
 
+def newest_entry(series, title):
+    """The "Newest" title, from the DVR series being shown (series_entries' result): their
+    recordings, newest first. Its art is the newest series'."""
+    latest = max(series, key=lambda e: e.added)
+    return Entry(id=NEWEST_ID, source=NEWEST, kind=SHOW,
+                 ref={'titles': {pvr_key(e.ref['title']): plain(e.display_title) for e in series}},
+                 display_title=title,
+                 art=dict(latest.art), added=latest.added, auto=True,
+                 count=sum(e.count for e in series))
+
+
 def episodes(rpc, entry, recs=None):
     if recs is None:
         recs = recordings(rpc)
     key = pvr_key(entry.ref['title'])
     mine = [r for r in recs if pvr_key(_title(r)) == key]
     mine.sort(key=lambda r: r.get('starttime') or '')
+    return [_episode(rec, (rec.get('starttime') or '',)) for rec in mine]
+
+
+def newest(rpc, entry, recs=None):
+    """The "Newest" title's rows: the recordings of the series in entry.ref['titles'] (the
+    ones shown, so hidden series stay out), newest first, each named with its series as the
+    titles list shows it."""
+    if recs is None:
+        recs = recordings(rpc)
+    names = entry.ref['titles']
     out = []
-    for rec in mine:
-        season = as_int(rec.get('season'))
-        number = as_int(rec.get('episode'))
-        name = rec.get('showtitle') or ''
-        untitled = is_untitled(name)
-        when = _local(rec.get('starttime'))
-        position, total = resume_of(rec)
-        out.append(Episode(
-            label=_marked(rec, episode_label(when if untitled else name, season, number)),
-            play={'recordingid': rec['recordingid']}, title=_title(rec) if untitled else name,
-            season=season, episode=number, plot=rec.get('plot') or rec.get('plotoutline') or '',
-            art=_art(rec), playcount=as_int(rec.get('playcount'), 0), resume=position,
-            total=total, runtime=as_int(rec.get('runtime'), 0), date=when,
-            channel=rec.get('channel') or '', untitled=untitled,
-            sort=(rec.get('starttime') or '',)))
-    return out
+    for rec in recs:
+        key = pvr_key(_title(rec))
+        if key in names:
+            ep = _episode(rec, (-_epoch(rec.get('starttime')), rec['recordingid']))
+            ep.show = names[key]
+            out.append(ep)
+    return sorted(out, key=lambda e: e.sort)
+
+
+def _episode(rec, sort):
+    season = as_int(rec.get('season'))
+    number = as_int(rec.get('episode'))
+    name = rec.get('showtitle') or ''
+    untitled = is_untitled(name)
+    when = _local(rec.get('starttime'))
+    position, total = resume_of(rec)
+    return Episode(
+        label=_marked(rec, episode_label(when if untitled else name, season, number)),
+        play={'recordingid': rec['recordingid']}, title=_title(rec) if untitled else name,
+        season=season, episode=number, plot=rec.get('plot') or rec.get('plotoutline') or '',
+        art=_art(rec), playcount=as_int(rec.get('playcount'), 0), resume=position,
+        total=total, runtime=as_int(rec.get('runtime'), 0), date=when,
+        channel=rec.get('channel') or '', untitled=untitled, sort=sort)

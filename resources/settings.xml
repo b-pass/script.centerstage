@@ -48,6 +48,14 @@
                     </dependencies>
                     <control type="toggle"/>
                 </setting>
+                <setting id="show_newest" type="boolean" label="32112" parent="include_dvr">
+                    <level>0</level>
+                    <default>true</default>
+                    <dependencies>
+                        <dependency type="enable" setting="include_dvr">true</dependency>
+                    </dependencies>
+                    <control type="toggle"/>
+                </setting>
                 <setting id="cache_minutes" type="integer" label="32109">
                     <level>1</level>
                     <default>60</default>
