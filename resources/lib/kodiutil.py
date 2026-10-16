@@ -263,13 +263,15 @@ def episode_status(ep):
 
 
 def episode_details(ep):
-    """The grey lines at the top right of the details pane: the channel; the date; then the
-    time, length and watched state. (Date and time on one line wrapped badly.)"""
+    """The grey lines at the top right of the details pane: where it's from ("PVR - BBC One" for
+    a recording, the add-on's name for an add-on's item); the date; then the time, length and
+    watched state. (Date and time on one line wrapped badly.)"""
     if ep.is_folder:
         return ep.label2
     day, clock = _date_time(ep.date, 'datelong')
     last = ' · '.join(p for p in (clock, episode_status(ep)) if p)
-    return '[CR]'.join(p for p in (ep.channel, day, last) if p)
+    source = f"{tr('pvr')} - {ep.channel}" if ep.channel else ep.origin
+    return '[CR]'.join(p for p in (source, day, last) if p)
 
 
 def episode_label(ep):

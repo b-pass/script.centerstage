@@ -268,6 +268,9 @@ class MainWindow(xbmcgui.WindowXML):
         with self.lock:
             if gen != self.gen:
                 return
+            if entry.source == ADDON:
+                for row in rows:  # shown in the details where a recording shows its channel
+                    row.origin = entry.origin
             episodic = not entry.is_single and entry.source != MOVIES
             # "Newest" is always newest first, whatever the episode order, and capped (after
             # hiding watched ones, so it's still full)

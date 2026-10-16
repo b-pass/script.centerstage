@@ -84,6 +84,7 @@ class Episode:
     runtime: int = 0          # seconds
     date: str = ''            # aired/recorded: "YYYY-MM-DD", or "YYYY-MM-DD HH:MM" local time
     channel: str = ''         # recordings only
+    origin: str = ''          # add-on rows: the add-on's name, shown where a recording's channel is
     untitled: bool = False    # no name of its own (none, or "Untitled"): the window shows
                               # "Season X, Episode Y" instead of label when it has the numbers
     sort: tuple = ()          # ordering key within the entry

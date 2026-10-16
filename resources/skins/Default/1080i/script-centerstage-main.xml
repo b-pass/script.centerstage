@@ -453,7 +453,7 @@
 				<font>font12</font>
 				<align>right</align>
 				<textcolor>FFA0A0A0</textcolor>
-				<label>$INFO[Container(210).ListItem.ChannelName,,[CR]]$INFO[Container(210).ListItem.StartDate,,[CR]]$INFO[Container(210).ListItem.StartTime]$INFO[Container(210).ListItem.Duration, · ]</label>
+				<label>$INFO[Container(210).ListItem.ChannelName,$ADDON[script.centerstage 32033] - ,[CR]]$INFO[Container(210).ListItem.StartDate,,[CR]]$INFO[Container(210).ListItem.StartTime]$INFO[Container(210).ListItem.Duration, · ]</label>
 				<visible>Control.HasFocus(210)</visible>
 			</control>
 			<control type="image">

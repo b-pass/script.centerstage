@@ -384,13 +384,14 @@ class Catalog(unittest.TestCase):
         rpc = FakeRpc({'VideoLibrary.GetMovieDetails': details})
         stored = [entry(LIBRARY, MOVIE, {'movieid': 1}, 'Up'),
                   entry(LIBRARY, MOVIE, {'movieid': 2}, 'Gone'),
-                  entry(ADDON, MOVIE, {'path': 'p://m'}, 'The Abyss')]
+                  entry(ADDON, MOVIE, {'path': 'p://m'}, 'The Abyss', origin='Hoopla')]
         (movies,) = catalog.rows(stored, [], movies_title='Movies')
         rows = catalog.load_rows(rpc, movies, 21)
         self.assertEqual([(r.label, r.entry_id) for r in rows],
                          [('The Abyss', 'addon:movie:p://m'), ('Gone', 'library:movie:2'),
                           ('Up', 'library:movie:1')])
         self.assertEqual(rows[2].playcount, 1)
+        self.assertEqual([r.origin for r in rows], ['Hoopla', '', ''])  # the add-on's name
         self.assertEqual(rows[1].play, {})  # gone from the library: still listed, to remove it
         self.assertEqual([r.label for r in catalog.arrange(rows)], ['The Abyss', 'Gone', 'Up'])
 
