@@ -1,10 +1,12 @@
 """Draws resources/icon.png and resources/fanart.jpg: a play button in a spotlight, between stage
-curtains. Also resources/stage.jpg, the empty stage (no play button) that stands in for titles
-with no picture of their own, and resources/sidemenu.png, the same picture as a white silhouette in the style of
+curtains. Also resources/stage.jpg, the stand-in for a missing picture: the stage in muted greys
+with a small question mark and no spotlight, so it reads as part of the skin rather than as a
+show's artwork. And resources/sidemenu.png, the same picture as a white silhouette in the style of
 Estuary's home menu icons (copied into Myth Estuary as media/icons/sidemenu/centerstage.png).
 
 Usage: python3 tools/art.py (needs Pillow)
 """
+import math
 import os
 from PIL import Image, ImageDraw, ImageFilter
 
@@ -30,8 +32,9 @@ def bezier(p0, p1, p2, p3, n=60):
     return out
 
 
-def draw(width, height, curtain_scale=1.0, play=True):
-    """The picture is laid out 512 units tall, and `width` / `height` * 512 units wide."""
+def draw(width, height, curtain_scale=1.0, play=True, spotlight=True, question=False, grey=False):
+    """The picture is laid out 512 units tall, and `width` / `height` * 512 units wide. play puts
+    the play button centre stage, question a small question mark; grey mutes it all to greys."""
     k = height * S / 512
     w = 512 * width / height    # the width in units
     size = (width * S, height * S)
@@ -57,20 +60,22 @@ def draw(width, height, curtain_scale=1.0, play=True):
     d.rectangle([p(0, 432), p(w, 512)], fill=FLOOR)
     d.rectangle([p(0, 432), p(w, 440)], fill=FLOOR_EDGE)
 
-    # the spotlight: a beam from the top, brightest near its source, and a pool of light on the floor
+    # the spotlight: a beam from the top, brightest near its source, and a pool of light on the
+    # floor
     c = w / 2
-    beam = Image.new('L', size, 0)
-    ImageDraw.Draw(beam).polygon([p(c - 30, 40), p(c + 30, 40), p(c + 144, 440), p(c - 144, 440)],
-                                 fill=255)
-    fade = Image.linear_gradient('L').resize(size).point(lambda v: 150 - v * 70 // 255)
-    beam = Image.composite(fade, Image.new('L', size, 0), beam)
-    pool = Image.new('L', size, 0)
-    ImageDraw.Draw(pool).ellipse([p(c - 144, 412), p(c + 144, 468)], fill=200)
-    pool = pool.filter(ImageFilter.GaussianBlur(4 * k))
-    light = Image.new('RGB', size, LIGHT)
-    img = Image.composite(light, img, beam)
-    img = Image.composite(light, img, pool)
-    d = ImageDraw.Draw(img)
+    if spotlight:
+        beam = Image.new('L', size, 0)
+        ImageDraw.Draw(beam).polygon(
+            [p(c - 30, 40), p(c + 30, 40), p(c + 144, 440), p(c - 144, 440)], fill=255)
+        fade = Image.linear_gradient('L').resize(size).point(lambda v: 150 - v * 70 // 255)
+        beam = Image.composite(fade, Image.new('L', size, 0), beam)
+        pool = Image.new('L', size, 0)
+        ImageDraw.Draw(pool).ellipse([p(c - 144, 412), p(c + 144, 468)], fill=200)
+        pool = pool.filter(ImageFilter.GaussianBlur(4 * k))
+        light = Image.new('RGB', size, LIGHT)
+        img = Image.composite(light, img, beam)
+        img = Image.composite(light, img, pool)
+        d = ImageDraw.Draw(img)
 
     # curtains, each with a couple of darker folds that gather at the tie
     for mirror in (False, True):
@@ -93,7 +98,20 @@ def draw(width, height, curtain_scale=1.0, play=True):
         # the play button, centre stage
         cy, r = 300, 76
         d.polygon([p(c - r * 0.55, cy - r), p(c - r * 0.55, cy + r), p(c + r, cy)], fill=WHITE)
+    if question:
+        # a small question mark: a hook, its stem and the dot
+        r, t, cy = 34, 15, 230
+        hook = [(c + r * math.cos(math.radians(a)), cy + r * math.sin(math.radians(a)))
+                for a in range(165, 421, 5)]          # round the top, from the left to lower right
+        line = hook + [(c + 4, cy + r + 18), (c, cy + r + 34), (c, cy + r + 52)]
+        d.line([p(*q) for q in line], fill=WHITE, width=round(t * k), joint='curve')
+        x, y = line[0]
+        d.ellipse([p(x - t / 2, y - t / 2), p(x + t / 2, y + t / 2)], fill=WHITE)  # round end
+        d.ellipse([p(c - 10, cy + r + 70), p(c + 10, cy + r + 90)], fill=WHITE)
 
+    if grey:
+        # muted: luminance squeezed into a narrow band of greys
+        img = img.convert('L').point(lambda v: 38 + v * 0.42).convert('RGB')
     return img.resize((width, height), Image.LANCZOS)
 
 
@@ -132,5 +150,5 @@ if __name__ == '__main__':
     draw(512, 512).save(os.path.join(RESOURCES, 'icon.png'), optimize=True)
     draw(1920, 1080, curtain_scale=1.5).save(os.path.join(RESOURCES, 'fanart.jpg'),
                                               quality=90, optimize=True)
-    draw(960, 540, curtain_scale=1.5, play=False).save(os.path.join(RESOURCES, 'stage.jpg'),
-                                                       quality=90, optimize=True)
+    draw(960, 540, curtain_scale=1.5, play=False, spotlight=False, question=True,
+         grey=True).save(os.path.join(RESOURCES, 'stage.jpg'), quality=90, optimize=True)

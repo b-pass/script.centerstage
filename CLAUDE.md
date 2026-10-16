@@ -137,7 +137,8 @@ Layout rules (the numbers are in the XML):
 - The titles list shows no watched status; the user doesn't want icons there.
 - A title's picture is its `thumb`; for PVR series that's the series fanart, not pvr.mythtv's
   preview image, which is for episodes (as in the recordings window). No picture, or one that
-  won't load: `stage.jpg`, as a `fallback` from the `script.centerstage.stage` Home property (a
+  won't load: `stage.jpg` (a muted grey stage with a question mark, so it doesn't pass for a
+  show's artwork), as a `fallback` from the `script.centerstage.stage` Home property (a
   layout only finds our images in its own skin folder's `media`); in Kodi's recordings list,
   after the preview and the fanart.
 - The background is `Skin.String(centerstage.background)` of the running skin, a persistent

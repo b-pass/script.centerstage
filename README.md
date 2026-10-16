@@ -11,7 +11,8 @@ seasons and movies, and shows or videos from other add-ons.
   goes up a level, and **left** always returns to the titles, keeping your place. A movie or
   single video shows as one row.
 - **Bottom right:** artwork and description of whatever is focused. For a title, this pane also
-  shows where it comes from. A title with no picture of its own shows an empty stage.
+  shows where it comes from. Anything without a picture shows a grey placeholder: an empty stage
+  with a question mark.
 
 PVR recordings appear automatically, one row per recording title. Everything else you add with
 **Add to Center Stage** in the context menu, which appears on library items, recordings, add-on listings,
