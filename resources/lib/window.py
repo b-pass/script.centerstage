@@ -366,13 +366,6 @@ class MainWindow(xbmcgui.WindowXML):
         K.set_home_properties()
         self._refresh(keep=True, reload_current=True)
 
-    @staticmethod
-    def _check_updates():
-        """Kodi checks every repository (ours included) and then installs or announces updates
-        as its add-on update setting says; there's no way to check one add-on alone."""
-        xbmc.executebuiltin('UpdateAddonRepos')
-        K.notify(K.tr('checking_updates', K.ADDON.getAddonInfo('version')))
-
     def _switch_group(self):
         self.switch_group = True
         self._close()
@@ -428,7 +421,6 @@ class MainWindow(xbmcgui.WindowXML):
         if self.groups_asked:
             actions.append((K.tr('switch_group'), self._switch_group))
         actions.append((K.tr('settings'), self._settings))
-        actions.append((K.tr('check_updates'), self._check_updates))
         self._menu(actions)
 
     @staticmethod

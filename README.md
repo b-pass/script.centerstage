@@ -49,9 +49,7 @@ show name, you're asked for it.
   - **Left/right** moves between titles and episodes.
   - **Back** returns to the titles, then to the Stage question (or closes the window).
   - **Context menu** on a title: Rename, Refresh, Remove (or Hide, for a PVR series), "Stage…"
-    for titles you added, "Show hidden PVR series…", "Switch Stage…", "Settings…" and "Check
-    for updates" (Kodi checks its add-on repositories, then installs or announces updates as
-    its own update setting says).
+    for titles you added, "Show hidden PVR series…", "Switch Stage…" and "Settings…".
   - A PVR series' episodes are Kodi's own recordings list, so the **context menu** on one is
     Kodi's (Delete, Edit, Information…), and **Clear** opens it too. Selecting one plays,
     resumes or shows information as Kodi's own "select action" setting says.
