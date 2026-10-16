@@ -104,10 +104,10 @@ def main(argv):
     elif action == 'stages':
         list_stages(handle)
     elif action == 'list' or xbmc.getCondVisibility('Window.IsActive(home)'):
-        # a widget: opening the plugin from anywhere else activates the Videos window first
-        # (GUIWindowManager adds it to the history before WINDOW_INIT), so Home isn't active then
+        # a widget pointed at the root
         list_titles(handle, group)
     else:
+        # a window navigating to the root (e.g. a favourite): open ours instead
         open_window()
         xbmcplugin.endOfDirectory(handle, succeeded=False)
 

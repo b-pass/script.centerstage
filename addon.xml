@@ -10,9 +10,11 @@
   <extension point="xbmc.python.script" library="default.py">
     <provides>executable</provides>
   </extension>
-  <!-- the title list as a folder (for widgets); listed under Video add-ons, where it opens the window -->
+  <!-- the title list as a folder, for widgets and skins (plugin://script.centerstage/...). It
+       provides no content type on purpose: clicking the add-on runs RunAddon, which prefers a
+       plugin, and for a video (or program) plugin opens the Videos (or Programs) window behind
+       us; with none it just runs the plugin, which opens the window. -->
   <extension point="xbmc.python.pluginsource" library="plugin.py">
-    <provides>video</provides>
   </extension>
   <extension point="kodi.context.item">
     <menu id="kodi.core.main">
