@@ -262,3 +262,7 @@ msgstr ""
 msgctxt "#32113"
 msgid "Panel opacity"
 msgstr ""
+
+msgctxt "#32114"
+msgid "This recording can't be deleted"
+msgstr ""

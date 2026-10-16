@@ -33,7 +33,7 @@ EPISODES = 200
 ACTION_PREVIOUS_MENU = 10
 ACTION_NAV_BACK = 92
 ACTION_CONTEXT_MENU = 117
-ACTION_DELETE_ITEM = 80
+ACTION_DELETE_ITEM = 80   # from remote apps (Input.ExecuteAction "delete") or a user's keymap
 # Clear and Delete have no action in add-on windows (Kodi's keymaps map them per window), so
 # they arrive as action 0 with these button codes: XINPUT_IR_REMOTE_CLEAR (IR and CEC remotes)
 # and KEY_VKEY | XBMCVK_DELETE (keyboard)
@@ -43,11 +43,15 @@ POLL = 0.03     # seconds between checks of the left list's selection
 SETTLE = 0.1    # how long the selection must stay put before rows that need loading load
 DISK_EVERY = 900   # seconds between asking Kodi to re-read the backend's disk space
 DISK_WAIT = 30     # for this long after asking, read the answer every second (it comes later)
+GONE_WAIT = 10     # after a delete is asked, for this long check whether the recording has gone
 
 XML = 'script-centerstage-main.xml'
 RECORDING_XML = 'script-centerstage-recording.xml'
 RECORDING_LIST = 9100
 RECORDINGS_PATH = 'script.centerstage.recordings'  # Home property: the folder that list shows
+# Home property, set while Delete is picked from Kodi's context menu, so a skin can hide the menu
+DELETING = 'script.centerstage.deleting'
+MENU_BUTTONS = 1001   # Kodi's context menu: its first button (CGUIDialogContextMenu)
 
 
 def level_key(entry_id, browse):
@@ -326,7 +330,7 @@ class MainWindow(xbmcgui.WindowXML):
         elif self._is_delete(action) and self.getFocusId() == EPISODES:
             ep = self._focused_episode()
             if ep and ep.path:
-                self._recording_menu(ep)
+                self._delete(ep)
         else:
             # navigation (including left from the episodes, which the skin sends to the titles)
             self.wake.set()
@@ -371,37 +375,56 @@ class MainWindow(xbmcgui.WindowXML):
         pos = self.list.getSelectedPosition()
         return self.episodes[pos] if 0 <= pos < len(self.episodes) else None
 
-    def _recording_menu(self, ep):
-        """Kodi's own context menu for a recording (Delete, Edit, Information, …), which only
-        Kodi-filled lists get: an invisible dialog lists the recording's folder, selects it and
-        sends the context menu key. False if the recording couldn't be found there."""
-        folder = ep.path.rsplit('/', 1)[0] + '?view=flat'
-        xbmcgui.Window(10000).setProperty(RECORDINGS_PATH, folder)
-        dialog = RecordingMenu(RECORDING_XML, K.ADDON_PATH, 'Default', '1080i')
+    def _delete(self, ep):
+        """Delete a recording, which an add-on can only do through Kodi's own recording menu
+        (only Kodi-filled lists get it): an invisible dialog lists the recording's folder, opens
+        the menu on it and picks Delete, so Kodi asks "Delete this recording?" straight away."""
+        home = xbmcgui.Window(10000)
+        home.setProperty(RECORDINGS_PATH, ep.path.rsplit('/', 1)[0] + '?view=flat')
+        home.setProperty(DELETING, 'true')
+        dialog = RecordingDelete(RECORDING_XML, K.ADDON_PATH, 'Default', '1080i')
         dialog.path = ep.path
-        dialog.shown = False
-        dialog.doModal()
-        shown = dialog.shown
-        del dialog
-        if shown:
-            # it may have deleted, renamed or marked the recording; Kodi's own list catches up
-            # a moment after a delete, so look again shortly
+        dialog.outcome = None
+        try:
+            dialog.doModal()
+            outcome = dialog.outcome
+        finally:
+            home.clearProperty(DELETING)
+            del dialog
+        if outcome == RecordingDelete.REFUSED:
+            K.notify(K.tr('cant_delete'))
+        elif outcome == RecordingDelete.ASKED:
+            threading.Thread(target=self._refresh_when_gone, args=(ep.play['recordingid'],),
+                             daemon=True).start()
+        else:  # not in Kodi's listing: perhaps already gone
             self._refresh(keep=True, reload_current=True)
-            threading.Timer(2.0, self._refresh_if_open).start()
-        return shown
 
-    def _refresh_if_open(self):
-        if not self.closing.is_set():
-            self._refresh(keep=True, reload_current=True)
+    def _refresh_when_gone(self, recording_id):
+        """Kodi lists a deleted recording until the PVR add-on reports the change, a moment
+        later: refresh once it has gone (after a No, it never does)."""
+        monitor = xbmc.Monitor()
+        end = time.monotonic() + GONE_WAIT
+        while time.monotonic() < end and not self.closing.is_set():
+            try:
+                details = self.rpc.call('PVR.GetRecordingDetails', recordingid=recording_id,
+                                        properties=['isdeleted'])
+                gone = (details.get('recordingdetails') or {}).get('isdeleted')
+            except RpcError:
+                gone = True  # no such recording any more
+            if gone:
+                self._refresh(keep=True, reload_current=True)
+                return
+            if monitor.waitForAbort(0.5):
+                return
 
     def _episode_menu(self):
         ep = self._focused_episode()
-        if ep and ep.path and self._recording_menu(ep):
-            return
         actions = []
         if ep and not ep.is_folder and ep.resume > 0:
             actions.append((K.tr('from_start'), lambda: self._play(ep, resume=False)))
         actions.append((K.tr('refresh'), self._refresh_current))
+        if ep and ep.path:
+            actions.append((xbmc.getLocalizedString(117), lambda: self._delete(ep)))  # Delete
         movie = self.store.get(ep.entry_id) if ep and ep.entry_id else None
         if movie:
             # a movie in the "Movies" title, which has no row of its own to do this from
@@ -490,29 +513,63 @@ class MainWindow(xbmcgui.WindowXML):
         self._refresh(keep=True)
 
 
-class RecordingMenu(xbmcgui.WindowXMLDialog):
+class RecordingDelete(xbmcgui.WindowXMLDialog):
     """Invisible: a Kodi-filled list of RECORDINGS_PATH (a list from <content> gets Kodi's
-    own context menu, CDirectoryProvider::OnContextMenu). Set path and shown before doModal."""
+    own context menu, CDirectoryProvider::OnContextMenu). It opens that menu on the recording
+    and picks Kodi's Delete. Set path before doModal; outcome says what happened."""
+    ASKED = 'asked'        # Kodi asked "Delete this recording?" (the answer isn't known)
+    REFUSED = 'refused'    # Kodi's menu has no Delete for it (e.g. still being recorded)
+    MISSING = 'missing'    # not in Kodi's listing
 
     def onInit(self):
         threading.Thread(target=self._run, daemon=True).start()
 
     def _run(self):
+        try:
+            self.outcome = self._pick_delete()
+        finally:
+            self.close()
+
+    def _pick_delete(self):
         me = xbmcgui.getCurrentWindowDialogId()
         found = self._find(timeout=3.0)
         if found is None:
             K.log(f'{self.path} not found in Kodi\'s recordings listing')
-            self.close()
-            return
+            return self.MISSING
         self.getControl(RECORDING_LIST).selectItem(found)
         self._wait(lambda: self._info('CurrentItem') == str(found + 1), 1.0)
-        self.shown = True
         xbmc.executebuiltin('Action(ContextMenu)')
-        # the menu opens over this dialog; when it, and whatever it opened, is gone, we're done
-        self._wait(lambda: xbmcgui.getCurrentWindowDialogId() != me, 2.0)
-        self._wait(lambda: xbmcgui.getCurrentWindowDialogId() == me
-                   or not xbmc.getCondVisibility(f'Window.IsVisible({me})'), None)
-        self.close()
+        if not self._wait(lambda: xbmc.getCondVisibility('Window.IsActive(contextmenu)')
+                          and xbmc.getInfoLabel(f'Control.GetLabel({MENU_BUTTONS})'), 2.0):
+            K.log('Kodi\'s context menu didn\'t open on the recording')
+            return self.MISSING
+        # the menu is the topmost dialog, which Control.GetLabel reads with no window context;
+        # Kodi labels its own Delete entry with its "Delete" string
+        delete = xbmc.getLocalizedString(117)
+        labels = []
+        for button in range(MENU_BUTTONS, MENU_BUTTONS + 50):
+            labels.append(xbmc.getInfoLabel(f'Control.GetLabel({button})'))
+            if not labels[-1] or labels[-1] == delete:
+                break
+        if labels[-1] != delete:
+            xbmc.executebuiltin('Action(Back)')
+            return self.REFUSED
+        xbmc.executebuiltin(f'SetFocus({MENU_BUTTONS + len(labels) - 1})')
+        xbmc.executebuiltin('Action(Select)')
+        # Kodi now closes the menu and asks; that (and deleting) is over when this dialog is on
+        # top again and still is a moment later (it briefly is between the menu and the question)
+        def on_top():
+            return (xbmcgui.getCurrentWindowDialogId() == me
+                    or not xbmc.getCondVisibility(f'Window.IsVisible({me})'))
+
+        def settled():
+            if not on_top():
+                return False
+            xbmc.sleep(200)
+            return on_top()
+        self._wait(lambda: not on_top(), 2.0)
+        self._wait(settled, None)
+        return self.ASKED
 
     def _info(self, name):
         return xbmc.getInfoLabel(f'Container({RECORDING_LIST}).{name}')
