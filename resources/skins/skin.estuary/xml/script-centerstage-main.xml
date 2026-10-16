@@ -37,10 +37,25 @@
 			</control>
 		</control>
 
+		<!-- Estuary's top bar, as in the recordings window: "Center Stage" as the breadcrumbs and
+		     the Stage shown under it (the group property: "All Stages" or the group's name),
+		     plus the clock and what's playing. Drawn before the panels, so its shading stays
+		     behind them. The group stops 10px short of the right edge, so the clock (20px in
+		     from the group's edge in TopBar) ends where the right-hand panels do. -->
+		<control type="group">
+			<left>0</left>
+			<right>10</right>
+			<include content="TopBar">
+				<param name="breadcrumbs_label" value="$ADDON[script.centerstage 32001]" />
+				<param name="sublabel" value="$INFO[Window.Property(group)]" />
+			</include>
+		</control>
+
 		<!-- left: titles. A plain list, so the first title sits at the top. Its panel is 30px in
 		     from the left and bottom of the screen and 30px from the right-hand panels, and
 		     starts below the top bar, level with them. (The panel image's 20px border is
-		     shadow, so 10..600 x 110..1070 shows 30..580 x 130..1050.) -->
+		     shadow, so 10..600 x 94..1070 shows 30..580 x 114..1050.) The list is exactly 12
+		     rows of 78, so no part-row shows at the bottom. -->
 		<control type="group">
 			<include>OpenClose_Left</include>
 			<!-- Estuary's ContentPanel, but with the opacity from the panel_opacity setting (80%
@@ -48,9 +63,9 @@
 			     the colour on Home (kodiutil.set_panel_colours). -->
 			<control type="image">
 				<left>10</left>
-				<top>110</top>
+				<top>94</top>
 				<width>590</width>
-				<height>960</height>
+				<height>976</height>
 				<texture colordiffuse="$INFO[Window(Home).Property(script.centerstage.panel)]">lists/panel.png</texture>
 				<bordertexture border="21" infill="false">overlays/shadow.png</bordertexture>
 				<bordersize>20</bordersize>
@@ -58,16 +73,16 @@
 			<!-- the list (and its focus bar) runs up to the scrollbar -->
 			<control type="list" id="100">
 				<left>30</left>
-				<top>130</top>
+				<top>114</top>
 				<width>538</width>
-				<height>920</height>
+				<height>936</height>
 				<onright>200</onright>
 				<onup>100</onup>
 				<ondown>100</ondown>
 				<pagecontrol>101</pagecontrol>
 				<scrolltime tween="cubic" easing="out">300</scrolltime>
 				<orientation>vertical</orientation>
-				<focusedlayout height="80">
+				<focusedlayout height="78">
 					<!-- stays, dimmed, while the episodes have focus, to mark whose they are -->
 					<control type="image">
 						<left>0</left>
@@ -89,7 +104,7 @@
 						<shadowcolor>text_shadow</shadowcolor>
 					</control>
 				</focusedlayout>
-				<itemlayout height="80">
+				<itemlayout height="78">
 					<control type="label">
 						<left>30</left>
 						<right>20</right>
@@ -104,9 +119,9 @@
 			</control>
 			<control type="scrollbar" id="101">
 				<left>568</left>
-				<top>130</top>
+				<top>114</top>
 				<width>12</width>
-				<height>920</height>
+				<height>936</height>
 				<onleft>100</onleft>
 				<onright>200</onright>
 				<orientation>vertical</orientation>
@@ -114,7 +129,7 @@
 			</control>
 			<control type="textbox">
 				<left>60</left>
-				<top>160</top>
+				<top>144</top>
 				<width>470</width>
 				<height>500</height>
 				<font>font13</font>
@@ -135,7 +150,7 @@
 			<left>610</left>
 			<right>30</right>
 			<control type="group">
-				<top>130</top>
+				<top>114</top>
 				<right>0</right>
 				<control type="image">
 					<left>-20</left>
@@ -264,13 +279,14 @@
 			</control>
 
 			<control type="group">
-				<top>640</top>
+				<top>624</top>
 				<right>0</right>
+				<!-- 426 tall: the image is 40px taller than what shows (20px shadow each side) -->
 				<control type="image">
 					<left>-20</left>
 					<top>-20</top>
 					<right>-20</right>
-					<height>430</height>
+					<height>466</height>
 					<texture colordiffuse="$INFO[Window(Home).Property(script.centerstage.panel)]">lists/panel.png</texture>
 					<bordertexture border="21" infill="false">overlays/shadow.png</bordertexture>
 					<bordersize>20</bordersize>
@@ -282,9 +298,9 @@
 				     Everything stays in place whichever list has focus, so nothing jumps while
 				     navigating; only the contents change. -->
 				<control type="label">
-					<left>10</left>
-					<top>10</top>
-					<right>450</right>
+					<left>20</left>
+					<top>8</top>
+					<right>440</right>
 					<height>45</height>
 					<font>font32_title</font>
 					<scroll>true</scroll>
@@ -293,9 +309,9 @@
 					<shadowcolor>text_shadow</shadowcolor>
 				</control>
 				<control type="label">
-					<left>10</left>
-					<top>55</top>
-					<right>450</right>
+					<left>20</left>
+					<top>53</top>
+					<right>440</right>
 					<height>45</height>
 					<font>font36_title</font>
 					<scroll>true</scroll>
@@ -304,8 +320,8 @@
 					<visible>Control.HasFocus(200)</visible>
 				</control>
 				<control type="textbox">
-					<right>30</right>
-					<top>14</top>
+					<right>20</right>
+					<top>12</top>
 					<width>400</width>
 					<height>96</height>
 					<font>font25_narrow</font>
@@ -315,8 +331,8 @@
 					<visible>Control.HasFocus(200)</visible>
 				</control>
 				<control type="textbox">
-					<right>30</right>
-					<top>14</top>
+					<right>20</right>
+					<top>12</top>
 					<width>400</width>
 					<height>96</height>
 					<font>font25_narrow</font>
@@ -326,40 +342,40 @@
 					<visible>!Control.HasFocus(200)</visible>
 				</control>
 				<control type="image">
-					<left>10</left>
+					<left>20</left>
 					<top>110</top>
-					<width>480</width>
-					<height>270</height>
+					<width>526</width>
+					<height>296</height>
 					<aspectratio>keep</aspectratio>
 					<fadetime>200</fadetime>
 					<texture background="true" fallback="DefaultTVShows.png">$INFO[Container(100).ListItem.Art(thumb)]</texture>
 					<visible>!Control.HasFocus(200)</visible>
 				</control>
 				<control type="image">
-					<left>10</left>
+					<left>20</left>
 					<top>110</top>
-					<width>480</width>
-					<height>270</height>
+					<width>526</width>
+					<height>296</height>
 					<aspectratio>keep</aspectratio>
 					<fadetime>200</fadetime>
 					<texture background="true">$INFO[Container(200).ListItem.Art(thumb)]</texture>
 					<visible>Control.HasFocus(200)</visible>
 				</control>
 				<control type="textbox">
-					<left>510</left>
+					<left>566</left>
 					<top>110</top>
-					<right>30</right>
-					<height>270</height>
+					<right>20</right>
+					<height>296</height>
 					<font>font14</font>
 					<label>$INFO[Container(100).ListItem.Plot]</label>
 					<autoscroll delay="10000" time="3000" repeat="10000">Skin.HasSetting(autoscroll)</autoscroll>
 					<visible>!Control.HasFocus(200)</visible>
 				</control>
 				<control type="textbox">
-					<left>510</left>
+					<left>566</left>
 					<top>110</top>
-					<right>30</right>
-					<height>270</height>
+					<right>20</right>
+					<height>296</height>
 					<font>font14</font>
 					<label>$INFO[Container(200).ListItem.Plot]</label>
 					<autoscroll delay="10000" time="3000" repeat="10000">Skin.HasSetting(autoscroll)</autoscroll>
@@ -368,13 +384,6 @@
 			</control>
 		</control>
 
-		<!-- Estuary's top bar, as in the recordings window: "Center Stage" as the breadcrumbs and
-		     the Stage shown under it (the group property: "All Stages" or the group's name),
-		     plus the clock and what's playing. -->
-		<include content="TopBar">
-			<param name="breadcrumbs_label" value="$ADDON[script.centerstage 32001]" />
-			<param name="sublabel" value="$INFO[Window.Property(group)]" />
-		</include>
 		<!-- DVR backend disk space used, centred in the top bar, as text only (the user didn't
 		     want a bar). Hidden while something plays, when the top bar shows what's playing
 		     there, and when the backend doesn't report it (PVR.BackendDiskSpaceProgr is then

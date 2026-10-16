@@ -40,35 +40,35 @@
 		     from the left and bottom of the screen and 30px from the right-hand panels, and
 		     starts below the top bar, level with them. -->
 		<control type="image">
-			<left>30</left><top>130</top><width>550</width><height>920</height>
+			<left>30</left><top>114</top><width>550</width><height>936</height>
 			<texture colordiffuse="$INFO[Window(Home).Property(script.centerstage.panel_dark)]">uv-white.png</texture>
 		</control>
 		<control type="list" id="100">
-			<left>30</left><top>130</top><width>538</width><height>920</height>
+			<left>30</left><top>114</top><width>538</width><height>936</height>
 			<onright>200</onright>
 			<onup>100</onup>
 			<ondown>100</ondown>
 			<pagecontrol>101</pagecontrol>
 			<scrolltime tween="cubic" easing="out">300</scrolltime>
 			<orientation>vertical</orientation>
-			<focusedlayout height="80" width="538">
+			<focusedlayout height="78" width="538">
 				<!-- stays, dimmed, while the episodes have focus, to mark whose they are -->
 				<control type="image">
-					<left>0</left><top>0</top><width>538</width><height>80</height>
+					<left>0</left><top>0</top><width>538</width><height>78</height>
 					<texture colordiffuse="FF12A0C7">uv-white.png</texture>
 					<animation effect="fade" start="100" end="50" time="40" condition="!Control.HasFocus(100)">Conditional</animation>
 				</control>
 				<control type="label">
-					<left>30</left><top>0</top><width>488</width><height>80</height>
+					<left>30</left><top>0</top><width>488</width><height>78</height>
 					<font>font14</font>
 					<aligny>center</aligny>
 					<scroll>true</scroll>
 					<label>[B]$INFO[ListItem.Label][/B]</label>
 				</control>
 			</focusedlayout>
-			<itemlayout height="80" width="538">
+			<itemlayout height="78" width="538">
 				<control type="label">
-					<left>30</left><top>0</top><width>488</width><height>80</height>
+					<left>30</left><top>0</top><width>488</width><height>78</height>
 					<font>font14</font>
 					<aligny>center</aligny>
 					<label>$INFO[ListItem.Label]</label>
@@ -76,7 +76,7 @@
 			</itemlayout>
 		</control>
 		<control type="scrollbar" id="101">
-			<left>568</left><top>130</top><width>12</width><height>920</height>
+			<left>568</left><top>114</top><width>12</width><height>936</height>
 			<onleft>100</onleft>
 			<onright>200</onright>
 			<orientation>vertical</orientation>
@@ -88,7 +88,7 @@
 			<textureslidernibfocus></textureslidernibfocus>
 		</control>
 		<control type="textbox">
-			<left>60</left><top>160</top><width>470</width><height>500</height>
+			<left>60</left><top>144</top><width>470</width><height>500</height>
 			<font>font13</font>
 			<textcolor>FFA0A0A0</textcolor>
 			<label>$ADDON[script.centerstage 32029]</label>
@@ -99,11 +99,11 @@
 		     of the right edge of the screen, the same gap as between the two sides, and the
 		     scrollbar sits flush against its edge. -->
 		<control type="image">
-			<left>610</left><top>130</top><width>1280</width><height>480</height>
+			<left>610</left><top>114</top><width>1280</width><height>480</height>
 			<texture colordiffuse="$INFO[Window(Home).Property(script.centerstage.panel_dark)]">uv-white.png</texture>
 		</control>
 		<control type="list" id="200">
-			<left>610</left><top>130</top><width>1268</width><height>480</height>
+			<left>610</left><top>114</top><width>1268</width><height>480</height>
 			<onleft>100</onleft>
 			<onup>200</onup>
 			<ondown>200</ondown>
@@ -163,7 +163,7 @@
 			</itemlayout>
 		</control>
 		<control type="scrollbar" id="201">
-			<left>1878</left><top>130</top><width>12</width><height>480</height>
+			<left>1878</left><top>114</top><width>12</width><height>480</height>
 			<onleft>200</onleft>
 			<onright>200</onright>
 			<orientation>vertical</orientation>
@@ -175,14 +175,14 @@
 			<textureslidernibfocus></textureslidernibfocus>
 		</control>
 		<control type="label">
-			<left>674</left><top>220</top><width>1152</width><height>60</height>
+			<left>674</left><top>204</top><width>1152</width><height>60</height>
 			<font>font13</font>
 			<textcolor>FFA0A0A0</textcolor>
 			<label>$ADDON[script.centerstage 32028]</label>
 			<visible>String.IsEqual(Window.Property(loading),true)</visible>
 		</control>
 		<control type="textbox">
-			<left>674</left><top>220</top><width>1152</width><height>300</height>
+			<left>674</left><top>204</top><width>1152</width><height>300</height>
 			<font>font13</font>
 			<textcolor>FFA0A0A0</textcolor>
 			<label>$INFO[Window.Property(message)]</label>
@@ -195,27 +195,27 @@
 		     the left (16:9 fills it, 4:3 fills its height) and the plot beside it. Everything
 		     stays in place whichever list has focus; only the contents change. -->
 		<control type="image">
-			<left>610</left><top>640</top><width>1280</width><height>390</height>
+			<left>610</left><top>624</top><width>1280</width><height>426</height>
 			<texture colordiffuse="$INFO[Window(Home).Property(script.centerstage.panel_dark)]">uv-white.png</texture>
 		</control>
 		<control type="group">
-			<left>610</left><top>640</top><width>1280</width><height>390</height>
+			<left>610</left><top>624</top><width>1280</width><height>426</height>
 			<control type="label">
-				<left>10</left><top>10</top><width>820</width><height>45</height>
+				<left>20</left><top>8</top><width>820</width><height>45</height>
 				<font>font13</font>
 				<textcolor>FF12A0C7</textcolor>
 				<scroll>true</scroll>
 				<label>[B]$INFO[Container(100).ListItem.Label][/B]</label>
 			</control>
 			<control type="label">
-				<left>10</left><top>55</top><width>820</width><height>45</height>
+				<left>20</left><top>53</top><width>820</width><height>45</height>
 				<font>font14</font>
 				<scroll>true</scroll>
 				<label>[B]$INFO[Container(200).ListItem.Property(name)][/B]</label>
 				<visible>Control.HasFocus(200)</visible>
 			</control>
 			<control type="textbox">
-				<left>850</left><top>14</top><width>400</width><height>96</height>
+				<left>860</left><top>12</top><width>400</width><height>96</height>
 				<font>font12</font>
 				<align>right</align>
 				<textcolor>FFA0A0A0</textcolor>
@@ -223,7 +223,7 @@
 				<visible>Control.HasFocus(200)</visible>
 			</control>
 			<control type="textbox">
-				<left>850</left><top>14</top><width>400</width><height>96</height>
+				<left>860</left><top>12</top><width>400</width><height>96</height>
 				<font>font12</font>
 				<align>right</align>
 				<textcolor>FFA0A0A0</textcolor>
@@ -231,28 +231,28 @@
 				<visible>!Control.HasFocus(200)</visible>
 			</control>
 			<control type="image">
-				<left>10</left><top>110</top><width>480</width><height>270</height>
+				<left>20</left><top>110</top><width>526</width><height>296</height>
 				<aspectratio>keep</aspectratio>
 				<fadetime>200</fadetime>
 				<texture background="true">$INFO[Container(100).ListItem.Art(thumb)]</texture>
 				<visible>!Control.HasFocus(200)</visible>
 			</control>
 			<control type="image">
-				<left>10</left><top>110</top><width>480</width><height>270</height>
+				<left>20</left><top>110</top><width>526</width><height>296</height>
 				<aspectratio>keep</aspectratio>
 				<fadetime>200</fadetime>
 				<texture background="true">$INFO[Container(200).ListItem.Art(thumb)]</texture>
 				<visible>Control.HasFocus(200)</visible>
 			</control>
 			<control type="textbox">
-				<left>510</left><top>110</top><width>740</width><height>270</height>
+				<left>566</left><top>110</top><width>694</width><height>296</height>
 				<font>font14</font>
 				<autoscroll delay="10000" time="3000" repeat="10000">true</autoscroll>
 				<label>$INFO[Container(100).ListItem.Plot]</label>
 				<visible>!Control.HasFocus(200)</visible>
 			</control>
 			<control type="textbox">
-				<left>510</left><top>110</top><width>740</width><height>270</height>
+				<left>566</left><top>110</top><width>694</width><height>296</height>
 				<font>font14</font>
 				<autoscroll delay="10000" time="3000" repeat="10000">true</autoscroll>
 				<label>$INFO[Container(200).ListItem.Plot]</label>
@@ -273,6 +273,14 @@
 			<font>font13</font>
 			<aligny>center</aligny>
 			<label>$INFO[Window.Property(group)]</label>
+		</control>
+		<!-- the clock, ending where the right-hand panels do, as in the Estuary layout -->
+		<control type="label">
+			<left>1390</left><top>10</top><width>500</width><height>50</height>
+			<font>font14</font>
+			<align>right</align>
+			<aligny>center</aligny>
+			<label>$INFO[System.Time]</label>
 		</control>
 		<!-- DVR backend disk space used, centred in the top bar, as text only.
 		     PVR.BackendDiskSpaceProgr is 255 when the backend doesn't report it. The text is the
