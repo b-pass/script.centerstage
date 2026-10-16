@@ -82,7 +82,7 @@ def list_titles(handle, group=None):
 
 def list_stages(handle):
     items = []
-    for group in [None] + K.recording_groups(K.rpc()):
+    for group in K.recording_groups(K.rpc()) + [None]:  # "All Stages" last
         li = xbmcgui.ListItem(K.group_label(group), offscreen=True)
         li.setProperty('stage', script_args(group=group, ask=False))
         li.setProperty('IsPlayable', 'false')

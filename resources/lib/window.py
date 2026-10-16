@@ -502,7 +502,7 @@ def show(preselect=None, group=None, ask=True):
     ask = len(groups) > 1
     while True:
         if ask:
-            ok, group = K.pick_group(K.tr('group'), [None] + groups, store.last_group())
+            ok, group = K.pick_group(K.tr('group'), groups + [None], store.last_group())
             if not ok:
                 return
             store.set_last_group(group)

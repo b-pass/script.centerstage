@@ -158,8 +158,8 @@ def pick_entry_group(rpc, current=''):
     named = recording_groups(rpc)
     if len(named) < 2 and current in named + ['']:
         return ''
-    options = [None] + sorted(set(named) | ({current} - {''}),
-                              key=lambda g: (g != pvr.DEFAULT_GROUP, g.casefold()))
+    options = sorted(set(named) | ({current} - {''}),
+                     key=lambda g: (g != pvr.DEFAULT_GROUP, g.casefold())) + [None]
     ok, group = pick_group(tr('which_group'), options, current or None)
     return (group or '') if ok else None
 
