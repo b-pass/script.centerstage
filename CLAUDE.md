@@ -108,6 +108,9 @@ Layout rules (the numbers are in the XML):
 - Control 100 (titles) is a plain `list`, not a `fixedlist` (the user rejected the gap above the
   first title); its selected row stays dimly highlighted while 200 (episodes) has focus. 101 and
   201 are mouse/touch-only scrollbars.
+- DVR titles (and Newest, and merged titles made only of DVR series) show a watched icon:
+  `Entry.watched` counts watched recordings, and `entry_listitem` sets the `status` property,
+  a playcount when all are watched, and the usual `TotalEpisodes`/`WatchedEpisodes` properties.
 - A title's picture is its `thumb`; for DVR series that's the series fanart, not pvr.mythtv's
   preview image, which is for episodes (as in the recordings window). No picture: `stage.jpg`.
 - The background is `Skin.String(centerstage.background)` of the running skin, a persistent

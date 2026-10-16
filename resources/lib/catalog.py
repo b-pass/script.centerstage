@@ -33,7 +33,9 @@ def merged_entry(members):
                  art=dict(next((m.art for m in members if m.art), {})),
                  plot=next((m.plot for m in members if m.plot), ''), year=first.year,
                  added=max(m.added for m in members), auto=True,
-                 count=sum(m.count for m in members), members=members)
+                 count=sum(m.count for m in members), members=members,
+                 watched=(sum(m.watched for m in members)
+                          if all(m.watched >= 0 for m in members) else -1))
 
 
 def merge(entries):

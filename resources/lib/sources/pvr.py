@@ -115,7 +115,7 @@ def series_entries(recs, hidden=(), renames=None):
             display_title=renames.get(eid, title), show_title=title, art=art,
             plot=newest.get('plotoutline') or newest.get('plot') or '',
             added=_epoch(newest.get('starttime')), origin=', '.join(channels), auto=True,
-            count=len(group)))
+            count=len(group), watched=sum(1 for r in group if as_int(r.get('playcount'), 0) > 0)))
     return out
 
 
@@ -127,7 +127,7 @@ def newest_entry(series, title):
                  ref={'titles': {pvr_key(e.ref['title']): plain(e.display_title) for e in series}},
                  display_title=title,
                  art=dict(latest.art), added=latest.added, auto=True,
-                 count=sum(e.count for e in series))
+                 count=sum(e.count for e in series), watched=sum(e.watched for e in series))
 
 
 def episodes(rpc, entry, recs=None):
