@@ -30,6 +30,12 @@ it costly and offer the options, including a simpler version or dropping it. The
 tell from the conversation how much work a request is, and wants to weigh that first. Ordinary
 features don't need this; just build them.
 
+Workarounds count, even short ones. Example: for "89.1%" disk space, the only source of the
+decimal was parsing the sizes out of the localised `PVR.BackendDiskSpace` text. That's a hack the
+user would have refused: it was built, then dropped. Scraping numbers out of display strings,
+polling for something Kodi doesn't report, and duplicating what a skin include does are all
+reasons to ask first.
+
 ## Commands
 
 - Tests: `python3 -m unittest discover tests`
