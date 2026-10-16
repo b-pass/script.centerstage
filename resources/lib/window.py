@@ -41,7 +41,6 @@ DELETE_BUTTONS = (249, 0xF087)
 
 POLL = 0.03     # seconds between checks of the left list's selection
 SETTLE = 0.1    # how long the selection must stay put before rows that need loading load
-STEADY = 0.3    # how long a series must stay selected before its recordings count is trusted
 DISK_EVERY = 900   # seconds between asking Kodi to re-read the backend's disk space
 DISK_WAIT = 30     # for this long after asking, read the answer every second (it comes later)
 
@@ -134,16 +133,12 @@ class MainWindow(xbmcgui.WindowXML):
                 self._select(pos)
             else:
                 self.current = rows[pos]  # same entry, possibly renamed
-        focus = self.getFocusId()
-        if focus not in (TITLES, EPISODES, RECORDINGS) \
-                or (focus == RECORDINGS and self.current.source != PVR):
+        if self.getFocusId() not in (TITLES, EPISODES, RECORDINGS):
             self.setFocusId(TITLES)
 
     def _watch(self):
         """WindowXML has no "selection changed" callback, so poll the left list."""
         seen, since, disk_next, disk_until, disk_at = None, 0.0, 0.0, 0.0, 0.0
-        shown, last = None, None   # Kodi's recordings list: (folder, count) as learned, last read
-        folder, folder_since = None, 0.0
         while not self.closing.is_set():
             self.wake.wait(POLL)
             self.wake.clear()
@@ -171,30 +166,6 @@ class MainWindow(xbmcgui.WindowXML):
                 if 0 <= pos < len(self.rows) and self.rows[pos].id != self.shown_id \
                         and (now - since >= SETTLE or self._at_hand(self.rows[pos])):
                     self._select(pos)
-            # Kodi tells add-ons nothing when recordings change (a delete from its menu, one
-            # finishing), but its own list for the selected series changes: refresh the titles
-            # (counts, details, a series that's gone) when its count does
-            now_shown = self._recordings_shown()
-            if (now_shown and now_shown[0]) != folder:
-                folder, folder_since = now_shown and now_shown[0], now
-            if now_shown is None or now_shown != last or now - folder_since < STEADY:
-                # settling: learn it once the series has stayed selected and two reads agree
-                # (while flipping quickly, the new folder can briefly show the old count)
-                last = now_shown
-            elif shown is not None and now_shown[0] == shown[0] and now_shown[1] != shown[1]:
-                shown = None
-                self._refresh(keep=True)
-                continue
-            else:
-                shown = now_shown
-
-    @staticmethod
-    def _recordings_shown():
-        """(folder, count) of Kodi's recordings list, or None while it isn't shown or is filling."""
-        folder = xbmc.getInfoLabel(f'Container({TITLES}).ListItem.Property(folder)')
-        if not folder or xbmc.getCondVisibility(f'Container({RECORDINGS}).IsUpdating'):
-            return None
-        return folder, xbmc.getInfoLabel(f'Container({RECORDINGS}).NumItems')
 
     def _at_hand(self, entry):
         """Whether entry's rows show without loading: PVR series (Kodi's list) and rows kept
