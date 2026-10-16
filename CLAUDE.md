@@ -109,7 +109,9 @@ Layout rules (the numbers are in the XML):
   reliably found.
 - Control 100 (titles) is a plain `list`, not a `fixedlist` (the user rejected the gap above the
   first title); its selected row stays dimly highlighted while 200 or 210 (episodes) has focus.
-  101, 201 and 211 are mouse/touch-only scrollbars.
+  101, 201 and 211 are mouse/touch-only scrollbars. In the episodes lists the selected row
+  looks like the others while the list isn't focused (its icon and date switch on
+  `Control.HasFocus`).
 - **A PVR series' episodes are Kodi's own list (control 210, `<content>` of the series'
   `pvr://` folder, `pvr.folder_of()`), not Python rows.** Kodi's recording menu (Delete, Edit,
   …) only exists for items Kodi lists, and add-ons can't delete recordings any other way. Don't
