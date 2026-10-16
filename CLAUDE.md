@@ -167,6 +167,8 @@ Layout rules (the numbers are in the XML):
   `ref['titles']` holds the shown series, so hidden ones stay out and renames show.
 - **Same-named titles are deliberately not merged**: each title's rows come from one place and
   its menu acts on one thing. Merging was built and removed as too complex for what it gave.
+- A title's menu can override `hide_watched` for that title (`Store.hide_watched()`, read once
+  per `_refresh`); Newest's override is its own, not its series'.
 - Added seasons are named after the show; menus still say "Show - Season N" via
   `classify.season_description()`.
 

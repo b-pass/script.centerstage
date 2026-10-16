@@ -100,6 +100,7 @@ class MainWindow(xbmcgui.WindowXML):
             # the row the user is on: the episodes shown can lag behind it while they scroll
             select = self.rows[was_at].id if 0 <= was_at < len(self.rows) else self.shown_id
         stored = self.store.entries()
+        self.hide_watched = self.store.hide_watched()  # titles' own choices, kept for switching
         pvr_rows = []
         self.recs = []
         pvr_ok = False
@@ -251,7 +252,7 @@ class MainWindow(xbmcgui.WindowXML):
             arranged = catalog.arrange(
                 rows, newest_first=episodic and entry.source != NEWEST
                 and K.setting_int('episode_order', 0) == 1,
-                hide_watched=episodic and K.setting_bool('hide_watched'),
+                hide_watched=episodic and self._hides_watched(entry),
                 limit=pvr.NEWEST_LIMIT if entry.source == NEWEST else None)
             shown = ([parent_row()] if self._stack() else []) + arranged
             if keep_position:
@@ -268,6 +269,9 @@ class MainWindow(xbmcgui.WindowXML):
                 self.list.selectItem(pos)
             self.setProperty('loading', '')
             self.setProperty('message', '' if arranged else K.tr('no_episodes'))
+
+    def _hides_watched(self, entry):
+        return self.hide_watched.get(entry.id, K.setting_bool('hide_watched'))
 
     def _clear_episodes(self, loading=False, message='', parent=False):
         self.list.reset()
@@ -442,6 +446,10 @@ class MainWindow(xbmcgui.WindowXML):
         if entry.source != NEWEST:  # named after the group: nothing to rename, hide or remove
             actions.append((K.tr('rename'), lambda: self._rename(entry)))
         actions.append((K.tr('refresh'), self._refresh_current))
+        if not entry.is_single and entry.source != MOVIES:
+            hides = self._hides_watched(entry)
+            actions.append((K.tr('show_watched' if hides else 'hide_watched'),
+                            lambda: self._set_hide_watched(entry, not hides)))
         if entry.source == PVR:
             actions.append((K.tr('hide_pvr'), lambda: self._hide(entry)))
         elif entry.source not in (MOVIES, NEWEST):  # movies are removed from their own rows' menu
@@ -479,6 +487,13 @@ class MainWindow(xbmcgui.WindowXML):
         if title and title.strip() and title.strip() != entry.display_title:
             self.store.rename(entry.id, title.strip())
             self._refresh(keep=True)
+
+    def _set_hide_watched(self, entry, hide):
+        self.store.set_hide_watched(entry.id, hide, K.setting_bool('hide_watched'))
+        with self.lock:
+            self.hide_watched = self.store.hide_watched()
+            if self.current and self.current.id == entry.id:
+                self._load()
 
     def _remove(self, entry):
         self.store.remove(entry.id)
