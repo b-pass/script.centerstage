@@ -59,14 +59,8 @@
 					<texture colordiffuse="FF12A0C7">uv-white.png</texture>
 					<animation effect="fade" start="100" end="50" time="40" condition="!Control.HasFocus(100)">Conditional</animation>
 				</control>
-				<!-- watched state, for titles that know it (DVR series): a dot while any is unwatched -->
-				<control type="image">
-					<left>500</left><top>33</top><width>12</width><height>12</height>
-					<texture colordiffuse="FFFFFFFF">uv-white.png</texture>
-					<visible>String.IsEqual(ListItem.Property(status),true) + !String.IsEqual(ListItem.Property(watched),true)</visible>
-				</control>
 				<control type="label">
-					<left>30</left><top>0</top><width>452</width><height>78</height>
+					<left>30</left><top>0</top><width>488</width><height>78</height>
 					<font>font14</font>
 					<aligny>center</aligny>
 					<scroll>true</scroll>
@@ -74,14 +68,8 @@
 				</control>
 			</focusedlayout>
 			<itemlayout height="78" width="538">
-				<!-- watched state, for titles that know it (DVR series): a dot while any is unwatched -->
-				<control type="image">
-					<left>500</left><top>33</top><width>12</width><height>12</height>
-					<texture colordiffuse="FF12A0C7">uv-white.png</texture>
-					<visible>String.IsEqual(ListItem.Property(status),true) + !String.IsEqual(ListItem.Property(watched),true)</visible>
-				</control>
 				<control type="label">
-					<left>30</left><top>0</top><width>452</width><height>78</height>
+					<left>30</left><top>0</top><width>488</width><height>78</height>
 					<font>font14</font>
 					<aligny>center</aligny>
 					<label>$INFO[ListItem.Label]</label>

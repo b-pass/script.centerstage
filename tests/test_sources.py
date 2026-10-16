@@ -63,10 +63,6 @@ class Pvr(unittest.TestCase):
         self.assertTrue(office.auto)
         self.assertEqual(office.origin, 'NBC')
         self.assertEqual(office.art['thumb'], 'nbc.png')  # newest recording's, via its icon
-        news = next(e for e in rows if e.count == 1)
-        self.assertEqual((office.watched, news.watched), (0, 1))
-        self.assertEqual(pvr.newest_entry(rows, 'N').watched, 1)
-        self.assertNotIn('watched', office.to_dict())
 
     def test_series_picture_is_fanart_not_preview(self):
         recs = [dict(r) for r in RECORDINGS]
