@@ -169,4 +169,4 @@ def _episode(rec, sort):
         season=season, episode=number, plot=rec.get('plot') or rec.get('plotoutline') or '',
         art=_art(rec), playcount=as_int(rec.get('playcount'), 0), resume=position,
         total=total, runtime=as_int(rec.get('runtime'), 0), date=when,
-        channel=rec.get('channel') or '', untitled=untitled, sort=sort, path=rec.get('file') or '')
+        channel=rec.get('channel') or '', untitled=untitled, sort=sort)
