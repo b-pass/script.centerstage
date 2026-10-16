@@ -29,7 +29,10 @@ class Skins(unittest.TestCase):
     def test_every_layout_has_the_controls_and_properties_python_uses(self):
         for path in LAYOUTS:
             text = body(path)
-            for needed in ('id="100"', 'id="101"', 'id="200"', 'id="201"',
+            for needed in ('id="100"', 'id="101"', 'id="200"', 'id="201"', 'id="210"', 'id="211"',
+                           'Window(Home).Property(script.centerstage.recordings)',
+                           'Window(Home).Property(script.centerstage.order)',
+                           'Window.Property(recordings)',
                            'Property(name)', 'Property(details)', 'Property(origin)',
                            'Window.Property(loading)', 'Window.Property(message)',
                            'Window.Property(empty)', 'Window.Property(dvr)',
