@@ -2,7 +2,8 @@
 """Builds the left-hand list and each entry's episode list from the store and the sources.
 Kodi-free."""
 from jsonrpc import RpcError
-from model import Entry, Episode, LIBRARY, MOVIE, MOVIES, MOVIES_ID, NEWEST, SHOW, sort_title
+from model import (Entry, Episode, ADDON, LIBRARY, MOVIE, MOVIES, MOVIES_ID, NEWEST, SHOW,
+                   sort_title)
 from sources import library, pvr, addon
 
 SORT_TITLE = 0
@@ -67,6 +68,8 @@ def movie_rows(rpc, entry, kodi_major):
         row.label = movie.display_title
         row.sort = (sort_title(movie.display_title), movie.id)
         row.entry_id = movie.id
+        if movie.source == ADDON:
+            row.origin = movie.origin
         out.append(row)
     return out
 
