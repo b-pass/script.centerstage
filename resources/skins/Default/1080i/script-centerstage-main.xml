@@ -45,7 +45,7 @@
 		</control>
 		<control type="list" id="100">
 			<left>30</left><top>114</top><width>538</width><height>936</height>
-			<onright condition="String.IsEqual(Window.Property(recordings),true)">210</onright>
+			<onright condition="!String.IsEmpty(Container(100).ListItem.Property(folder))">210</onright>
 			<onright>200</onright>
 			<onup>100</onup>
 			<ondown>100</ondown>
@@ -79,7 +79,7 @@
 		<control type="scrollbar" id="101">
 			<left>568</left><top>114</top><width>12</width><height>936</height>
 			<onleft>100</onleft>
-			<onright condition="String.IsEqual(Window.Property(recordings),true)">210</onright>
+			<onright condition="!String.IsEmpty(Container(100).ListItem.Property(folder))">210</onright>
 			<onright>200</onright>
 			<orientation>vertical</orientation>
 			<showonepage>false</showonepage>
@@ -105,7 +105,7 @@
 			<texture colordiffuse="$INFO[Window(Home).Property(script.centerstage.panel_dark)]">uv-white.png</texture>
 		</control>
 		<control type="list" id="200">
-			<visible>!String.IsEqual(Window.Property(recordings),true)</visible>
+			<visible>!!String.IsEmpty(Container(100).ListItem.Property(folder))</visible>
 			<left>610</left><top>114</top><width>1268</width><height>480</height>
 			<onleft>100</onleft>
 			<onup>200</onup>
@@ -166,7 +166,7 @@
 			</itemlayout>
 		</control>
 		<control type="scrollbar" id="201">
-			<visible>!String.IsEqual(Window.Property(recordings),true)</visible>
+			<visible>!!String.IsEmpty(Container(100).ListItem.Property(folder))</visible>
 			<left>1878</left><top>114</top><width>12</width><height>480</height>
 			<onleft>200</onleft>
 			<onright>200</onright>
@@ -178,14 +178,16 @@
 			<textureslidernib></textureslidernib>
 			<textureslidernibfocus></textureslidernibfocus>
 		</control>
-		<!-- A DVR series' recordings: Kodi's own list, filled from the series' pvr:// folder, so
-		     its items get Kodi's recording menu (Delete, Edit, Information…) and play handling.
-		     window.py sets the folder and order on Home. Kodi labels a recording with the show's
-		     title, so the rows are built from its fields. -->
+		<!-- A DVR series' recordings: Kodi's own list, filled from the series' pvr:// folder,
+		     so its items get Kodi's recording menu (Delete, Edit, Information…), icons and
+		     play handling. The folder comes straight from the selected title (its folder
+		     property), so the list switches the moment the selection moves, as a skin's
+		     onfocus would; the sort order is a Home property. Kodi labels a recording with
+		     the show's title, so the rows are built from its fields. -->
 		<control type="list" id="210">
 			<!-- hidden while Kodi fetches, unless focused: it would show the previous series' rows
 			     (it can still take focus meanwhile, then shows) -->
-			<visible allowhiddenfocus="true">String.IsEqual(Window.Property(recordings),true) + [Control.HasFocus(210) | !Container(210).IsUpdating]</visible>
+			<visible allowhiddenfocus="true">!String.IsEmpty(Container(100).ListItem.Property(folder)) + [Control.HasFocus(210) | !Container(210).IsUpdating]</visible>
 			<left>610</left><top>114</top><width>1268</width><height>480</height>
 			<onleft>100</onleft>
 			<onup>210</onup>
@@ -193,7 +195,7 @@
 			<pagecontrol>211</pagecontrol>
 			<scrolltime tween="cubic" easing="out">300</scrolltime>
 			<orientation>vertical</orientation>
-			<content sortby="date" sortorder="$INFO[Window(Home).Property(script.centerstage.order)]" browse="never">$INFO[Window(Home).Property(script.centerstage.recordings)]</content>
+			<content sortby="date" sortorder="$INFO[Window(Home).Property(script.centerstage.order)]" browse="never">$INFO[Container(100).ListItem.Property(folder)]</content>
 			<focusedlayout height="60" width="1268">
 				<control type="image">
 					<left>0</left><top>0</top><width>1268</width><height>60</height>
@@ -277,7 +279,7 @@
 			</itemlayout>
 		</control>
 		<control type="scrollbar" id="211">
-			<visible>String.IsEqual(Window.Property(recordings),true)</visible>
+			<visible>!String.IsEmpty(Container(100).ListItem.Property(folder))</visible>
 			<left>1878</left><top>114</top><width>12</width><height>480</height>
 			<onleft>210</onleft>
 			<onright>210</onright>
@@ -294,7 +296,7 @@
 			<font>font13</font>
 			<textcolor>FFA0A0A0</textcolor>
 			<label>$ADDON[script.centerstage 32028]</label>
-			<visible>String.IsEqual(Window.Property(recordings),true) + Container(210).IsUpdating</visible>
+			<visible>!String.IsEmpty(Container(100).ListItem.Property(folder)) + Container(210).IsUpdating</visible>
 			<animation effect="fade" start="0" end="100" time="0" delay="250">Visible</animation>
 		</control>
 		<control type="label">
@@ -302,7 +304,7 @@
 			<font>font13</font>
 			<textcolor>FFA0A0A0</textcolor>
 			<label>$ADDON[script.centerstage 32031]</label>
-			<visible>String.IsEqual(Window.Property(recordings),true) + !Container(210).IsUpdating + Integer.IsEqual(Container(210).NumItems,0)</visible>
+			<visible>!String.IsEmpty(Container(100).ListItem.Property(folder)) + !Container(210).IsUpdating + Integer.IsEqual(Container(210).NumItems,0)</visible>
 		</control>
 		<control type="label">
 			<left>674</left><top>204</top><width>1152</width><height>60</height>
