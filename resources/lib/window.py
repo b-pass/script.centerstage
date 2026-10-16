@@ -70,7 +70,7 @@ class MainWindow(xbmcgui.WindowXML):
         self.gen = 0            # bumps on every load; stale loads check it
         self.titles = self.getControl(TITLES)
         self.list = self.getControl(EPISODES)
-        self.setProperty('group', '' if self.group is None else K.group_label(self.group))
+        self.setProperty('group', K.group_label(self.group))  # under "Center Stage" at the top
         self._refresh(select=self.preselect)
         threading.Thread(target=self._watch, daemon=True).start()
 

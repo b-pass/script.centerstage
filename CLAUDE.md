@@ -144,9 +144,14 @@ instead. `Default/` itself does use `1080i`: that last fallback scans the folder
       `font27` rows and a `font12` plot, and users said so.)
     - every control is in the same place whichever list has focus, so nothing jumps while
       navigating; only the contents swap (`Control.HasFocus(200)`)
-    - the panes are 30px apart, and the right-hand panels stop 30px short of the right edge
-      of the screen (the user asked for the same gap there). The titles panel still runs off
-      the left edge. Scrollbars sit flush with their panel's visible edge.
+    - the panes are 30px apart, and 30px from the screen's left, right and bottom edges (the
+      user asked for the same gap all round): the titles panel shows at x 30..580, the
+      right-hand panels from x 610 to 30px short of the right edge, all from y 130 (below the
+      top bar) to 1050. Scrollbars sit flush with their panel's visible edge.
+    - the top bar is like the recordings window's: "Center Stage" as the breadcrumbs and the
+      Stage under it as the sublabel (Estuary's `TopBar` with `breadcrumbs_label` and
+      `sublabel`; plain labels in Default). The user removed the breadcrumbs once, then
+      wanted them back in this form.
 - Control 100 is the titles list. It is a plain `list`, so the first title is at the top. The user
   rejected a `fixedlist` (the recordings window's choice), because it leaves empty space above
   the first title. Its selected row keeps a dimmed highlight while the episodes have
@@ -157,11 +162,9 @@ instead. `Default/` itself does use `1080i`: that last fallback scans the folder
   - `loading`, `message`, `empty`
   - `dvr`: PVR answered, which gates the disk-space text
   - `diskspace`: that text, e.g. "62% backend disk space used", empty when unknown
-  - `group` (the recording group shown, empty for all of them) and `level` (the path of the
-    open folder, e.g. "Season 2 / Extras") are still set, for a skin's own layout, but our
-    layouts no longer show them: the user removed the "Center Stage / group" breadcrumbs.
-    Estuary's `TopBar` is still included, with an empty `breadcrumbs_label`, for its clock
-    and what's playing.
+  - `group`: the Stage shown, "All Stages" or the group's name, under "Center Stage" at the top
+  - `level`: the path of the open folder, e.g. "Season 2 / Extras" (not shown by our layouts;
+    there for a skin's own)
 - The skin-facing hooks (RunScript arguments, `?action=stages`, widgets, the background
   string, per-skin layouts) are documented for skin authors in README "Integrating a skin";
   keep it in step. The background is `Skin.String(centerstage.background)` of the running skin:
