@@ -337,6 +337,12 @@ class MainWindow(xbmcgui.WindowXML):
         self.wake.set()
         self.close()
 
+    def _settings(self):
+        """The add-on's settings, then everything they affect: panels, titles, episodes."""
+        K.ADDON.openSettings()  # modal; it updates K.ADDON's own settings
+        K.set_panel_colours()
+        self._refresh(keep=True, reload_current=True)
+
     @staticmethod
     def _check_updates():
         """Kodi checks every repository (ours included) and then installs or announces updates
@@ -400,6 +406,7 @@ class MainWindow(xbmcgui.WindowXML):
             actions.append((K.tr('show_hidden'), self._unhide))
         if self.groups_asked:
             actions.append((K.tr('switch_group'), self._switch_group))
+        actions.append((K.tr('settings'), self._settings))
         actions.append((K.tr('check_updates'), self._check_updates))
         self._menu(actions)
 

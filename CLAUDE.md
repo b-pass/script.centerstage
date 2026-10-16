@@ -167,7 +167,8 @@ instead. `Default/` itself does use `1080i`: that last fallback scans the folder
       `script.centerstage.panel_dark` (`AA181C22`, Default's flat panels), and the layouts use
       `$INFO[Window(Home).Property(...)]` as `colordiffuse`. Home, because a texture's colour
       is evaluated with no window context (`CGUIInfoColor::Update`, `DEFAULT_CONTEXT`), so our
-      own window's property isn't reliably found. It's set before the window opens. The titles panel is our own image, not Estuary's `ContentPanel`
+      own window's property isn't reliably found. It's set before the window opens and after
+      the settings dialog. The titles panel is our own image, not Estuary's `ContentPanel`
       include, which hard-codes 93%.
     - the top bar is like the recordings window's: "Center Stage" as the breadcrumbs and the
       Stage under it as the sublabel (Estuary's `TopBar` with `breadcrumbs_label` and
