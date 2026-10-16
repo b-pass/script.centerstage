@@ -203,6 +203,14 @@ msgctxt "#32055"
 msgid "{} - Newest"
 msgstr ""
 
+msgctxt "#32056"
+msgid "Check for updates"
+msgstr ""
+
+msgctxt "#32057"
+msgid "Version {}: checking for updates…"
+msgstr ""
+
 msgctxt "#32100"
 msgid "General"
 msgstr ""
