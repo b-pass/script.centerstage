@@ -48,10 +48,11 @@
 				<param name="top" value="110" />
 				<param name="height" value="960" />
 			</include>
+			<!-- the list (and its focus bar) runs up to the scrollbar -->
 			<control type="list" id="100">
 				<left>30</left>
 				<top>130</top>
-				<width>520</width>
+				<width>538</width>
 				<height>920</height>
 				<onright>200</onright>
 				<onup>100</onup>
@@ -141,7 +142,7 @@
 				<control type="list" id="200">
 					<left>0</left>
 					<top>0</top>
-					<right>24</right>
+					<right>12</right>
 					<height>480</height>
 					<onleft>100</onleft>
 					<onup>200</onup>
