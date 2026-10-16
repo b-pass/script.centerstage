@@ -25,7 +25,7 @@
                     </constraints>
                     <control type="spinner" format="string"/>
                 </setting>
-                <setting id="hide_watched" type="boolean" label="32107" help="32114">
+                <setting id="hide_watched" type="boolean" label="32107">
                     <level>0</level>
                     <default>false</default>
                     <control type="toggle"/>

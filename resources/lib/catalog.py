@@ -2,7 +2,7 @@
 """Builds the left-hand list and each entry's episode list from the store and the sources.
 Kodi-free."""
 from jsonrpc import RpcError
-from model import (Entry, Episode, ADDON, LIBRARY, MOVIE, MOVIES, MOVIES_ID, NEWEST, SHOW,
+from model import (Entry, Episode, ADDON, LIBRARY, MOVIE, MOVIES, MOVIES_ID, NEWEST, PVR, SHOW,
                    sort_title)
 from sources import library, pvr, addon
 
@@ -45,6 +45,8 @@ def load_rows(rpc, entry, kodi_major, recordings=None, browse=None, season_word=
     """One level of an entry: its top level when browse is None, else the folder browse names."""
     if entry.source == LIBRARY:
         return library.rows(rpc, entry, browse, season_word)
+    if entry.source == PVR:
+        return pvr.episodes(rpc, entry, recordings)
     if entry.source == NEWEST:
         return pvr.newest(rpc, entry, recordings)
     if entry.source == MOVIES:

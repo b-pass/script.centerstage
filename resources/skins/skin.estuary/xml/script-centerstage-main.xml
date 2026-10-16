@@ -76,7 +76,6 @@
 				<top>114</top>
 				<width>538</width>
 				<height>936</height>
-				<onright condition="!String.IsEmpty(Container(100).ListItem.Property(folder))">210</onright>
 				<onright>200</onright>
 				<onup>100</onup>
 				<ondown>100</ondown>
@@ -124,7 +123,6 @@
 				<width>12</width>
 				<height>936</height>
 				<onleft>100</onleft>
-				<onright condition="!String.IsEmpty(Container(100).ListItem.Property(folder))">210</onright>
 				<onright>200</onright>
 				<orientation>vertical</orientation>
 				<animation effect="zoom" end="50,100" time="300" tween="sine" center="568,0" easing="inout" condition="!Control.HasFocus(101)">conditional</animation>
@@ -164,7 +162,6 @@
 					<bordersize>20</bordersize>
 				</control>
 				<control type="list" id="200">
-					<visible>!!String.IsEmpty(Container(100).ListItem.Property(folder))</visible>
 					<left>0</left>
 					<top>0</top>
 					<right>12</right>
@@ -273,7 +270,6 @@
 				</control>
 				<!-- flush with the right edge of its panel -->
 				<control type="scrollbar" id="201">
-					<visible>!!String.IsEmpty(Container(100).ListItem.Property(folder))</visible>
 					<right>0</right>
 					<top>0</top>
 					<width>12</width>
@@ -282,202 +278,6 @@
 					<onright>200</onright>
 					<orientation>vertical</orientation>
 					<animation effect="zoom" end="50,100" time="300" tween="sine" center="auto" easing="inout" condition="!Control.HasFocus(201)">conditional</animation>
-				</control>
-				<!-- A PVR series' recordings: Kodi's own list, filled from the series' pvr:// folder,
-				     so its items get Kodi's recording menu (Delete, Edit, Information…), icons and
-				     play handling. The folder comes straight from the selected title (its folder
-				     property), so the list switches the moment the selection moves, as a skin's
-				     onfocus would; the sort order is a Home property. Kodi labels a recording with
-				     the show's title, so the rows are built from its fields. -->
-				<control type="list" id="210">
-					<!-- hidden while Kodi fetches, unless focused: it would show the previous series' rows
-					     (it can still take focus meanwhile, then shows) -->
-					<visible allowhiddenfocus="true">!String.IsEmpty(Container(100).ListItem.Property(folder)) + [Control.HasFocus(210) | !Container(210).IsUpdating]</visible>
-					<left>0</left>
-					<top>0</top>
-					<right>12</right>
-					<height>480</height>
-					<onleft>100</onleft>
-					<onup>210</onup>
-					<ondown>210</ondown>
-					<pagecontrol>211</pagecontrol>
-					<scrolltime tween="cubic" easing="out">300</scrolltime>
-					<orientation>vertical</orientation>
-					<content sortby="date" sortorder="$INFO[Window(Home).Property(script.centerstage.order)]" browse="never">$INFO[Container(100).ListItem.Property(folder)]</content>
-					<focusedlayout height="60">
-						<control type="image">
-							<left>0</left>
-							<right>0</right>
-							<top>0</top>
-							<bottom>0</bottom>
-							<texture colordiffuse="button_focus">lists/focus.png</texture>
-							<visible>Control.HasFocus(210)</visible>
-						</control>
-						<!-- the selected row looks like the others while the list isn't focused -->
-						<control type="image">
-							<left>16</left>
-							<centertop>50%</centertop>
-							<width>32</width>
-							<height>32</height>
-							<texture>$VAR[ListWatchedIconVar]</texture>
-							<visible>Control.HasFocus(210)</visible>
-						</control>
-						<control type="image">
-							<left>16</left>
-							<centertop>50%</centertop>
-							<width>32</width>
-							<height>32</height>
-							<texture colordiffuse="button_focus">$VAR[ListWatchedIconVar]</texture>
-							<visible>!Control.HasFocus(210)</visible>
-						</control>
-						<control type="label">
-							<left>64</left>
-							<right>300</right>
-							<top>0</top>
-							<bottom>0</bottom>
-							<aligny>center</aligny>
-							<scroll>true</scroll>
-							<font>font13</font>
-							<label>$INFO[ListItem.EpisodeName]</label>
-							<shadowcolor>text_shadow</shadowcolor>
-							<visible>!String.IsEmpty(ListItem.EpisodeName)</visible>
-						</control>
-						<control type="label">
-							<left>64</left>
-							<right>300</right>
-							<top>0</top>
-							<bottom>0</bottom>
-							<aligny>center</aligny>
-							<scroll>true</scroll>
-							<font>font13</font>
-							<label>$INFO[ListItem.Season,$LOCALIZE[20373] ,$COMMA ]$INFO[ListItem.Episode,$LOCALIZE[20359] ,]</label>
-							<shadowcolor>text_shadow</shadowcolor>
-							<visible>String.IsEmpty(ListItem.EpisodeName) + !String.IsEmpty(ListItem.Episode)</visible>
-						</control>
-						<control type="label">
-							<left>64</left>
-							<right>300</right>
-							<top>0</top>
-							<bottom>0</bottom>
-							<aligny>center</aligny>
-							<scroll>true</scroll>
-							<font>font13</font>
-							<label>$INFO[ListItem.Date]</label>
-							<shadowcolor>text_shadow</shadowcolor>
-							<visible>String.IsEmpty(ListItem.EpisodeName) + String.IsEmpty(ListItem.Episode)</visible>
-						</control>
-						<control type="label">
-							<width>280</width>
-							<right>20</right>
-							<top>0</top>
-							<bottom>0</bottom>
-							<align>right</align>
-							<aligny>center</aligny>
-							<font>font12</font>
-							<label>$INFO[ListItem.Date]</label>
-							<shadowcolor>text_shadow</shadowcolor>
-							<visible>Control.HasFocus(210)</visible>
-						</control>
-						<control type="label">
-							<width>280</width>
-							<right>20</right>
-							<top>0</top>
-							<bottom>0</bottom>
-							<align>right</align>
-							<aligny>center</aligny>
-							<font>font12</font>
-							<textcolor>grey</textcolor>
-							<label>$INFO[ListItem.Date]</label>
-							<shadowcolor>text_shadow</shadowcolor>
-							<visible>!Control.HasFocus(210)</visible>
-						</control>
-					</focusedlayout>
-					<itemlayout height="60">
-						<control type="image">
-							<left>16</left>
-							<centertop>50%</centertop>
-							<width>32</width>
-							<height>32</height>
-							<texture colordiffuse="button_focus">$VAR[ListWatchedIconVar]</texture>
-						</control>
-						<control type="label">
-							<left>64</left>
-							<right>300</right>
-							<top>0</top>
-							<bottom>0</bottom>
-							<aligny>center</aligny>
-							<font>font13</font>
-							<label>$INFO[ListItem.EpisodeName]</label>
-							<shadowcolor>text_shadow</shadowcolor>
-							<visible>!String.IsEmpty(ListItem.EpisodeName)</visible>
-						</control>
-						<control type="label">
-							<left>64</left>
-							<right>300</right>
-							<top>0</top>
-							<bottom>0</bottom>
-							<aligny>center</aligny>
-							<font>font13</font>
-							<label>$INFO[ListItem.Season,$LOCALIZE[20373] ,$COMMA ]$INFO[ListItem.Episode,$LOCALIZE[20359] ,]</label>
-							<shadowcolor>text_shadow</shadowcolor>
-							<visible>String.IsEmpty(ListItem.EpisodeName) + !String.IsEmpty(ListItem.Episode)</visible>
-						</control>
-						<control type="label">
-							<left>64</left>
-							<right>300</right>
-							<top>0</top>
-							<bottom>0</bottom>
-							<aligny>center</aligny>
-							<font>font13</font>
-							<label>$INFO[ListItem.Date]</label>
-							<shadowcolor>text_shadow</shadowcolor>
-							<visible>String.IsEmpty(ListItem.EpisodeName) + String.IsEmpty(ListItem.Episode)</visible>
-						</control>
-						<control type="label">
-							<width>280</width>
-							<right>20</right>
-							<top>0</top>
-							<bottom>0</bottom>
-							<align>right</align>
-							<aligny>center</aligny>
-							<font>font12</font>
-							<textcolor>grey</textcolor>
-							<label>$INFO[ListItem.Date]</label>
-							<shadowcolor>text_shadow</shadowcolor>
-						</control>
-					</itemlayout>
-				</control>
-				<control type="scrollbar" id="211">
-					<visible>!String.IsEmpty(Container(100).ListItem.Property(folder))</visible>
-					<right>0</right>
-					<top>0</top>
-					<width>12</width>
-					<height>480</height>
-					<onleft>210</onleft>
-					<onright>210</onright>
-					<orientation>vertical</orientation>
-					<animation effect="zoom" end="50,100" time="300" tween="sine" center="auto" easing="inout" condition="!Control.HasFocus(211)">conditional</animation>
-				</control>
-				<control type="label">
-					<left>64</left>
-					<top>90</top>
-					<right>64</right>
-					<height>60</height>
-					<font>font13</font>
-					<textcolor>grey</textcolor>
-					<label>$ADDON[script.centerstage 32028]</label>
-					<visible>!String.IsEmpty(Container(100).ListItem.Property(folder)) + Container(210).IsUpdating</visible>
-					<animation effect="fade" start="0" end="100" time="0" delay="250">Visible</animation>
-				</control>
-				<control type="label">
-					<left>64</left>
-					<top>90</top>
-					<right>64</right>
-					<height>60</height>
-					<font>font13</font>
-					<textcolor>grey</textcolor>
-					<label>$ADDON[script.centerstage 32031]</label>
-					<visible>!String.IsEmpty(Container(100).ListItem.Property(folder)) + !Container(210).IsUpdating + Integer.IsEqual(Container(210).NumItems,0)</visible>
 				</control>
 				<control type="label">
 					<left>64</left>
@@ -563,7 +363,7 @@
 					<align>right</align>
 					<textcolor>grey</textcolor>
 					<label>$INFO[Container(100).ListItem.Property(origin)]</label>
-					<visible>!Control.HasFocus(200) + !Control.HasFocus(210)</visible>
+					<visible>!Control.HasFocus(200)</visible>
 				</control>
 				<control type="image">
 					<left>20</left>
@@ -573,7 +373,7 @@
 					<aspectratio>keep</aspectratio>
 					<fadetime>200</fadetime>
 					<texture background="true" fallback="$INFO[Window(Home).Property(script.centerstage.stage)]">$INFO[Container(100).ListItem.Art(thumb)]</texture>
-					<visible>!Control.HasFocus(200) + !Control.HasFocus(210)</visible>
+					<visible>!Control.HasFocus(200)</visible>
 				</control>
 				<control type="image">
 					<left>20</left>
@@ -593,7 +393,7 @@
 					<font>font14</font>
 					<label>$INFO[Container(100).ListItem.Plot]</label>
 					<autoscroll delay="10000" time="3000" repeat="10000">Skin.HasSetting(autoscroll)</autoscroll>
-					<visible>!Control.HasFocus(200) + !Control.HasFocus(210)</visible>
+					<visible>!Control.HasFocus(200)</visible>
 				</control>
 				<control type="textbox">
 					<left>566</left>
@@ -604,83 +404,6 @@
 					<label>$INFO[Container(200).ListItem.Plot]</label>
 					<autoscroll delay="10000" time="3000" repeat="10000">Skin.HasSetting(autoscroll)</autoscroll>
 					<visible>Control.HasFocus(200)</visible>
-				</control>
-				<!-- the same, for a recording in Kodi's own list (210) -->
-				<!-- "S2 E09": Kodi gives the episode number unpadded, so episodes below 10 get "E0" -->
-				<control type="label">
-					<left>20</left>
-					<top>53</top>
-					<right>440</right>
-					<height>45</height>
-					<font>font36_title</font>
-					<scroll>true</scroll>
-					<label>$INFO[Container(210).ListItem.Season,S, ]$INFO[Container(210).ListItem.Episode,E0, · ]$INFO[Container(210).ListItem.EpisodeName]</label>
-					<shadowcolor>text_shadow</shadowcolor>
-					<visible>Control.HasFocus(210) + !String.IsEmpty(Container(210).ListItem.EpisodeName) + Integer.IsLess(Container(210).ListItem.Episode,10)</visible>
-				</control>
-				<control type="label">
-					<left>20</left>
-					<top>53</top>
-					<right>440</right>
-					<height>45</height>
-					<font>font36_title</font>
-					<scroll>true</scroll>
-					<label>$INFO[Container(210).ListItem.Season,S, ]$INFO[Container(210).ListItem.Episode,E, · ]$INFO[Container(210).ListItem.EpisodeName]</label>
-					<shadowcolor>text_shadow</shadowcolor>
-					<visible>Control.HasFocus(210) + !String.IsEmpty(Container(210).ListItem.EpisodeName) + !Integer.IsLess(Container(210).ListItem.Episode,10)</visible>
-				</control>
-				<control type="label">
-					<left>20</left>
-					<top>53</top>
-					<right>440</right>
-					<height>45</height>
-					<font>font36_title</font>
-					<scroll>true</scroll>
-					<label>$INFO[Container(210).ListItem.Season,$LOCALIZE[20373] ,$COMMA ]$INFO[Container(210).ListItem.Episode,$LOCALIZE[20359] ,]</label>
-					<shadowcolor>text_shadow</shadowcolor>
-					<visible>Control.HasFocus(210) + String.IsEmpty(Container(210).ListItem.EpisodeName)</visible>
-				</control>
-				<control type="textbox">
-					<right>20</right>
-					<top>12</top>
-					<width>400</width>
-					<height>102</height>
-					<font>font25_narrow</font>
-					<align>right</align>
-					<textcolor>grey</textcolor>
-					<label>$INFO[Container(210).ListItem.ChannelName,$ADDON[script.centerstage 32033] - ,[CR]]$INFO[Container(210).ListItem.StartDate,,[CR]]$INFO[Container(210).ListItem.StartTime]$INFO[Container(210).ListItem.Duration, · ]</label>
-					<visible>Control.HasFocus(210)</visible>
-				</control>
-				<control type="image">
-					<left>20</left>
-					<top>110</top>
-					<width>526</width>
-					<height>296</height>
-					<aspectratio>keep</aspectratio>
-					<fadetime>200</fadetime>
-					<texture background="true" fallback="$INFO[Window(Home).Property(script.centerstage.stage)]">$INFO[Container(210).ListItem.Art(thumb)]</texture>
-					<visible>Control.HasFocus(210) + !String.IsEmpty(Container(210).ListItem.Art(thumb))</visible>
-				</control>
-				<!-- no preview picture: the series fanart; neither (or one that won't load): the empty stage -->
-				<control type="image">
-					<left>20</left>
-					<top>110</top>
-					<width>526</width>
-					<height>296</height>
-					<aspectratio>keep</aspectratio>
-					<fadetime>200</fadetime>
-					<texture background="true" fallback="$INFO[Window(Home).Property(script.centerstage.stage)]">$INFO[Container(210).ListItem.Art(fanart)]</texture>
-					<visible>Control.HasFocus(210) + String.IsEmpty(Container(210).ListItem.Art(thumb))</visible>
-				</control>
-				<control type="textbox">
-					<left>566</left>
-					<top>110</top>
-					<right>20</right>
-					<height>296</height>
-					<font>font14</font>
-					<label>$INFO[Container(210).ListItem.Plot]</label>
-					<autoscroll delay="10000" time="3000" repeat="10000">Skin.HasSetting(autoscroll)</autoscroll>
-					<visible>Control.HasFocus(210)</visible>
 				</control>
 			</control>
 		</control>
