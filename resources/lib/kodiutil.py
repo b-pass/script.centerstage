@@ -10,8 +10,8 @@ import xbmcgui
 import xbmcvfs
 
 from jsonrpc import Rpc, RpcError
-from model import (LIBRARY, MERGED, MOVIES, MOVIES_ID, NEWEST, PVR, episode_code, format_time, parse_date,
-                   plain)
+from model import (LIBRARY, MERGED, MOVIES, MOVIES_ID, NEWEST, PVR, details_code, episode_code,
+                   format_time, parse_date, plain)
 from sources import pvr
 
 ADDON = xbmcaddon.Addon()
@@ -287,11 +287,13 @@ def episode_label(ep):
 
 
 def details_name(ep):
-    """The episode's name in the details pane: "S01E02 · Name" (the row has just the name), and
+    """The episode's name in the details pane: "S1 E02 · Name" (the row has just the name), and
     never coloured (only the row keeps pvr.mythtv's colour for damaged recordings)."""
     name = plain(episode_label(ep))
-    code = '' if ep.untitled or ep.is_folder else episode_code(ep.season, ep.episode)
-    return f'{code} · {name}' if code and name != code else name
+    code = '' if ep.untitled or ep.is_folder else details_code(ep.season, ep.episode)
+    if not code:
+        return name
+    return code if name == episode_code(ep.season, ep.episode) else f'{code} · {name}'
 
 
 def episode_listitem(ep):

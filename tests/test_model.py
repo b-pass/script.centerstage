@@ -1,7 +1,7 @@
 import unittest
 
 import tests  # noqa: F401  (sets sys.path)
-from model import Episode, is_untitled, parse_date, plain
+from model import Episode, details_code, episode_code, is_untitled, parse_date, plain
 
 
 class ParseDate(unittest.TestCase):
@@ -16,6 +16,15 @@ class ParseDate(unittest.TestCase):
     def test_not_a_date(self):
         for text in ('', None, '2026', 'yesterday'):
             self.assertIsNone(parse_date(text))
+
+
+class EpisodeCodes(unittest.TestCase):
+    def test_forms(self):
+        self.assertEqual(episode_code(2, 9), 'S02E09')
+        self.assertEqual(details_code(2, 9), 'S2 E09')
+        self.assertEqual(details_code(0, 3), 'S0 E03')
+        for season, episode in ((-1, 9), (2, -1), (2, 0), (None, 9)):
+            self.assertEqual(details_code(season, episode), '')
 
 
 class EpisodeCompat(unittest.TestCase):
