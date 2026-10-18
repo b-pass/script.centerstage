@@ -208,7 +208,9 @@ Layout rules (the numbers are in the XML):
   (string 117, `Control.GetLabel(1001+n)`; the menu is the topmost dialog), so Clear goes
   straight to "Delete this recording?". Afterwards we refresh, and since Kodi lists a deleted
   recording until the PVR add-on reports it, `_refresh_when_gone` checks
-  `PVR.GetRecordingDetails` for a few seconds. While Delete is picked,
+  `PVR.GetRecordingDetails` for a few seconds. pvr.mythtv's "delete it?" after a recording is watched
+  to the end comes after our `onInit`, so a recording played from the window gets the same
+  check, which waits while a dialog is up. While Delete is picked,
   `script.centerstage.deleting` is set on Home, so a skin can hide its context menu (README).
 - **Clear and Delete have no action in add-on windows** (keymaps map them per window), so they
   arrive as action 0; `window.DELETE_BUTTONS` matches their button codes. `ACTION_DELETE_ITEM`
@@ -231,5 +233,6 @@ Only unit tests and stub-based smoke runs so far. To check in a real Kodi:
   entry (Play, Find similar, Information, Edit, pvr.mythtv's own), picking Delete for Clear
   (menu hidden on Myth Estuary), a recording still in progress, the refresh afterwards, Clear
   arriving from the user's remote
+- the lists updating after saying Yes to pvr.mythtv's delete prompt at the end of playback
 - the Movies and Newest titles; the Default group with "Show default recording group as
   root" on; panel opacity; Kodi 22
