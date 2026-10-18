@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Invisible dialog for deleting a recording (window.RecordingDelete). Kodi fills the list
-     from the folder in Window(Home).Property(script.centerstage.recordings); a list filled
-     from <content> gets Kodi's own context menu, which window.py opens on the recording to
-     pick Delete. Nothing is drawn, so one file serves every skin. -->
+<!-- Invisible dialog for Kodi's context menu on a recording (window.RecordingMenu). Kodi
+     fills the list from the folder in Window(Home).Property(script.centerstage.recordings); a
+     list filled from <content> gets Kodi's own context menu, which window.py opens on the
+     recording (and for Clear, picks Delete). Nothing is drawn, so one file serves every skin. -->
 <window>
 	<defaultcontrol always="true">9100</defaultcontrol>
 	<controls>

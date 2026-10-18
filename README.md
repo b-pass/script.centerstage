@@ -53,8 +53,9 @@ show name, you're asked for it.
   - **Context menu** on a title: Rename, Refresh, "Show watched episodes" (or "Hide watched
     episodes": each title can differ from the setting), Remove (or Hide, for a PVR series),
     "Stage…" for titles you added, "Show hidden PVR series…", "Switch Stage…" and "Settings…".
-  - **Clear** (or Delete in the context menu) on a recording: Kodi asks "Delete this
-    recording?", just as in the TV recordings window.
+  - **Context menu** on a recording: Kodi's own recording menu, as in the TV recordings window.
+  - **Clear** on a recording: Kodi asks "Delete this recording?", just as in the TV recordings
+    window.
 - **Widget:** point a skin widget at `plugin://script.centerstage/?action=list`, or
   `?action=list&group=Emily` for one Stage. Clicking a title opens the window on it.
 - **Settings:** title sort order (A-Z or recently added), episode order, hide watched episodes,
