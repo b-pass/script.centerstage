@@ -2,7 +2,8 @@
 <!-- Invisible dialog for Kodi's context menu on a recording (window.RecordingMenu). Kodi
      fills the list from the folder in Window(Home).Property(script.centerstage.recordings); a
      list filled from <content> gets Kodi's own context menu, which window.py opens on the
-     recording (and for Clear, picks Delete). Nothing is drawn, so one file serves every skin. -->
+     recording (and for Clear, picks Delete). Nothing is drawn, so one file serves every skin.
+     Python lays the list over the episodes list: Kodi's menu centres on the focused control. -->
 <window>
 	<defaultcontrol always="true">9100</defaultcontrol>
 	<controls>

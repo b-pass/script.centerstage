@@ -29,6 +29,7 @@ from store import Store
 
 TITLES = 100
 EPISODES = 200
+EPISODES_GROUPS = (202, 203)  # groups holding 200, outermost first, in layouts that nest it
 
 ACTION_PREVIOUS_MENU = 10
 ACTION_NAV_BACK = 92
@@ -375,6 +376,19 @@ class MainWindow(xbmcgui.WindowXML):
             K.log(f'playing {ep.play} failed: {e}', xbmc.LOGWARNING)
             K.notify(K.tr('play_failed'), xbmcgui.NOTIFICATION_ERROR)
 
+    def _on_screen(self, control_id, groups):
+        """A control's position and size: Python gives positions within the parent group, so
+        add those of the groups (the ones the layout has)."""
+        x = y = 0
+        for group_id in groups:
+            try:
+                group = self.getControl(group_id)
+            except RuntimeError:
+                continue
+            x, y = x + group.getX(), y + group.getY()
+        control = self.getControl(control_id)
+        return x + control.getX(), y + control.getY(), control.getWidth(), control.getHeight()
+
     def _focused_episode(self):
         pos = self.list.getSelectedPosition()
         return self.episodes[pos] if 0 <= pos < len(self.episodes) else None
@@ -394,6 +408,7 @@ class MainWindow(xbmcgui.WindowXML):
         dialog = RecordingMenu(RECORDING_XML, K.ADDON_PATH, 'Default', '1080i')
         dialog.path = ep.path
         dialog.pick = pick
+        dialog.rect = self._on_screen(EPISODES, EPISODES_GROUPS)
         dialog.outcome = None
         try:
             dialog.doModal()
@@ -540,13 +555,19 @@ class MainWindow(xbmcgui.WindowXML):
 class RecordingMenu(xbmcgui.WindowXMLDialog):
     """Invisible: a Kodi-filled list of RECORDINGS_PATH (a list from <content> gets Kodi's
     own context menu, CDirectoryProvider::OnContextMenu). It opens that menu on the recording
-    and leaves it to the user, or picks the entry labelled pick. Set path and pick before
-    doModal; outcome says what happened."""
+    and leaves it to the user, or picks the entry labelled pick. Set path, pick and rect (where
+    the menu should centre) before doModal; outcome says what happened."""
     DONE = 'done'          # the menu opened, and whatever was chosen from it has finished
     REFUSED = 'refused'    # Kodi's menu has no pick entry (e.g. no Delete while recording)
     MISSING = 'missing'    # not in Kodi's listing
 
     def onInit(self):
+        # Kodi's menu centres on the focused control: lay the list where ours is
+        x, y, width, height = self.rect
+        recordings = self.getControl(RECORDING_LIST)
+        recordings.setPosition(x, y)
+        recordings.setWidth(width)
+        recordings.setHeight(height)
         threading.Thread(target=self._run, daemon=True).start()
 
     def _run(self):

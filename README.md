@@ -165,7 +165,8 @@ before falling back to `resources/skins/Default/1080i/`. `<folder>` must be the 
 resolution folder name (`<res folder=...>` in its `addon.xml`, e.g. `xml` for Estuary). The
 Estuary layout is the one to start from. It shows the control ids (100 titles, 101 their
 scrollbar, 200 episodes, 201 its scrollbar) and the window and list item properties the add-on
-fills in. `tests/test_skins.py` checks that every layout has them.
+fills in. If 200 sits inside groups, give them ids 202 and 203 (outermost first), so Kodi's
+menu on a recording opens over the episodes. `tests/test_skins.py` checks that every layout has them.
 
 ### Deleting without the menu showing
 

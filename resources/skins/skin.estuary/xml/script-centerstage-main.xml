@@ -145,11 +145,12 @@
 		     here is placed from the right edge (<right>), never with a width that assumes 1920:
 		     Kodi picks the Estuary coordinate space closest to the window's aspect (e.g. 2040 or
 		     2160 wide). -->
-		<control type="group">
+		<!-- 202 and 203: Python adds their positions to 200's to find where it is on screen -->
+		<control type="group" id="202">
 			<include>OpenClose_Right</include>
 			<left>610</left>
 			<right>30</right>
-			<control type="group">
+			<control type="group" id="203">
 				<top>114</top>
 				<right>0</right>
 				<control type="image">
