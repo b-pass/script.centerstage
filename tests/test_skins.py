@@ -30,7 +30,7 @@ class Skins(unittest.TestCase):
         for path in LAYOUTS:
             text = body(path)
             for needed in ('id="100"', 'id="101"', 'id="200"', 'id="201"',
-                           'Property(name)', 'Property(details)', 'Property(origin)',
+                           'Property(name)', 'Property(details)', 'Property(origin)', 'Property(count)',
                            'Window.Property(loading)', 'Window.Property(message)',
                            'Window.Property(empty)', 'Window.Property(pvr)',
                            'Window.Property(diskspace)', 'Window.Property(group)',

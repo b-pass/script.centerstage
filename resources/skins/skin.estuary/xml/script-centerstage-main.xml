@@ -317,9 +317,10 @@
 					<bordersize>20</bordersize>
 				</control>
 				<!-- Laid out like the recordings window (MyPVRRecordings.xml): the title's name, and
-				     under it the episode's (with S1 E02); opposite them, right-aligned in grey, the
-				     episode's channel/date/length or where the title comes from; below, the picture
-				     on the left (16:9 fills it, 4:3 fills its height) and the plot beside it.
+				     under it the episode's (with S1 E02) or the title's number of recordings;
+				     opposite them, right-aligned in grey, the episode's channel/date/length or
+				     where the title comes from; below, the picture on the left (16:9 fills it, 4:3
+				     fills its height) and the plot beside it.
 				     Everything stays in place whichever list has focus, so nothing jumps while
 				     navigating; only the contents change. -->
 				<control type="label">
@@ -343,6 +344,17 @@
 					<label>$INFO[Container(200).ListItem.Property(name)]</label>
 					<shadowcolor>text_shadow</shadowcolor>
 					<visible>Control.HasFocus(200)</visible>
+				</control>
+				<control type="label">
+					<left>20</left>
+					<top>53</top>
+					<right>440</right>
+					<height>45</height>
+					<font>font25_narrow</font>
+					<aligny>center</aligny>
+					<textcolor>grey</textcolor>
+					<label>$INFO[Container(100).ListItem.Property(count)]</label>
+					<visible>!Control.HasFocus(200)</visible>
 				</control>
 				<control type="textbox">
 					<right>20</right>

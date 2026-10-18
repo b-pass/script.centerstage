@@ -166,19 +166,22 @@ def origin_label(entry):
     if entry.source == LIBRARY:
         return tr('library')
     if entry.source == MOVIES:
+        return ''
+    if entry.source == NEWEST:
+        return tr('pvr')
+    if entry.source == PVR:
+        return tr('pvr') + (' - ' + entry.origin if entry.origin else '')  # "PVR - BBC One"
+    return entry.origin
+
+
+def count_label(entry):
+    """How many recordings (or movies) a title has, for under its name in the details pane."""
+    if entry.source == MOVIES:
         n = len(entry.members)
         return tr('one_movie') if n == 1 else tr('n_movies', n)
-    if entry.source == NEWEST:
-        return tr('pvr') + '[CR]' + (tr('one_recording') if entry.count == 1
-                                     else tr('recordings', entry.count))
-    if entry.source == PVR:
-        # "PVR - BBC One[CR]12 recordings"
-        text = tr('pvr') + (' - ' + entry.origin if entry.origin else '')
-        if entry.count:
-            text += '[CR]' + (tr('one_recording') if entry.count == 1
-                              else tr('recordings', entry.count))
-        return text
-    return entry.origin
+    if entry.source in (PVR, NEWEST) and entry.count:
+        return tr('one_recording') if entry.count == 1 else tr('recordings', entry.count)
+    return ''
 
 
 def listitem_art(art):
@@ -215,6 +218,7 @@ def entry_listitem(entry, path=''):
     tag.setMediaType('movie' if entry.kind == 'movie' else 'tvshow')
     li.setProperty('entry_id', entry.id)
     li.setProperty('origin', origin_label(entry))
+    li.setProperty('count', count_label(entry))
     if path:
         li.setPath(path)
     return li
