@@ -44,7 +44,8 @@ POLL = 0.03     # seconds between checks of the left list's selection
 SETTLE = 0.1    # how long the selection must stay put before rows that need loading load
 DISK_EVERY = 900   # seconds between asking Kodi to re-read the backend's disk space
 DISK_WAIT = 30     # for this long after asking, read the answer every second (it comes later)
-GONE_WAIT = 10     # after Kodi's menu on a recording, for this long check whether it has gone
+GONE_WAIT = 10     # after Kodi's menu on a recording or playing one, for this long (once no
+                   # dialog is up) check whether it has gone
 
 XML = 'script-centerstage-main.xml'
 RECORDING_XML = 'script-centerstage-recording.xml'
@@ -64,8 +65,13 @@ class MainWindow(xbmcgui.WindowXML):
         if getattr(self, '_started', False):
             # back from playback (or a dialog): watched/resume state may have changed
             self._refresh(keep=True, reload_current=True)
+            played, self.played = self.played, None
+            if played is not None:  # pvr.mythtv may now ask whether to delete it
+                threading.Thread(target=self._refresh_when_gone, args=(played,),
+                                 daemon=True).start()
             return
         self._started = True
+        self.played = None      # the recording last played from here
         self.store = Store(K.PROFILE)
         self.cache = EpisodeCache(K.CACHE_DIR)
         self.rpc = K.rpc()
@@ -375,6 +381,8 @@ class MainWindow(xbmcgui.WindowXML):
         except RpcError as e:
             K.log(f'playing {ep.play} failed: {e}', xbmc.LOGWARNING)
             K.notify(K.tr('play_failed'), xbmcgui.NOTIFICATION_ERROR)
+        else:
+            self.played = ep.play.get('recordingid')
 
     def _on_screen(self, control_id, groups):
         """A control's position and size: Python gives positions within the parent group, so
@@ -428,10 +436,13 @@ class MainWindow(xbmcgui.WindowXML):
 
     def _refresh_when_gone(self, recording_id):
         """Kodi lists a deleted recording until the PVR add-on reports the change, a moment
-        later: refresh once it has gone (after a No, it never does)."""
+        later: refresh once it has gone (after a No, it never does). The wait starts again
+        while a dialog is up, such as pvr.mythtv's "delete it?" after playback."""
         monitor = xbmc.Monitor()
         end = time.monotonic() + GONE_WAIT
         while time.monotonic() < end and not self.closing.is_set():
+            if xbmc.getCondVisibility('System.HasActiveModalDialog'):
+                end = time.monotonic() + GONE_WAIT
             try:
                 details = self.rpc.call('PVR.GetRecordingDetails', recordingid=recording_id,
                                         properties=['isdeleted'])
