@@ -45,10 +45,11 @@ and ask the user if you need a particular version checked out.
 Three entry points, all in `addon.xml`; each puts `resources/lib` on `sys.path`.
 - `default.py` (`xbmc.python.script`, under Programs) opens the window. `RunScript` arguments:
   `id=<urlencoded entry id>`, `group=`, `ask=0`. A Home window property stops a second copy.
-- `plugin.py` (`xbmc.python.pluginsource`) **provides `video`, and must provide something**:
-  every launch from Kodi's own menus (add-on info, Video add-ons, Favourites, JSON-RPC) is
-  `RunAddon`, which prefers the plugin and opens the Videos window on its root (which opens
-  ours, so Back lands in Videos; the user accepts that). With no content type `RunAddon` falls
+- `plugin.py` (`xbmc.python.pluginsource`) **provides `executable`, and must provide
+  something**: the content type decides where Kodi lists the add-on (the user wants Programs,
+  not Video add-ons). Every launch from Kodi's own menus (add-on info, Programs, Favourites,
+  JSON-RPC) is `RunAddon`, which prefers the plugin and opens the Programs window on its root
+  (which opens ours, so Back lands in Programs; the user accepts that). With no content type `RunAddon` falls
   back to `RunPlugin(<id>)`, which silently does nothing (no `plugin://` host). **The plugin
   extension must come first in `addon.xml`**: the first is the main type, and Kodi's add-on
   widgets (`addons://sources/...`, `CAddonsDirectory::GetScriptsAndPlugins`) list a
