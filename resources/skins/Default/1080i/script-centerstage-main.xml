@@ -232,6 +232,14 @@
 				<label>[B]$INFO[Container(200).ListItem.Property(name)][/B]</label>
 				<visible>Control.HasFocus(200)</visible>
 			</control>
+			<control type="label">
+				<left>20</left><top>53</top><width>820</width><height>45</height>
+				<font>font12</font>
+				<aligny>center</aligny>
+				<textcolor>FFA0A0A0</textcolor>
+				<label>$INFO[Container(100).ListItem.Property(count)]</label>
+				<visible>!Control.HasFocus(200)</visible>
+			</control>
 			<control type="textbox">
 				<left>860</left><top>12</top><width>400</width><height>102</height>
 				<font>font12</font>
