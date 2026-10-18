@@ -35,7 +35,7 @@ show name, you're asked for it.
 
 ## Using it
 
-- Open it from **Programs** (or the home screen, if your skin has an entry for it).
+- Open it from **Video add-ons** or **Programs** (or the home screen, if your skin has an entry for it).
 - **Stages:** if your PVR backend files recordings in groups (MythTV recording groups), each group
   is a Stage. You're first asked which Stage to show, or "All Stages". When you add something with
   the context menu, you pick the Stage it belongs to, or all of them. Recordings outside any group
