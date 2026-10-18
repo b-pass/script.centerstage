@@ -45,12 +45,12 @@ and ask the user if you need a particular version checked out.
 Three entry points, all in `addon.xml`; each puts `resources/lib` on `sys.path`.
 - `default.py` (`xbmc.python.script`, under Programs) opens the window. `RunScript` arguments:
   `id=<urlencoded entry id>`, `group=`, `ask=0`. A Home window property stops a second copy.
-- `plugin.py` (`xbmc.python.pluginsource`) **provides no content type on purpose**, so it isn't
-  listed under Video add-ons. Clicking an add-on runs `RunAddon`, which prefers the plugin: for a
-  video (or program) plugin it opens the Videos (or Programs) window behind us, and Back landed
-  there; with none it just runs the plugin (handle -1), whose root opens the window. Don't add a
-  `<provides>` back, and don't close Kodi's window from the script instead (tried and removed: it
-  could close the wrong window). A root listing (handle ≥ 0) lists titles when Home is active (a
+- `plugin.py` (`xbmc.python.pluginsource`) **provides `video`, and must provide something**:
+  every launch from Kodi's own menus (add-on info, Video add-ons, Favourites, JSON-RPC) is
+  `RunAddon`, which prefers the plugin and opens the Videos window on its root (which opens
+  ours, so Back lands in Videos; the user accepts that). With no content type `RunAddon` falls
+  back to `RunPlugin(<id>)`, which silently does nothing (no `plugin://` host). Don't close
+  Kodi's window from the script (tried and removed: it could close the wrong window). A root listing (handle ≥ 0) lists titles when Home is active (a
   widget pointed at the root), and otherwise opens the window. `?action=list` (`&group=`) is the
   widget listing, `?action=open&id=` opens a title, and `?action=stages` lists the Stages with
   each item's `stage` property holding the `RunScript` arguments (the skin's `<onclick>` uses
