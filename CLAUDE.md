@@ -49,7 +49,12 @@ Three entry points, all in `addon.xml`; each puts `resources/lib` on `sys.path`.
   every launch from Kodi's own menus (add-on info, Video add-ons, Favourites, JSON-RPC) is
   `RunAddon`, which prefers the plugin and opens the Videos window on its root (which opens
   ours, so Back lands in Videos; the user accepts that). With no content type `RunAddon` falls
-  back to `RunPlugin(<id>)`, which silently does nothing (no `plugin://` host). Don't close
+  back to `RunPlugin(<id>)`, which silently does nothing (no `plugin://` host). **The plugin
+  extension must come first in `addon.xml`**: the first is the main type, and Kodi's add-on
+  widgets (`addons://sources/...`, `CAddonsDirectory::GetScriptsAndPlugins`) list a
+  `plugin://` path as a folder only for a main-type plugin; as a file, a click is `PlayMedia`
+  and the root just lists titles. `RunScript` still runs `default.py` (`LibPath()` follows the
+  type it was asked for). Don't close
   Kodi's window from the script (tried and removed: it could close the wrong window). A root listing (handle ≥ 0) lists titles when Home is active (a
   widget pointed at the root), and otherwise opens the window. `?action=list` (`&group=`) is the
   widget listing, `?action=open&id=` opens a title, and `?action=stages` lists the Stages with
