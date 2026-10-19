@@ -395,7 +395,8 @@ class MainWindow(xbmcgui.WindowXML):
         self._close()
 
     def _play(self, ep, resume=None):
-        if resume is None and ep.resume > 0:
+        # for a recording Kodi asks itself (as in its recordings window) and ignores options
+        if resume is None and ep.resume > 0 and 'recordingid' not in ep.play:
             choice = xbmcgui.Dialog().contextmenu(
                 [K.tr('resume_from', format_time(ep.resume)), K.tr('from_start')])
             if choice < 0:
