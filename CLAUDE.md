@@ -198,7 +198,9 @@ Layout rules (the numbers are in the XML):
   threads; a generation counter drops stale results; controls change only under `self.lock`.
 - **The window must be a `WindowXML`, not a dialog,** so fullscreen video covers it. `onInit`
   runs again after playback; that's treated as a refresh.
-- **`Player.Open` shows no resume prompt**, so `_play` asks and passes `options.resume`.
+- **`Player.Open` shows no resume prompt**, so `_play` asks and passes `options.resume`. **Except
+  for a `recordingid`**: that goes through the PVR's own `PlayMedia`, which asks itself and
+  ignores `options`, so `_play` doesn't ask for recordings.
 - **`Addon.openSettings()`** edits the calling `Addon` object's own settings, so `K.ADDON` is
   current afterwards.
 - **Add-ons can't delete recordings** (no JSON-RPC method, builtin or `pvr://` file support), and
