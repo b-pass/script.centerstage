@@ -165,7 +165,7 @@ def _episode(rec, sort):
     position, total = resume_of(rec)
     return Episode(
         label=_marked(rec, episode_label(when if untitled else name, season, number)),
-        play={'recordingid': rec['recordingid']}, title=_title(rec) if untitled else name,
+        play={'recordingid': rec['recordingid'], 'file': rec.get('file') or ''}, title=_title(rec) if untitled else name,
         season=season, episode=number, plot=rec.get('plot') or rec.get('plotoutline') or '',
         art=_art(rec), playcount=as_int(rec.get('playcount'), 0), resume=position,
         total=total, runtime=as_int(rec.get('runtime'), 0), date=when,

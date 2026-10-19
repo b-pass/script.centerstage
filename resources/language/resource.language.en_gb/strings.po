@@ -71,10 +71,6 @@ msgctxt "#32015"
 msgid "Nothing here can be added to Center Stage"
 msgstr ""
 
-msgctxt "#32020"
-msgid "Resume from {}"
-msgstr ""
-
 msgctxt "#32021"
 msgid "Play from beginning"
 msgstr ""

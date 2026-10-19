@@ -8,9 +8,10 @@ from model import SHOW, SEASON, MOVIE
 from sources.common import episode_from_item, folder_from_item, as_int
 
 EPISODE_PROPS = ['title', 'plot', 'art', 'season', 'episode', 'playcount', 'resume', 'runtime',
-                 'firstaired', 'showtitle', 'tvshowid']
+                 'firstaired', 'showtitle', 'tvshowid', 'file']
 SEASON_PROPS = ['season', 'showtitle', 'art', 'playcount', 'episode', 'watchedepisodes']
-MOVIE_PROPS = ['title', 'plot', 'art', 'playcount', 'resume', 'runtime', 'premiered', 'year']
+MOVIE_PROPS = ['title', 'plot', 'art', 'playcount', 'resume', 'runtime', 'premiered', 'year',
+               'file']
 
 
 def _specials_last(season):
@@ -26,8 +27,12 @@ def _episodes(rpc, tvshowid, season=None):
     if season is not None:
         params['season'] = season
     items = rpc.call('VideoLibrary.GetEpisodes', **params).get('episodes') or []
-    return [episode_from_item(i, {'episodeid': i['episodeid']}, _episode_sort(i))
+    return [episode_from_item(i, _play(i, 'episodeid'), _episode_sort(i))
             for i in sorted(items, key=_episode_sort)]
+
+
+def _play(item, id_key):
+    return {id_key: item[id_key], 'file': item.get('file') or ''}
 
 
 def _season_row(item, tvshowid, season_word):
@@ -49,7 +54,8 @@ def rows(rpc, entry, browse=None, season_word='{}/{}'):
     if entry.kind == MOVIE:
         movie = rpc.call('VideoLibrary.GetMovieDetails', movieid=ref['movieid'],
                          properties=MOVIE_PROPS)['moviedetails']
-        return [episode_from_item(movie, {'movieid': ref['movieid']}, (0,), media_type='movie')]
+        movie.setdefault('movieid', ref['movieid'])
+        return [episode_from_item(movie, _play(movie, 'movieid'), (0,), media_type='movie')]
     if entry.kind == SEASON:
         return _episodes(rpc, ref['tvshowid'], ref['season'])
     if entry.kind == SHOW:
@@ -61,7 +67,8 @@ def rows(rpc, entry, browse=None, season_word='{}/{}'):
                 for s in sorted(seasons, key=lambda s: _specials_last(as_int(s.get('season'))))]
     item = rpc.call('VideoLibrary.GetEpisodeDetails', episodeid=ref['episodeid'],
                     properties=EPISODE_PROPS)['episodedetails']
-    return [episode_from_item(item, {'episodeid': ref['episodeid']}, _episode_sort(item))]
+    item.setdefault('episodeid', ref['episodeid'])
+    return [episode_from_item(item, _play(item, 'episodeid'), _episode_sort(item))]
 
 
 def episode_parent(rpc, episodeid):

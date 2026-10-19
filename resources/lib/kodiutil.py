@@ -30,7 +30,7 @@ S = {
     'add_folder': 32006, 'add_item': 32039, 'remove_named': 32007, 'added': 32008,
     'already': 32009, 'removed': 32010, 'show_name': 32011, 'confirm_name': 32012,
     'pvr_already': 32013, 'unhide_named': 32014, 'nothing': 32015, 'folder_name': 32038,
-    'resume_from': 32020, 'from_start': 32021, 'remove': 32022, 'rename': 32023,
+    'from_start': 32021, 'remove': 32022, 'rename': 32023,
     'refresh': 32024, 'hide_pvr': 32025, 'show_hidden': 32026,
     'loading': 32028, 'empty': 32029, 'load_failed': 32030, 'no_episodes': 32031,
     'library': 32032, 'pvr': 32033, 'watched': 32034, 'left': 32035, 'recordings': 32036,
@@ -45,6 +45,11 @@ S = {
 def tr(key, *args):
     text = ADDON.getLocalizedString(S[key])
     return text.format(*args) if args else text
+
+
+def builtin_param(text):
+    """text as one quoted parameter of a builtin (CUtil::SplitParams)."""
+    return '"' + text.replace('\\', '\\\\').replace('"', '\\"') + '"'
 
 
 def log(txt, level=xbmc.LOGINFO):
