@@ -147,6 +147,8 @@ Layout rules (the numbers are in the XML):
   starting: `K.wait_for_pvr()` polls for up to a minute, once a session (a Home property). The
   plugin listings wait (the skin's busy spinner shows meanwhile); the window opens at once with a
   spinner in the titles panel and asks which Stage afterwards.
+- Kodi tells add-ons nothing when recordings change, so `_watch` re-reads them every
+  `RECORDINGS_EVERY` and refreshes when `pvr.fingerprint()` differs (the user chose a minute).
 - The disk-space text: `PVR.BackendDiskSpaceProgr` has no label form, so `_watch` bisects it with
   `Integer.IsGreater`. Only reading the `PVR.BackendDiskSpace` label makes Kodi refresh the
   numbers; that's done on open and every 15 minutes.
@@ -243,6 +245,7 @@ Only unit tests and stub-based smoke runs so far. To check in a real Kodi:
   arriving from the user's remote
 - opening the window, the Stages panel and widgets while pvr.mythtv is starting; the
   spinner turning clockwise (`start="0" end="360"`, from `TransformMatrix::SetZRotation`)
+- a recording that starts while the window is open appearing within a minute (Newest too)
 - the lists updating after saying Yes to pvr.mythtv's delete prompt at the end of playback
 - the Movies and Newest titles; the Default group with "Show default recording group as
   root" on; panel opacity; Kodi 22

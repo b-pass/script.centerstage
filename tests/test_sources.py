@@ -48,6 +48,15 @@ class Pvr(unittest.TestCase):
         old = set_tz('UTC')
         self.addCleanup(set_tz, old)
 
+    def test_fingerprint_changes_with_what_shows_not_with_progress(self):
+        recs = pvr.recordings(self.rpc)
+        key = pvr.fingerprint(recs)
+        moved = [dict(r, resume={'position': 99, 'total': 100}, runtime=9999) for r in recs]
+        self.assertEqual(pvr.fingerprint(moved), key)
+        self.assertNotEqual(pvr.fingerprint(recs[1:]), key)
+        watched = [dict(recs[0], playcount=1)] + recs[1:]
+        self.assertNotEqual(pvr.fingerprint(watched), pvr.fingerprint([dict(recs[0], playcount=0)] + recs[1:]))
+
     def test_series_grouped_by_title_ignoring_case_and_spaces(self):
         rows = pvr.series_entries(pvr.recordings(self.rpc))
         titles = sorted((e.display_title, e.count) for e in rows)
