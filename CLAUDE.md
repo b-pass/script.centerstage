@@ -38,7 +38,7 @@ and ask the user if you need a particular version checked out.
 - Syntax: `python3 -m py_compile default.py plugin.py context.py resources/lib/*.py resources/lib/sources/*.py`
 - Install into the Flatpak Kodi (21.3): `tools/install.sh`. The log is at
   `~/.var/app/tv.kodi.Kodi/data/temp/kodi.log`; our lines start with `script.centerstage: `.
-- Art (icon, fanart, `stage.jpg`, `sidemenu.png`): `python3 tools/art.py` (needs Pillow).
+- Art (icon, fanart, `stage.jpg`, `sidemenu.png`, `spinner.png`): `python3 tools/art.py` (needs Pillow).
 
 ## Code layout
 
@@ -142,6 +142,11 @@ Layout rules (the numbers are in the XML):
   string so nothing has to run at start-up (the user rejected a Home property). Myth Estuary sets
   it alongside its own background settings; its "Monthly background" clears it and reaches us
   only through `ColoredBackgroundImages`.
+- **Kodi starts the PVR before the PVR add-on has connected** (pvr.mythtv takes a while), with
+  no recordings, then loads all of an add-on's recordings at once. So "no recordings yet" means
+  starting: `K.wait_for_pvr()` polls for up to a minute, once a session (a Home property). The
+  plugin listings wait (the skin's busy spinner shows meanwhile); the window opens at once with a
+  spinner in the titles panel and asks which Stage afterwards.
 - The disk-space text: `PVR.BackendDiskSpaceProgr` has no label form, so `_watch` bisects it with
   `Integer.IsGreater`. Only reading the `PVR.BackendDiskSpace` label makes Kodi refresh the
   numbers; that's done on open and every 15 minutes.
@@ -233,6 +238,8 @@ Only unit tests and stub-based smoke runs so far. To check in a real Kodi:
   entry (Play, Find similar, Information, Edit, pvr.mythtv's own), picking Delete for Clear
   (menu hidden on Myth Estuary), a recording still in progress, the refresh afterwards, Clear
   arriving from the user's remote
+- opening the window, the Stages panel and widgets while pvr.mythtv is starting; the
+  spinner turning clockwise (`start="0" end="360"`, from `TransformMatrix::SetZRotation`)
 - the lists updating after saying Yes to pvr.mythtv's delete prompt at the end of playback
 - the Movies and Newest titles; the Default group with "Show default recording group as
   root" on; panel opacity; Kodi 22

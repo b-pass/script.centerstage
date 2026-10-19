@@ -270,3 +270,7 @@ msgstr ""
 msgctxt "#32114"
 msgid "This recording can't be deleted"
 msgstr ""
+
+msgctxt "#32115"
+msgid "Waiting for PVR recordings…"
+msgstr ""

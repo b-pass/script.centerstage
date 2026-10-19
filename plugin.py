@@ -74,6 +74,7 @@ def title_item(entry, group):
 
 
 def list_titles(handle, group=None):
+    K.wait_for_pvr(K.rpc())  # the skin shows its busy spinner meanwhile
     items = [title_item(e, group) for e in all_rows(group)]
     xbmcplugin.addDirectoryItems(handle, items, len(items))
     xbmcplugin.setContent(handle, 'videos')
@@ -81,6 +82,7 @@ def list_titles(handle, group=None):
 
 
 def list_stages(handle):
+    K.wait_for_pvr(K.rpc())  # the skin shows its busy spinner meanwhile
     items = []
     for group in K.recording_groups(K.rpc()) + [None]:  # "All Stages" last
         li = xbmcgui.ListItem(K.group_label(group), offscreen=True)

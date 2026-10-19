@@ -3,6 +3,8 @@ curtains. Also resources/stage.jpg, the stand-in for a missing picture: the stag
 with a small question mark and no spotlight, so it reads as part of the skin rather than as a
 show's artwork. And resources/sidemenu.png, the same picture as a white silhouette in the style of
 Estuary's home menu icons (copied into Myth Estuary as media/icons/sidemenu/centerstage.png).
+And resources/spinner.png, the busy spinner the layouts rotate: a white arc that fades out
+along its tail, over a dark disc (white, so a layout can tint it with its accent colour).
 
 Usage: python3 tools/art.py (needs Pillow)
 """
@@ -145,7 +147,31 @@ def sidemenu(size=256):
     return img.resize((size, size), Image.LANCZOS)
 
 
+def spinner(size=128):
+    """Laid out 100 units square. The arc's head is at 12 o'clock and its tail trails 300
+    degrees anticlockwise, so it reads right turning clockwise."""
+    k = size * S / 100
+    disc = Image.new('L', (size * S, size * S), 0)
+    ImageDraw.Draw(disc).ellipse([0, 0, 100 * k, 100 * k], fill=0x90)
+    arc = Image.new('L', disc.size, 0)
+    d = ImageDraw.Draw(arc)
+    r, w, steps = 30, 8, 300
+    box = [(50 - r) * k, (50 - r) * k, (50 + r) * k, (50 + r) * k]
+    for i in range(steps):  # 1-degree slices, brighter towards the head
+        start = -90 - steps + i
+        d.arc(box, start, start + 1.5, fill=round(255 * ((i + 1) / steps) ** 1.6),
+              width=round(w * k))
+    head = (50 * k, (50 - r + w / 2) * k)
+    d.ellipse([head[0] - w / 2 * k, head[1] - w / 2 * k, head[0] + w / 2 * k,
+               head[1] + w / 2 * k], fill=255)
+    # white where the arc is, black over the rest of the disc, opaque where the arc shows
+    img = Image.merge('RGB', (arc, arc, arc))
+    img.putalpha(Image.composite(Image.new('L', disc.size, 255), disc, arc))
+    return img.resize((size, size), Image.LANCZOS)
+
+
 if __name__ == '__main__':
+    spinner().save(os.path.join(RESOURCES, 'spinner.png'), optimize=True)
     sidemenu().save(os.path.join(RESOURCES, 'sidemenu.png'), optimize=True)
     draw(512, 512).save(os.path.join(RESOURCES, 'icon.png'), optimize=True)
     draw(1920, 1080, curtain_scale=1.5).save(os.path.join(RESOURCES, 'fanart.jpg'),
