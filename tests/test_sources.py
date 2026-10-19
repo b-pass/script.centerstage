@@ -101,7 +101,7 @@ class Pvr(unittest.TestCase):
         office = entry(PVR, SHOW, {'title': 'The Office'})
         eps = pvr.episodes(self.rpc, office)
         self.assertEqual([e.label for e in eps], ['Pilot', 'Diversity Day'])  # no S01E02 in rows
-        self.assertEqual(eps[1].play, {'recordingid': 2})
+        self.assertEqual(eps[1].play, {'recordingid': 2, 'file': ''})
         self.assertEqual((eps[1].resume, eps[1].total), (300.0, 1320.0))
 
     def test_episode_without_name_uses_local_date(self):
@@ -178,14 +178,15 @@ class Library(unittest.TestCase):
             self.assertEqual((p['tvshowid'], p['season']), (4, 1))
             return {'episodes': [
                 {'episodeid': 2, 'title': 'B', 'season': 1, 'episode': 2},
-                {'episodeid': 1, 'title': 'A', 'season': 1, 'episode': 1,
+                {'episodeid': 1, 'title': 'A', 'season': 1, 'episode': 1, 'file': '/tv/a.mkv',
                  'resume': {'position': 10, 'total': 100}},
             ]}
         rpc = FakeRpc({'VideoLibrary.GetEpisodes': get_episodes})
         rows = library.rows(rpc, entry(LIBRARY, SHOW, {'tvshowid': 4}),
                             browse={'tvshowid': 4, 'season': 1})
         self.assertEqual([r.label for r in rows], ['A', 'B'])
-        self.assertEqual((rows[0].play, rows[0].resume), ({'episodeid': 1}, 10.0))
+        self.assertEqual((rows[0].play, rows[0].resume),
+                         ({'episodeid': 1, 'file': '/tv/a.mkv'}, 10.0))
 
     def test_single_season_show_goes_straight_to_episodes(self):
         rpc = FakeRpc({
@@ -204,10 +205,10 @@ class Library(unittest.TestCase):
 
     def test_movie_is_a_single_row(self):
         rpc = FakeRpc({'VideoLibrary.GetMovieDetails': lambda p: {'moviedetails': {
-            'movieid': 7, 'title': 'Film', 'playcount': 2}}})
+            'title': 'Film', 'playcount': 2, 'file': '/films/film.mkv'}}})
         (ep,) = library.rows(rpc, entry(LIBRARY, MOVIE, {'movieid': 7}))
         self.assertEqual((ep.label, ep.play, ep.media_type, ep.playcount),
-                         ('Film', {'movieid': 7}, 'movie', 2))
+                         ('Film', {'movieid': 7, 'file': '/films/film.mkv'}, 'movie', 2))
 
     def test_missing_show_raises(self):
         rpc = FakeRpc({'VideoLibrary.GetSeasons': lambda p: RpcError('Invalid params.')})

@@ -23,7 +23,7 @@ import catalog
 import kodiutil as K
 from cache import EpisodeCache
 from jsonrpc import RpcError
-from model import ADDON, MOVIES, NEWEST, PVR, format_time, parent_row, pvr_key
+from model import ADDON, MOVIES, NEWEST, PVR, parent_row, pvr_key
 from sources import addon, pvr
 from store import Store
 
@@ -395,23 +395,16 @@ class MainWindow(xbmcgui.WindowXML):
         self._close()
 
     def _play(self, ep, resume=None):
-        # for a recording Kodi asks itself (as in its recordings window) and ignores options
-        if resume is None and ep.resume > 0 and 'recordingid' not in ep.play:
-            choice = xbmcgui.Dialog().contextmenu(
-                [K.tr('resume_from', format_time(ep.resume)), K.tr('from_start')])
-            if choice < 0:
-                return
-            resume = choice == 0
-        params = {'item': ep.play}
-        if resume is not None:
-            params['options'] = {'resume': resume}
-        try:
-            self.rpc.call('Player.Open', **params)
-        except RpcError as e:
-            K.log(f'playing {ep.play} failed: {e}', xbmc.LOGWARNING)
+        """Kodi's PlayMedia, which asks whether to resume, as Kodi's own windows do, from the
+        resume point Kodi keeps for the file (add-on items included); resume=False doesn't ask."""
+        path = ep.play.get('file')
+        if not path:
+            K.log(f'nothing to play for {ep.play}', xbmc.LOGWARNING)
             K.notify(K.tr('play_failed'), xbmcgui.NOTIFICATION_ERROR)
-        else:
-            self.played = ep.play.get('recordingid')
+            return
+        option = '' if resume is None else ',resume' if resume else ',noresume'
+        xbmc.executebuiltin(f'PlayMedia({K.builtin_param(path)}{option})')
+        self.played = ep.play.get('recordingid')
 
     def _on_screen(self, control_id, groups):
         """A control's position and size: Python gives positions within the parent group, so

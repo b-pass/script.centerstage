@@ -191,7 +191,8 @@ These come from Kodi itself; see `CLAUDE.md` for the source references.
   puts session tokens in them, or needs its own menus to have been visited first, its saved
   entries can break. An add-on may also pop up its own login or error dialogs.
 - On **Kodi 21**, add-on episodes only show watched and resume state if that add-on sets it
-  itself. On **Kodi 22**, Kodi's own watched and resume state is used.
+  itself (playing one still offers to resume where you stopped). On **Kodi 22**, Kodi's own
+  watched and resume state is used.
 - On Estuary, the window uses Estuary's own background, colours, fonts and list style. Other
   skins get a neutral dark layout that only roughly matches them.
 - The context menu isn't available during playback or inside other add-ons' custom windows.

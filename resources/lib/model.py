@@ -71,7 +71,8 @@ class Entry:
 class Episode:
     """One row of the top-right list: something to play, or a folder (e.g. a season) to open."""
     label: str
-    play: dict                # the "item" object for JSON-RPC Player.Open; empty for folders
+    play: dict                # 'file': what PlayMedia plays, plus the library or PVR id
+                              # ('movieid', 'episodeid', 'recordingid'); empty for folders
     label2: str = ''          # right-hand text when the window has nothing better (folders)
     title: str = ''
     season: int = -1
