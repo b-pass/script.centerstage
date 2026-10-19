@@ -44,6 +44,7 @@ POLL = 0.03     # seconds between checks of the left list's selection
 SETTLE = 0.1    # how long the selection must stay put before rows that need loading load
 DISK_EVERY = 900   # seconds between asking Kodi to re-read the backend's disk space
 DISK_WAIT = 30     # for this long after asking, read the answer every second (it comes later)
+RECORDINGS_EVERY = 60   # seconds between re-reading the recordings, to notice new ones
 GONE_WAIT = 10     # after Kodi's menu on a recording or playing one, for this long (once no
                    # dialog is up) check whether it has gone
 
@@ -83,6 +84,7 @@ class MainWindow(xbmcgui.WindowXML):
         self.wake = threading.Event()
         self.rows = []
         self.recs = []
+        self.recs_key = None    # pvr.fingerprint() of all recordings, when last read
         self.episodes = []      # rows of the top-right list, ".." included
         self.mem = {}           # level_key -> rows, for this session
         self.stacks = {}        # entry id -> [(browse, label), ...] of opened folders
@@ -145,6 +147,7 @@ class MainWindow(xbmcgui.WindowXML):
                 pvr_ok = True
             except RpcError as e:
                 K.log(f'no PVR recordings: {e}')  # PVR disabled or not started yet
+            self.recs_key = pvr.fingerprint(self.recs)
             self.recs = pvr.in_group(self.recs, self.group)
             pvr_rows = pvr.series_entries(self.recs, self.store.hidden_pvr(), self.store.renames())
         self.setProperty('pvr', 'true' if pvr_ok else '')
@@ -181,6 +184,7 @@ class MainWindow(xbmcgui.WindowXML):
     def _watch(self):
         """WindowXML has no "selection changed" callback, so poll the left list."""
         seen, since, disk_next, disk_until, disk_at = None, 0.0, 0.0, 0.0, 0.0
+        recs_next = time.monotonic() + RECORDINGS_EVERY
         while not self.closing.is_set():
             self.wake.wait(POLL)
             self.wake.clear()
@@ -200,6 +204,10 @@ class MainWindow(xbmcgui.WindowXML):
                 disk_at = now
                 used = K.disk_used_percent()
                 self.setProperty('diskspace', '' if used is None else K.tr('disk_used', used))
+            if now >= recs_next and pos == seen and now - since >= 1:  # not while scrolling
+                recs_next = now + RECORDINGS_EVERY
+                self._refresh_if_recordings_changed()
+                continue
             if pos != seen:
                 seen, since = pos, now
             with self.lock:
@@ -208,6 +216,19 @@ class MainWindow(xbmcgui.WindowXML):
                 if 0 <= pos < len(self.rows) and self.rows[pos].id != self.shown_id \
                         and (now - since >= SETTLE or self._at_hand(self.rows[pos])):
                     self._select(pos)
+
+    def _refresh_if_recordings_changed(self):
+        """Kodi tells add-ons nothing when recordings change (one starts, finishes, is deleted
+        or watched elsewhere), so _watch re-reads them now and then."""
+        if self.recs_key is None or not K.setting_bool('include_pvr', True):
+            return
+        try:
+            key = pvr.fingerprint(pvr.recordings(self.rpc))
+        except RpcError:
+            key = pvr.fingerprint([])
+        if key != self.recs_key:
+            shown = self.current
+            self._refresh(keep=True, reload_current=bool(shown) and shown.source in (PVR, NEWEST))
 
     def _at_hand(self, entry):
         """Whether entry's rows show without loading: PVR series and Newest (made from the

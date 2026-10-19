@@ -50,6 +50,15 @@ def groups(recs):
     return sorted({group_of(r) for r in recs}, key=lambda g: (g != DEFAULT_GROUP, g.casefold()))
 
 
+def fingerprint(recs):
+    """What the window shows of the recordings, to notice when they change: which there are,
+    their names, groups, art and whether watched. Not resume points or lengths, which change
+    while one plays or records."""
+    return frozenset((r.get('recordingid'), r.get('title'), r.get('showtitle'), r.get('directory'),
+                      bool(r.get('playcount')), tuple(sorted((r.get('art') or {}).items())))
+                     for r in recs)
+
+
 def in_group(recs, group):
     """The recordings in group; all of them when group is None."""
     return list(recs) if group is None else [r for r in recs if group_of(r) == group]
