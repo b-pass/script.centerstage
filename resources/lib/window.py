@@ -63,6 +63,8 @@ def level_key(entry_id, browse):
 class MainWindow(xbmcgui.WindowXML):
     def onInit(self):
         if getattr(self, '_started', False):
+            if self.getProperty('starting'):
+                return
             # back from playback (or a dialog): watched/resume state may have changed
             self._refresh(keep=True, reload_current=True)
             played, self.played = self.played, None
@@ -89,8 +91,34 @@ class MainWindow(xbmcgui.WindowXML):
         self.titles = self.getControl(TITLES)
         self.list = self.getControl(EPISODES)
         self.setProperty('group', K.group_label(self.group))  # under "Center Stage" at the top
+        if self.starting:
+            self.setProperty('starting', 'true')  # the layouts' spinner, in the titles' place
+            threading.Thread(target=self._start_when_ready, daemon=True).start()
+        else:
+            self._start()
+
+    def _start(self):
         self._refresh(select=self.preselect)
         threading.Thread(target=self._watch, daemon=True).start()
+
+    def _start_when_ready(self):
+        """The PVR is still starting: wait for its recordings, then ask which Stage if that's
+        due, and show the titles."""
+        K.wait_for_pvr(self.rpc, stop=self.closing)
+        if self.closing.is_set():
+            return
+        if self.may_ask:
+            groups = K.recording_groups(self.rpc)
+            if len(groups) > 1:
+                ok, group = K.pick_group(K.tr('group'), groups + [None], self.store.last_group())
+                if not ok:
+                    self._close()
+                    return
+                self.store.set_last_group(group)
+                self.group, self.groups_asked = group, True
+                self.setProperty('group', K.group_label(group))
+        self.setProperty('starting', '')
+        self._start()
 
     @property
     def shown_id(self):
@@ -659,21 +687,26 @@ def show(preselect=None, group=None, ask=True):
     (when there's more than one, the setting is on and ask isn't False), and again each time Back
     leaves the titles."""
     store = Store(K.PROFILE)
-    groups = []
-    if preselect is None and group is None and ask and K.setting_bool('ask_group', True):
-        groups = K.recording_groups(K.rpc())
-    ask = len(groups) > 1
+    may_ask = preselect is None and group is None and ask and K.setting_bool('ask_group', True)
+    # while the PVR starts, the window opens at once and waits for it (asking afterwards)
+    starting = K.pvr_starting(K.rpc())
     while True:
-        if ask:
-            ok, group = K.pick_group(K.tr('group'), groups + [None], store.last_group())
-            if not ok:
-                return
-            store.set_last_group(group)
+        asked = False
+        if may_ask and not starting:
+            groups = K.recording_groups(K.rpc())
+            asked = len(groups) > 1
+            if asked:
+                ok, group = K.pick_group(K.tr('group'), groups + [None], store.last_group())
+                if not ok:
+                    return
+                store.set_last_group(group)
         K.set_home_properties()
         win = MainWindow(XML, K.ADDON_PATH, 'Default', '1080i')
         win.preselect = preselect
         win.group = group
-        win.groups_asked = ask
+        win.groups_asked = asked
+        win.starting = starting
+        win.may_ask = may_ask
         win.switch_group = False
         try:
             win.doModal()
@@ -686,3 +719,4 @@ def show(preselect=None, group=None, ask=True):
         if not again:
             return
         preselect = None
+        starting = False

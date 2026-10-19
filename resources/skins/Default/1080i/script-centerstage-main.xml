@@ -94,6 +94,25 @@
 			<label>$ADDON[script.centerstage 32029]</label>
 			<visible>String.IsEqual(Window.Property(empty),true)</visible>
 		</control>
+		<!-- while the PVR starts (window.py waits for its recordings): our busy spinner
+		     (resources/spinner.png, from a Home property like the empty stage), turning
+		     clockwise, in the focus colour -->
+		<control type="group">
+			<visible>String.IsEqual(Window.Property(starting),true)</visible>
+			<control type="image">
+				<left>255</left><top>194</top><width>100</width><height>100</height>
+				<aspectratio>keep</aspectratio>
+				<texture colordiffuse="FF12A0C7">$INFO[Window(Home).Property(script.centerstage.spinner)]</texture>
+				<animation effect="rotate" center="auto" start="0" end="360" time="1000" loop="true" condition="true">Conditional</animation>
+			</control>
+			<control type="label">
+				<left>60</left><top>314</top><width>490</width><height>60</height>
+				<align>center</align>
+				<font>font13</font>
+				<textcolor>FFA0A0A0</textcolor>
+				<label>$ADDON[script.centerstage 32115]</label>
+			</control>
+		</control>
 
 		<!-- top right: episodes (or folders) of the selected title. The panel stops 30px short
 		     of the right edge of the screen, the same gap as between the two sides, and the

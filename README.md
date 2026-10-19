@@ -100,6 +100,10 @@ Pair it with a main-menu item that runs `RunScript(script.centerstage,group=Defa
 with `<visible>System.HasAddon(script.centerstage)</visible>`. A white menu icon in Estuary's style is
 in `resources/sidemenu.png` (`tools/art.py` draws it).
 
+While the PVR is starting (Kodi has no recordings from it yet), this listing and the widget
+listing below wait for it, for up to a minute, so `Container(id).IsUpdating` is the time to show
+a busy spinner.
+
 ### Widgets
 
 `plugin://script.centerstage/?action=list` lists the titles, and `&group=<name>` limits them to

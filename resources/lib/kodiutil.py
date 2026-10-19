@@ -20,6 +20,7 @@ ADDON_NAME = ADDON.getAddonInfo('name')
 ADDON_PATH = ADDON.getAddonInfo('path')
 # the empty stage (tools/art.py), for titles with no picture of their own
 STAGE_ART = os.path.join(ADDON_PATH, 'resources', 'stage.jpg')
+SPINNER = os.path.join(ADDON_PATH, 'resources', 'spinner.png')  # the busy spinner (tools/art.py)
 PROFILE = xbmcvfs.translatePath(ADDON.getAddonInfo('profile'))
 CACHE_DIR = os.path.join(PROFILE, 'cache')
 
@@ -97,6 +98,42 @@ def setting_bool(key, default=False):
         return default
 
 
+# Home property, set once the PVR has given us recordings this session (or we gave up waiting)
+PVR_READY = 'script.centerstage.pvr_ready'
+PVR_WAIT = 60   # seconds to wait for a PVR add-on that's still starting, once a session
+
+
+def pvr_starting(rpc):
+    """Whether the PVR is still starting: recordings are wanted and a PVR add-on is on, but Kodi
+    has none yet. Kodi starts the PVR before the add-on has connected (pvr.mythtv takes a while)
+    and loads all of an add-on's recordings at once, so there are none until they're all in."""
+    home = xbmcgui.Window(10000)
+    if home.getProperty(PVR_READY) or not setting_bool('include_pvr', True) \
+            or not xbmc.getCondVisibility('System.HasPVRAddon'):
+        return False
+    try:
+        if pvr.recordings(rpc):
+            home.setProperty(PVR_READY, 'true')
+            return False
+    except RpcError:
+        pass  # the PVR manager hasn't started
+    return True
+
+
+def wait_for_pvr(rpc, stop=None):
+    """Wait while the PVR is starting, for at most PVR_WAIT seconds (then not again this session,
+    since a backend with no recordings looks the same), or until stop is set."""
+    monitor = xbmc.Monitor()
+    end = time.monotonic() + PVR_WAIT
+    while pvr_starting(rpc):
+        if time.monotonic() > end:
+            log('no PVR recordings yet; not waiting for them again')
+            xbmcgui.Window(10000).setProperty(PVR_READY, 'gave up')
+            return
+        if monitor.waitForAbort(0.5) or (stop is not None and stop.is_set()):
+            return
+
+
 def recording_groups(rpc):
     """The PVR's recording groups (Default first), or [] with the PVR off."""
     if not setting_bool('include_pvr', True):
@@ -121,13 +158,15 @@ def set_home_properties():
       (Estuary's panel tint, and the Default layout's flat colour). On Home because a texture's
       colour is read with no window context, so a property of our own window might not be found.
     - script.centerstage.stage: the empty stage picture, the layouts' fallback for a missing
-      picture (a layout only finds our own images in its own skin folder's media)."""
+      picture (a layout only finds our own images in its own skin folder's media).
+    - script.centerstage.spinner: the busy spinner, shown while the PVR starts."""
     pct = min(100, max(0, setting_int('panel_opacity', 80)))
     alpha = f'{round(pct * 255 / 100):02X}'
     home = xbmcgui.Window(10000)
     home.setProperty(f'{ADDON_ID}.panel', alpha + 'FFFFFF')
     home.setProperty(f'{ADDON_ID}.panel_dark', alpha + '181C22')
     home.setProperty(f'{ADDON_ID}.stage', STAGE_ART)
+    home.setProperty(f'{ADDON_ID}.spinner', SPINNER)
 
 
 def newest_title(group):
