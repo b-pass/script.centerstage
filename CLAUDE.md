@@ -44,7 +44,7 @@ and ask the user if you need a particular version checked out.
 
 Three entry points, all in `addon.xml`; each puts `resources/lib` on `sys.path`.
 - `default.py` (`xbmc.python.script`, under Programs) opens the window. `RunScript` arguments:
-  `id=<urlencoded entry id>`, `group=`, `ask=0`. A Home window property stops a second copy.
+  `id=<urlencoded entry id>`, `group=`, `ask=0`.
 - `plugin.py` (`xbmc.python.pluginsource`) **provides `executable`, and must provide
   something**: the content type decides where Kodi lists the add-on (the user wants Programs,
   not Video add-ons). Every launch from Kodi's own menus (add-on info, Programs, Favourites,
