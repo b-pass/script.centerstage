@@ -116,8 +116,10 @@ Layout rules (the numbers are in the XML):
 - Panel opacity is the `panel_opacity` setting. The colours are Home properties
   (`kodiutil.set_home_properties()`) because a texture's `colordiffuse` is evaluated with no
   window context, so our own window's property isn't reliably found.
-- Control 100 (titles) is a plain `list`, not a `fixedlist` (the user rejected the gap above the
-  first title); its selected row stays dimly highlighted while 200 (episodes) has focus.
+- Control 100 (titles) is a `fixedlist` that scrolls with the focus in the middle, as Estuary's
+  List view (`movement` lets the focus reach the first and last rows, so long lists have no gap
+  at the top). The user accepts that Kodi centres a list shorter than the panel. Its selected
+  row stays dimly highlighted while 200 (episodes) has focus.
   101 and 201 are mouse/touch-only scrollbars. In the episodes list the selected row looks
   like the others while the list isn't focused (its icon and date switch on
   `Control.HasFocus`).

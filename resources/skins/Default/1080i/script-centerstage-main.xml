@@ -43,12 +43,14 @@
 			<left>30</left><top>114</top><width>550</width><height>936</height>
 			<texture colordiffuse="$INFO[Window(Home).Property(script.centerstage.panel_dark)]">uv-white.png</texture>
 		</control>
-		<control type="list" id="100">
+		<control type="fixedlist" id="100">
 			<left>30</left><top>114</top><width>538</width><height>936</height>
 			<onright>200</onright>
 			<onup>100</onup>
 			<ondown>100</ondown>
 			<pagecontrol>101</pagecontrol>
+			<focusposition>5</focusposition>
+			<movement>6</movement>
 			<scrolltime tween="cubic" easing="out">300</scrolltime>
 			<orientation>vertical</orientation>
 			<focusedlayout height="78" width="538">
