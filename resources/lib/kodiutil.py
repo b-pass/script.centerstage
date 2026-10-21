@@ -231,7 +231,11 @@ def count_label(entry):
 def listitem_art(art):
     art = dict(art)
     poster = art.get('poster') or art.get('tvshow.poster') or art.get('season.poster')
-    thumb = art.get('thumb') or art.get('landscape') or art.get('icon')
+    thumb = art.get('thumb')
+    if thumb in (None, '', poster):
+        # the picture's place is 16:9: a poster (a show's or movie's thumb) only if nothing's wide
+        thumb = art.get('landscape') or art.get('fanart') or art.get('tvshow.fanart') or thumb
+    thumb = thumb or art.get('landscape') or art.get('icon')
     if not poster:
         poster = thumb
     if not thumb:
