@@ -65,6 +65,7 @@ class Pvr(unittest.TestCase):
         self.assertTrue(office.auto)
         self.assertEqual(office.origin, 'NBC')
         self.assertEqual(office.art['thumb'], 'nbc.png')  # newest recording's, via its icon
+        self.assertEqual(office.plot, '')  # recordings only have episode descriptions
 
     def test_series_picture_is_fanart_not_preview(self):
         recs = [dict(r) for r in RECORDINGS]

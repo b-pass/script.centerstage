@@ -54,6 +54,11 @@ class Entry:
     def is_single(self):
         return self.kind in SINGLE_KINDS
 
+    @property
+    def title_plot(self):
+        """The title's own description: never an episode's (an added episode's shows on its row)."""
+        return '' if self.kind == ITEM and self.show_title else self.plot
+
     def to_dict(self):
         d = asdict(self)
         for k in self.RUNTIME_FIELDS:

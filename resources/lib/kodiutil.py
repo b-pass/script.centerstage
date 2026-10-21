@@ -260,7 +260,7 @@ def entry_listitem(entry, path=''):
     li.setArt(title_art(entry))
     tag = li.getVideoInfoTag()
     tag.setTitle(title)
-    tag.setPlot(entry.plot)
+    tag.setPlot(entry.title_plot)
     if entry.year:
         tag.setYear(entry.year)
     tag.setMediaType('movie' if entry.kind == 'movie' else 'tvshow')

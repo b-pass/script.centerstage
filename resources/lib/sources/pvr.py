@@ -122,7 +122,6 @@ def series_entries(recs, hidden=(), renames=None):
         out.append(Entry(
             id=eid, source=PVR, kind=SHOW, ref={'title': title},
             display_title=renames.get(eid, title), show_title=title, art=art,
-            plot=newest.get('plotoutline') or newest.get('plot') or '',
             added=_epoch(newest.get('starttime')), origin=', '.join(channels), auto=True,
             count=len(group)))
     return out

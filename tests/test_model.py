@@ -1,7 +1,7 @@
 import unittest
 
 import tests  # noqa: F401  (sets sys.path)
-from model import Episode, details_code, episode_code, is_untitled, parse_date, plain
+from model import ITEM, LIBRARY, MOVIE, SHOW, Entry, Episode, details_code, episode_code, is_untitled, parse_date, plain
 
 
 class ParseDate(unittest.TestCase):
@@ -31,6 +31,18 @@ class EpisodeCompat(unittest.TestCase):
     def test_cached_rows_without_channel_still_load(self):
         ep = Episode.from_dict({'label': 'x', 'play': {}, 'date': '2026-09-01'})
         self.assertEqual(ep.channel, '')
+
+
+class TitlePlot(unittest.TestCase):
+    def entry(self, kind, show_title=''):
+        return Entry(id='x', source=LIBRARY, kind=kind, ref={}, display_title='x',
+                     show_title=show_title, plot='About it')
+
+    def test_never_an_episodes(self):
+        self.assertEqual(self.entry(ITEM, show_title='Show').title_plot, '')
+        self.assertEqual(self.entry(ITEM).title_plot, 'About it')  # not part of a show
+        self.assertEqual(self.entry(SHOW, show_title='Show').title_plot, 'About it')
+        self.assertEqual(self.entry(MOVIE).title_plot, 'About it')
 
 
 class Untitled(unittest.TestCase):
