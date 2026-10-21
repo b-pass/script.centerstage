@@ -508,6 +508,8 @@ class MainWindow(xbmcgui.WindowXML):
         if ep and not ep.is_folder and ep.resume > 0:
             actions.append((K.tr('from_start'), lambda: self._play(ep, resume=False)))
         actions.append((K.tr('refresh'), self._refresh_current))
+        stack = self._stack()
+        actions += self._open_in_kodi(self.current, stack[-1][0] if stack else None)
         movie = self.store.get(ep.entry_id) if ep and ep.entry_id else None
         if movie:
             # a movie in the "Movies" title, which has no row of its own to do this from
@@ -525,6 +527,7 @@ class MainWindow(xbmcgui.WindowXML):
         if entry.source != NEWEST:  # named after the group: nothing to rename, hide or remove
             actions.append((K.tr('rename'), lambda: self._rename(entry)))
         actions.append((K.tr('refresh'), self._refresh_current))
+        actions += self._open_in_kodi(entry)
         if not entry.is_single and entry.source != MOVIES:
             hides = self._hides_watched(entry)
             actions.append((K.tr('show_watched' if hides else 'hide_watched'),
@@ -541,6 +544,19 @@ class MainWindow(xbmcgui.WindowXML):
             actions.append((K.tr('switch_group'), self._switch_group))
         actions.append((K.tr('settings'), self._settings))
         self._menu(actions)
+
+    def _open_in_kodi(self, entry, browse=None):
+        """The menu line, if any, that opens what entry shows (at the browse level) in Kodi's
+        own window: the add-on's, the library's or the recordings'. Back there returns here."""
+        found = catalog.kodi_folder(entry, browse, self.recs) if entry else None
+        if not found:
+            return []
+        window, path = found
+        name = (xbmc.getLocalizedString(19017) if entry.source == PVR  # Recordings
+                else entry.origin if entry.source == ADDON and entry.origin
+                else xbmc.getLocalizedString(3))  # Videos
+        return [(K.tr('open_in', name), lambda: xbmc.executebuiltin(
+            f'ActivateWindow({window},{K.builtin_param(path)},return)'))]
 
     @staticmethod
     def _menu(actions):

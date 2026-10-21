@@ -39,6 +39,7 @@ S = {
     'which_group': 32048, 'set_group': 32049, 'switch_group': 32050, 'movies': 32051,
     'one_movie': 32052, 'n_movies': 32053, 'disk_used': 32054, 'newest': 32055,
     'settings': 32058, 'show_watched': 32059, 'hide_watched': 32107, 'cant_delete': 32114,
+    'open_in': 32116,
 }
 
 

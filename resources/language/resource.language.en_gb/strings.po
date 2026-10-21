@@ -270,3 +270,7 @@ msgstr ""
 msgctxt "#32115"
 msgid "Waiting for PVR recordings…"
 msgstr ""
+
+msgctxt "#32116"
+msgid "Open in {}"
+msgstr ""
