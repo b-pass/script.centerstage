@@ -200,6 +200,10 @@ Layout rules (the numbers are in the XML):
   threads; a generation counter drops stale results; controls change only under `self.lock`.
 - **The window must be a `WindowXML`, not a dialog,** so fullscreen video covers it. `onInit`
   runs again after playback; that's treated as a refresh.
+- **Don't use `doModal()` for it:** that ends only on `close()`, so leaving by a Home key left
+  the script running for good. `show()` waits in `_until_left()`, which also ends once Home is
+  active (Kodi then has dropped our window from its history). Calling `close()` then would move
+  Kodi to the previous window, off Home.
 - **Play with the `PlayMedia` builtin, not `Player.Open`.** `PlayMedia` asks whether to resume,
   as Kodi's windows do, from the resume point Kodi keeps by path (add-on items too, on 21).
   `Player.Open` never asks, except for a `recordingid`, which asks and ignores `options`.
