@@ -50,9 +50,12 @@ show name, you're asked for it.
 - In the window:
   - **Left/right** moves between titles and episodes.
   - **Back** returns to the titles, then to the Stage question (or closes the window).
-  - **Context menu** on a title: Rename, Refresh, "Show watched episodes" (or "Hide watched
+  - **Context menu** on a title: Rename, Refresh, "Open in …" (the add-on, Videos or
+    Recordings, where Back returns to Center Stage), "Show watched episodes" (or "Hide watched
     episodes": each title can differ from the setting), Remove (or Hide, for a PVR series),
     "Stage…" for titles you added, "Show hidden PVR series…", "Switch Stage…" and "Settings…".
+  - **Context menu** on an episode: "Play from beginning", Refresh and "Open in …" for the
+    folder being shown.
   - **Context menu** on a recording: Kodi's own recording menu, as in the TV recordings window.
   - **Clear** on a recording: Kodi asks "Delete this recording?", just as in the TV recordings
     window.

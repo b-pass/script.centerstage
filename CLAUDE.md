@@ -214,6 +214,9 @@ Layout rules (the numbers are in the XML):
   `PlayMedia` reports no failure.
 - **`Addon.openSettings()`** edits the calling `Addon` object's own settings, so `K.ADDON` is
   current afterwards.
+- **"Open in …"** is `ActivateWindow(<window>,<path>,return)`; `return` makes Back at that path
+  go to the previous window (`CGUIMediaWindow`), ours, whose `onInit` then refreshes. Myth
+  Estuary's recordings window ignores the path (its side list `Container.Update`s on focus).
 - **Add-ons can't delete recordings** (no JSON-RPC method, builtin or `pvr://` file support), and
   Kodi's item context menu (`CONTEXTMENU::ShowFor`) only opens for items Kodi listed itself. But a
   list filled from `<content>` in any window gets it (`CDirectoryProvider::OnContextMenu`), and
@@ -257,3 +260,4 @@ Only unit tests and stub-based smoke runs so far. To check in a real Kodi:
 - the lists updating after saying Yes to pvr.mythtv's delete prompt at the end of playback
 - the Movies and Newest titles; the Default group with "Show default recording group as
   root" on; panel opacity; Kodi 22
+- "Open in …" from both menus (add-ons, library, recordings) and Back returning to the window

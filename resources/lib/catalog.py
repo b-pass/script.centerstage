@@ -54,6 +54,22 @@ def load_rows(rpc, entry, kodi_major, recordings=None, browse=None, season_word=
     return addon.rows(rpc, entry, kodi_major, browse)
 
 
+def kodi_folder(entry, browse=None, recordings=()):
+    """Where Kodi's own windows list what an entry shows (at the browse level), as (window,
+    path), or None for a single item or a computed title. A PVR series spread over several
+    Stages opens where its newest recording is."""
+    if entry.is_single or entry.source in (MOVIES, NEWEST):
+        return None
+    if entry.source == PVR:
+        paths = [e.path for e in pvr.episodes(None, entry, recordings) if e.path]
+        return ('TVRecordings', paths[-1].rsplit('/', 1)[0] + '/') if paths else None
+    ref = browse or entry.ref
+    if entry.source == LIBRARY:
+        season = f"{ref['season']}/" if 'season' in ref else ''
+        return 'Videos', f"videodb://tvshows/titles/{ref['tvshowid']}/{season}"
+    return 'Videos', ref['path']
+
+
 def movie_rows(rpc, entry, kodi_major):
     """The "Movies" title's rows: one per movie, by its name in Center Stage. Each row's entry_id
     is the movie's entry. A movie that can't be read (e.g. gone from the library) still gets a

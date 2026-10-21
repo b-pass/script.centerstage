@@ -392,6 +392,26 @@ class Catalog(unittest.TestCase):
         self.assertEqual(rows[1].play, {})  # gone from the library: still listed, to remove it
         self.assertEqual([r.label for r in catalog.arrange(rows)], ['The Abyss', 'Gone', 'Up'])
 
+    def test_kodi_folder(self):
+        show = entry(LIBRARY, SHOW, {'tvshowid': 7})
+        self.assertEqual(catalog.kodi_folder(show), ('Videos', 'videodb://tvshows/titles/7/'))
+        self.assertEqual(catalog.kodi_folder(show, {'tvshowid': 7, 'season': 0}),
+                         ('Videos', 'videodb://tvshows/titles/7/0/'))
+        self.assertEqual(catalog.kodi_folder(entry(LIBRARY, SEASON, {'tvshowid': 7, 'season': 2})),
+                         ('Videos', 'videodb://tvshows/titles/7/2/'))
+        folder = entry(ADDON, SHOW, {'path': 'p://show'})
+        self.assertEqual(catalog.kodi_folder(folder), ('Videos', 'p://show'))
+        self.assertEqual(catalog.kodi_folder(folder, {'path': 'p://s2'}), ('Videos', 'p://s2'))
+        recs = [dict(r, file=f'pvr://recordings/tv/active/{g}/The Office/{r["recordingid"]}.pvr')
+                for r, g in ((RECORDINGS[1], 'Emily'), (RECORDINGS[2], 'Bryan'))]
+        office = entry(PVR, SHOW, {'title': 'The Office'})
+        self.assertEqual(catalog.kodi_folder(office, recordings=recs),  # the newest's
+                         ('TVRecordings', 'pvr://recordings/tv/active/Emily/The Office/'))
+        self.assertIsNone(catalog.kodi_folder(office, recordings=[]))
+        for single in (entry(ADDON, ITEM, {'path': 'p://e'}), entry(LIBRARY, MOVIE, {'movieid': 1}),
+                       catalog.movies_entry([entry(LIBRARY, MOVIE, {'movieid': 1})], 'M')):
+            self.assertIsNone(catalog.kodi_folder(single))
+
     def test_arrange_keeps_folders_in_place(self):
         from model import Episode
         rows = [Episode('e1', {}, sort=(0,)), Episode('e2', {}, playcount=1, sort=(1,)),
