@@ -76,6 +76,23 @@ class AddonSeasonNaming(unittest.TestCase):
                                    tvshowtitle='The Office'))[0]
         self.assertEqual(c.entry.display_title, 'The Office')
 
+    def test_season_named_after_its_show_is_the_show(self):
+        # Amazon lists a one-season show as its season, labelled with the show's name
+        cands = candidates(self.season(label='The Office', media_type='season', season=1,
+                                       tvshowtitle='The Office',
+                                       parent_path='plugin://plugin.video.demo/?action=watchlist'))
+        self.assertEqual([c.verb for c in cands], [classify.ADD_SHOW])
+        show = cands[0].entry
+        self.assertEqual((show.kind, show.ref, show.display_title),
+                         (SHOW, {'path': SEASON1}, 'The Office'))
+
+    def test_season_listed_with_its_show_name_has_no_parent_show(self):
+        cands = candidates(self.season(label='The Office - Season 4', media_type='season',
+                                       season=4, tvshowtitle='The Office',
+                                       parent_path='plugin://plugin.video.demo/?action=watchlist'))
+        self.assertEqual([c.verb for c in cands], [classify.ADD_SEASON])
+        self.assertEqual(cands[0].entry.ref, {'path': SEASON1})
+
 
 class AddonOther(unittest.TestCase):
     def test_show_folder(self):

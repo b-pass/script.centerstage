@@ -196,6 +196,18 @@ def usable_parent(snap):
     return parent
 
 
+def _names_show(snap):
+    """Whether a season folder's label starts with its show's name ("The Boys", "The Boys -
+    Season 4"): it's listed among other shows (a watchlist), not inside its show, which would
+    just say "Season 4"."""
+    show = snap.tvshowtitle.strip().casefold()
+    return snap.media_type == 'season' and bool(show) and _label(snap).startswith(show)
+
+
+def _label(snap):
+    return ' '.join(plain(snap.label).split()).casefold()
+
+
 def _addon(snap):
     origin = snap.addon_name
     out = []
@@ -203,6 +215,13 @@ def _addon(snap):
     parent_usable = bool(parent)
 
     if snap.is_folder:
+        names_show = _names_show(snap)
+        if names_show and _label(snap) == snap.tvshowtitle.strip().casefold():
+            # a season standing in for its show (Amazon lists one-season shows so): add it as it
+            out.append(Candidate(ADD_SHOW, _make(
+                ADDON, SHOW, {'path': snap.path}, snap.tvshowtitle.strip(), snap,
+                show_title=snap.tvshowtitle.strip(), origin=origin, art=show_art(snap.art))))
+            return out
         if snap.media_type == 'season' or is_season_label(snap.label):
             label = season_label(snap)
             show = resolve_show_name(snap, label)
@@ -210,7 +229,7 @@ def _addon(snap):
                 ADDON, SEASON, {'path': snap.path}, season_title(show, label), snap,
                 show_title=show, season_label=label, origin=origin, art=season_art(snap.art)),
                 needs_show_name=not show))
-            if parent_usable:
+            if parent_usable and not names_show:
                 # the folder the user is in holds the seasons, so it's the show
                 out.append(Candidate(ADD_SHOW, _make(
                     ADDON, SHOW, {'path': parent}, show, snap, show_title=show, origin=origin,
