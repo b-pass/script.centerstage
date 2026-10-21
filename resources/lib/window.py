@@ -31,6 +31,8 @@ TITLES = 100
 EPISODES = 200
 EPISODES_GROUPS = (202, 203)  # groups holding 200, outermost first, in layouts that nest it
 
+WINDOW_HOME = 10000
+
 ACTION_PREVIOUS_MENU = 10
 ACTION_NAV_BACK = 92
 ACTION_CONTEXT_MENU = 117
@@ -45,6 +47,7 @@ SETTLE = 0.1    # how long the selection must stay put before rows that need loa
 DISK_EVERY = 900   # seconds between asking Kodi to re-read the backend's disk space
 DISK_WAIT = 30     # for this long after asking, read the answer every second (it comes later)
 RECORDINGS_EVERY = 60   # seconds between re-reading the recordings, to notice new ones
+WAIT_SLICE = 0.01  # seconds between show()'s checks; our callbacks wait for the next one
 GONE_WAIT = 10     # after Kodi's menu on a recording or playing one, for this long (once no
                    # dialog is up) check whether it has gone
 
@@ -80,8 +83,6 @@ class MainWindow(xbmcgui.WindowXML):
         self.rpc = K.rpc()
         self.major = K.kodi_major()
         self.lock = threading.RLock()
-        self.closing = threading.Event()
-        self.wake = threading.Event()
         self.rows = []
         self.recs = []
         self.recs_key = None    # pvr.fingerprint() of all recordings, when last read
@@ -723,15 +724,28 @@ def show(preselect=None, group=None, ask=True):
         win.starting = starting
         win.may_ask = may_ask
         win.switch_group = False
+        win.closing = threading.Event()
+        win.wake = threading.Event()
         try:
-            win.doModal()
+            win.show()
+            _until_left(win)
             again = win.switch_group
         finally:
-            if hasattr(win, 'closing'):
-                win.closing.set()
-                win.wake.set()
+            win.closing.set()
+            win.wake.set()
             del win
         if not again:
             return
         preselect = None
         starting = False
+
+
+def _until_left(win):
+    """doModal() without its catch: that ends only on close(), but Kodi can leave the window
+    another way (a Home key, the skin's menu), and activating Home drops it from Kodi's history,
+    so nothing returns to it. Calling close() then would send Kodi to the previous window, off
+    Home, so this just stops waiting. The callbacks run while waitForAbort waits."""
+    monitor = xbmc.Monitor()
+    while not win.closing.is_set() and xbmcgui.getCurrentWindowId() != WINDOW_HOME:
+        if monitor.waitForAbort(WAIT_SLICE):
+            return
