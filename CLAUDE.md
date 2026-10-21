@@ -133,6 +133,8 @@ Layout rules (the numbers are in the XML):
 - No flicker while moving through titles: "Loading…" appears only after 250 ms. No fade-ins:
   they make switching feel slow.
 - The titles list shows no watched status; the user doesn't want icons there.
+- The picture's place is 16:9, so a `thumb` that's just the poster gives way to `landscape`,
+  then `fanart` (`K.listitem_art()`).
 - A title's picture is its `thumb`; for PVR series that's the series fanart, not pvr.mythtv's
   preview image, which is for episodes (as in the recordings window). No picture, or one that
   won't load: `stage.jpg` (a muted grey stage with a question mark, so it doesn't pass for a
