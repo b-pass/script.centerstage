@@ -70,7 +70,7 @@
 				<bordersize>20</bordersize>
 			</control>
 			<!-- the list (and its focus bar) runs up to the scrollbar -->
-			<control type="list" id="100">
+			<control type="fixedlist" id="100">
 				<left>30</left>
 				<top>114</top>
 				<width>538</width>
@@ -79,6 +79,8 @@
 				<onup>100</onup>
 				<ondown>100</ondown>
 				<pagecontrol>101</pagecontrol>
+				<focusposition>5</focusposition>
+				<movement>6</movement>
 				<scrolltime tween="cubic" easing="out">300</scrolltime>
 				<orientation>vertical</orientation>
 				<focusedlayout height="78">
