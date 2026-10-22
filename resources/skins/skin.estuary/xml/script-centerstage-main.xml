@@ -193,7 +193,7 @@
 				<control type="list" id="200">
 					<left>0</left>
 					<top>0</top>
-					<right>12</right>
+					<right>0</right>
 					<height>480</height>
 					<onleft>100</onleft>
 					<onup>200</onup>
@@ -202,6 +202,7 @@
 					<scrolltime tween="cubic" easing="out">300</scrolltime>
 					<orientation>vertical</orientation>
 					<focusedlayout height="60">
+						<!-- to the panel's edge: the scrollbar, when there is one, is drawn over it -->
 						<control type="image">
 							<left>0</left>
 							<right>0</right>
@@ -229,7 +230,7 @@
 						</control>
 						<control type="label">
 							<left>64</left>
-							<right>300</right>
+							<right>312</right>
 							<top>0</top>
 							<bottom>0</bottom>
 							<aligny>center</aligny>
@@ -240,7 +241,7 @@
 						</control>
 						<control type="label">
 							<width>280</width>
-							<right>20</right>
+							<right>32</right>
 							<top>0</top>
 							<bottom>0</bottom>
 							<align>right</align>
@@ -252,7 +253,7 @@
 						</control>
 						<control type="label">
 							<width>280</width>
-							<right>20</right>
+							<right>32</right>
 							<top>0</top>
 							<bottom>0</bottom>
 							<align>right</align>
@@ -275,7 +276,7 @@
 						</control>
 						<control type="label">
 							<left>64</left>
-							<right>300</right>
+							<right>312</right>
 							<top>0</top>
 							<bottom>0</bottom>
 							<aligny>center</aligny>
@@ -285,7 +286,7 @@
 						</control>
 						<control type="label">
 							<width>280</width>
-							<right>20</right>
+							<right>32</right>
 							<top>0</top>
 							<bottom>0</bottom>
 							<align>right</align>
