@@ -83,7 +83,7 @@
 			<onright>200</onright>
 			<orientation>vertical</orientation>
 			<showonepage>false</showonepage>
-			<texturesliderbackground colordiffuse="18FFFFFF">uv-white.png</texturesliderbackground>
+			<texturesliderbackground colordiffuse="D92E3137">uv-white.png</texturesliderbackground>
 			<texturesliderbar colordiffuse="60FFFFFF">uv-white.png</texturesliderbar>
 			<texturesliderbarfocus colordiffuse="FF12A0C7">uv-white.png</texturesliderbarfocus>
 			<textureslidernib></textureslidernib>
@@ -207,7 +207,7 @@
 			<onright>200</onright>
 			<orientation>vertical</orientation>
 			<showonepage>false</showonepage>
-			<texturesliderbackground colordiffuse="18FFFFFF">uv-white.png</texturesliderbackground>
+			<texturesliderbackground colordiffuse="D92E3137">uv-white.png</texturesliderbackground>
 			<texturesliderbar colordiffuse="60FFFFFF">uv-white.png</texturesliderbar>
 			<texturesliderbarfocus colordiffuse="FF12A0C7">uv-white.png</texturesliderbarfocus>
 			<textureslidernib></textureslidernib>
