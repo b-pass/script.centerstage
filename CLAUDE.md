@@ -138,9 +138,9 @@ Layout rules:
 - The titles list shows no watched status.
 - The picture's place is 16:9, so a `thumb` that's just the poster gives way to `landscape`,
   then `fanart` (`K.listitem_art()`). For PVR series it's the series fanart, not pvr.mythtv's
-  preview image. With none, or one that won't load: `stage.jpg`, via the
-  `script.centerstage.stage` Home property (a layout only finds images in its own skin
-  folder's `media`).
+  preview image. With none, or one that won't load: an episode's `fanart`, then `stage.jpg`
+  (the `script.centerstage.stage` Home property, or a row's `fallback` property: a layout only
+  finds images in its own skin folder's `media`).
 - The background is `Skin.String(centerstage.background)` of the running skin, so nothing has
   to run at start-up (not a Home property). Myth Estuary sets it with its own background
   settings; its "Monthly background" clears it and reaches us only via `ColoredBackgroundImages`.

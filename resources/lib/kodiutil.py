@@ -163,8 +163,8 @@ def set_home_properties():
     - script.centerstage.panel / panel_dark: the panels' colours, from the panel_opacity setting
       (Estuary's panel tint, and the Default layout's flat colour). On Home because a texture's
       colour is read with no window context, so a property of our own window might not be found.
-    - script.centerstage.stage: the empty stage picture, the layouts' fallback for a missing
-      picture (a layout only finds our own images in its own skin folder's media).
+    - script.centerstage.stage: the empty stage picture, the layouts' fallback for a title's
+      missing picture (a layout only finds our own images in its own skin folder's media).
     - script.centerstage.spinner: the busy spinner, shown while the PVR starts."""
     pct = min(100, max(0, setting_int('panel_opacity', 80)))
     alpha = f'{round(pct * 255 / 100):02X}'
@@ -351,7 +351,11 @@ def episode_listitem(ep):
         li.setIsFolder(True)
         li.setProperty('parent', 'true')
         return li
-    li.setArt(listitem_art(ep.art))
+    art = listitem_art(ep.art)
+    li.setArt(art)
+    # the layouts' fallback for a picture that's missing or won't load (a PVR preview mythbackend
+    # couldn't make): the series' fanart, as in Kodi's recordings window, then the empty stage
+    li.setProperty('fallback', art.get('fanart') or STAGE_ART)
     li.setIsFolder(ep.is_folder)
     tag = li.getVideoInfoTag()
     tag.setTitle(plain(ep.title or ep.label))

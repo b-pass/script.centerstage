@@ -429,7 +429,7 @@
 					<height>296</height>
 					<aspectratio>keep</aspectratio>
 					<fadetime>200</fadetime>
-					<texture background="true">$INFO[Container(200).ListItem.Art(thumb)]</texture>
+					<texture background="true" fallback="$INFO[Container(200).ListItem.Property(fallback)]">$INFO[Container(200).ListItem.Art(thumb)]</texture>
 					<visible>Control.HasFocus(200)</visible>
 				</control>
 				<control type="textbox">
