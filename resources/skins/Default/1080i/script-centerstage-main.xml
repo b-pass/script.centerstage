@@ -124,16 +124,17 @@
 			<texture colordiffuse="$INFO[Window(Home).Property(script.centerstage.panel_dark)]">uv-white.png</texture>
 		</control>
 		<control type="list" id="200">
-			<left>610</left><top>114</top><width>1268</width><height>480</height>
+			<left>610</left><top>114</top><width>1280</width><height>480</height>
 			<onleft>100</onleft>
 			<onup>200</onup>
 			<ondown>200</ondown>
 			<pagecontrol>201</pagecontrol>
 			<scrolltime tween="cubic" easing="out">300</scrolltime>
 			<orientation>vertical</orientation>
-			<focusedlayout height="60" width="1268">
+			<focusedlayout height="60" width="1280">
+				<!-- to the panel's edge: the scrollbar, when there is one, is drawn over it -->
 				<control type="image">
-					<left>0</left><top>0</top><width>1268</width><height>60</height>
+					<left>0</left><top>0</top><width>1280</width><height>60</height>
 					<texture colordiffuse="FF12A0C7">uv-white.png</texture>
 					<visible>Control.HasFocus(200)</visible>
 				</control>
@@ -177,7 +178,7 @@
 					<visible>!Control.HasFocus(200)</visible>
 				</control>
 			</focusedlayout>
-			<itemlayout height="60" width="1268">
+			<itemlayout height="60" width="1280">
 				<control type="image">
 					<left>26</left><top>24</top><width>12</width><height>12</height>
 					<texture colordiffuse="FF12A0C7">uv-white.png</texture>
