@@ -126,6 +126,9 @@
 				<height>936</height>
 				<onleft>100</onleft>
 				<onright>200</onright>
+				<!-- mostly opaque, so the highlight under it hardly shows through; over the panel it
+				     looks like Estuary's own (29FFFFFF) -->
+				<texturesliderbackground colordiffuse="D9363636">colors/white.png</texturesliderbackground>
 				<orientation>vertical</orientation>
 				<!-- unfocused it narrows towards the panel's edge, so it stays flush with it -->
 				<animation effect="zoom" end="50,100" time="300" tween="sine" center="580,0" easing="inout" condition="!Control.HasFocus(101)">conditional</animation>
@@ -312,6 +315,7 @@
 						<height>480</height>
 						<onleft>200</onleft>
 						<onright>200</onright>
+						<texturesliderbackground colordiffuse="D9363636">colors/white.png</texturesliderbackground>
 						<orientation>vertical</orientation>
 						<animation effect="zoom" end="50,100" time="300" tween="sine" center="12,0" easing="inout" condition="!Control.HasFocus(201)">conditional</animation>
 					</control>
