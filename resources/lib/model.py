@@ -134,7 +134,7 @@ def runs(path, isplayable):
     """Whether an add-on item is run rather than played: Kodi runs a plugin item that isn't
     marked IsPlayable as a script (CGUIMediaWindow::OnClick), and its add-on may expect that.
     PlayMedia would wait for a resolved URL, and if the add-on starts PlayMedia itself
-    meanwhile (hoopla's "borrow, then play"), Kodi exits ("two concurrent busydialogs").
+    meanwhile, Kodi exits ("two concurrent busydialogs").
     isplayable: the property's value, which Kodi reads as true unless "", "0" or "false"."""
     return path.startswith('plugin://') and str(isplayable or '').lower() in ('', '0', 'false')
 
