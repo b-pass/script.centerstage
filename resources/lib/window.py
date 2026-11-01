@@ -426,6 +426,9 @@ class MainWindow(xbmcgui.WindowXML):
             K.notify(K.tr('play_failed'), xbmcgui.NOTIFICATION_ERROR)
             return
         if ep.play.get('run'):
+            # it may change what the level shows (hoopla's "borrow, then play"): read it afresh
+            # when we're back from playback, or next time it's shown
+            self._forget_level()
             xbmc.executebuiltin(f'RunPlugin({K.builtin_param(path)})')
             return
         option = '' if resume is None else ',resume' if resume else ',noresume'
@@ -568,14 +571,19 @@ class MainWindow(xbmcgui.WindowXML):
         if choice >= 0:
             actions[choice][1]()
 
-    def _refresh_current(self):
+    def _forget_level(self):
+        """Drop the level shown from memory and the disk cache."""
         with self.lock:
-            if not self.current:
-                return
             stack = self._stack()
             key = level_key(self.current.id, stack[-1][0] if stack else None)
             self.mem.pop(key, None)
             self.cache.drop(key)
+
+    def _refresh_current(self):
+        with self.lock:
+            if not self.current:
+                return
+            self._forget_level()
             if self.current.source in (PVR, NEWEST):
                 self._refresh(keep=True, reload_current=True)
             else:
