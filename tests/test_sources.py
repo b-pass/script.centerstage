@@ -261,6 +261,19 @@ class Addon(unittest.TestCase):
         self.assertEqual((rows[2].is_folder, rows[2].browse), (True, {'path': 'p://next'}))
         self.assertEqual(rpc.calls[0][1]['media'], 'video')
 
+    def test_plugin_items_not_marked_playable_are_run(self):
+        rpc = FakeRpc({'Files.GetDirectory': directory({'plugin://x/': [
+            ep('plugin://x/?play=1', 'One', customproperties={'isplayable': 'true'}),
+            ep('plugin://x/?borrow=2', 'Two', customproperties={'isplayable': 'false'}),
+            ep('plugin://x/?borrow=3', 'Three'),
+        ]})})
+        rows = addon.rows(rpc, entry(ADDON, SHOW, {'path': 'plugin://x/'}), 21)
+        self.assertEqual([r.play.get('run', False) for r in rows], [False, True, True])
+        self.assertIn('customproperties', rpc.calls[0][1]['properties'])
+        e = entry(ADDON, ITEM, {'path': 'plugin://x/?borrow=2', 'run': True})
+        (only,) = addon.rows(None, e, 21)
+        self.assertEqual(only.play, {'file': 'plugin://x/?borrow=2', 'run': True})
+
     def test_untitled_items_are_flagged(self):
         rpc = FakeRpc({'Files.GetDirectory': directory({'p://show': [
             ep('p://e1', 'Untitled', title='Untitled', season=1, episode=1),

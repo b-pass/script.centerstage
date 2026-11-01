@@ -11,11 +11,11 @@ we ask for media "video" and only get what the add-on itself set.
 """
 import re
 
-from model import Episode, SINGLE_KINDS, MOVIE, plain
+from model import Episode, SINGLE_KINDS, MOVIE, plain, runs
 from sources.common import episode_from_item, folder_from_item
 
 ITEM_PROPS = ['title', 'plot', 'art', 'season', 'episode', 'showtitle', 'playcount', 'resume',
-              'runtime', 'firstaired', 'premiered']
+              'runtime', 'firstaired', 'premiered', 'customproperties']
 MAX_SKIP = 3  # how many single-folder levels to walk through automatically
 _BACK = re.compile(r'[\s<«‹←-]*(?:\.\.+[\s-]*)?(?:(?:go\s+)?back)?[\s.]*', re.IGNORECASE)
 
@@ -38,18 +38,25 @@ def is_back(item):
     return ('..' in label or 'back' in label.casefold()) and bool(_BACK.fullmatch(label))
 
 
+def _play(path, run):
+    return {'file': path, 'run': True} if run else {'file': path}
+
+
 def _row(item, n):
     if _is_folder(item):
         media_type = 'season' if item.get('type') == 'season' else ''
         return folder_from_item(item, {'path': item['file']}, (n,), media_type=media_type)
     media_type = 'movie' if item.get('type') == 'movie' else 'episode'
-    return episode_from_item(item, {'file': item['file']}, (n,), media_type=media_type)
+    playable = (item.get('customproperties') or {}).get('isplayable')  # Kodi lowercases the key
+    return episode_from_item(item, _play(item['file'], runs(item['file'], playable)), (n,),
+                             media_type=media_type)
 
 
 def rows(rpc, entry, kodi_major, browse=None):
     """One level of an add-on entry: its own folder when browse is None, else browse['path']."""
     if entry.kind in SINGLE_KINDS:
-        return [Episode(label=entry.display_title, play={'file': entry.ref['path']},
+        return [Episode(label=entry.display_title,
+                        play=_play(entry.ref['path'], entry.ref.get('run')),
                         title=entry.display_title, plot=entry.plot, art=dict(entry.art),
                         media_type='movie' if entry.kind == MOVIE else 'episode')]
     path = (browse or {}).get('path') or entry.ref['path']

@@ -77,7 +77,8 @@ class Episode:
     """One row of the top-right list: something to play, or a folder (e.g. a season) to open."""
     label: str
     play: dict                # 'file': what PlayMedia plays, plus the library or PVR id
-                              # ('movieid', 'episodeid', 'recordingid'); empty for folders
+                              # ('movieid', 'episodeid', 'recordingid'), or 'run' to RunPlugin
+                              # it instead (runs()); empty for folders
     label2: str = ''          # right-hand text when the window has nothing better (folders)
     title: str = ''
     season: int = -1
@@ -127,6 +128,15 @@ def entry_id(source, kind, ref):
     if source == PVR:
         return f'pvr:{pvr_key(ref["title"])}'
     return f'addon:{kind}:{ref["path"]}'
+
+
+def runs(path, isplayable):
+    """Whether an add-on item is run rather than played: Kodi runs a plugin item that isn't
+    marked IsPlayable as a script (CGUIMediaWindow::OnClick), and its add-on may expect that.
+    PlayMedia would wait for a resolved URL, and if the add-on starts PlayMedia itself
+    meanwhile (hoopla's "borrow, then play"), Kodi exits ("two concurrent busydialogs").
+    isplayable: the property's value, which Kodi reads as true unless "", "0" or "false"."""
+    return path.startswith('plugin://') and str(isplayable or '').lower() in ('', '0', 'false')
 
 
 def parent_row(label='..'):

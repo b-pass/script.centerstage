@@ -130,6 +130,10 @@ class AddonOther(unittest.TestCase):
                         media_type='movie', parent_path='plugin://x/?movies=1')
         (c,) = candidates(snap)
         self.assertEqual((c.verb, c.entry.kind), (classify.ADD_MOVIE, MOVIE))
+        self.assertEqual(c.entry.ref, {'path': 'plugin://x/?play=1', 'run': True})
+        snap.isplayable = 'true'
+        (c,) = candidates(snap)
+        self.assertEqual(c.entry.ref, {'path': 'plugin://x/?play=1'})
 
 
 class Library(unittest.TestCase):
