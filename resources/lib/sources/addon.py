@@ -49,7 +49,17 @@ def _row(item, n):
     media_type = 'movie' if item.get('type') == 'movie' else 'episode'
     playable = (item.get('customproperties') or {}).get('isplayable')  # Kodi lowercases the key
     return episode_from_item(item, _play(item['file'], runs(item['file'], playable)), (n,),
-                             media_type=media_type)
+                             media_type=media_type, name=_name(item))
+
+
+def _name(item):
+    """The row's name: the add-on's label from the title on, as Kodi would show it, keeping what
+    the add-on adds after it ("(not borrowed)") but not a number before it ("1x03. "), which the
+    details show. The title alone when the label doesn't hold it."""
+    title = plain(item.get('title')).strip()
+    label = plain(item.get('label'))
+    at = label.find(title) if title else -1
+    return label[at:].strip() if at >= 0 else ''
 
 
 def rows(rpc, entry, kodi_major, browse=None):

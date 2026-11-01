@@ -31,14 +31,16 @@ def folder_from_item(item, browse, sort, label=None, media_type=''):
         is_folder=True, browse=browse)
 
 
-def episode_from_item(item, play, sort, prefix='', media_type='episode'):
-    """Episode from a JSON-RPC item (library episode/movie, recording or directory entry)."""
+def episode_from_item(item, play, sort, prefix='', media_type='episode', name=None):
+    """Episode from a JSON-RPC item (library episode/movie, recording or directory entry).
+    name: what the row shows in place of the title."""
     season = as_int(item.get('season'))
     number = as_int(item.get('episode'))
     title = item.get('title') or item.get('label') or ''
+    name = name or title
     position, total = resume_of(item)
     return Episode(
-        label=episode_label(title, season, number, prefix) if media_type == 'episode' else title,
+        label=episode_label(name, season, number, prefix) if media_type == 'episode' else name,
         play=play, title=title, season=season, episode=number, plot=item.get('plot') or '',
         art=dict(item.get('art') or {}), playcount=as_int(item.get('playcount'), 0),
         resume=position, total=total, runtime=as_int(item.get('runtime'), 0),
