@@ -69,7 +69,10 @@ class MainWindow(xbmcgui.WindowXML):
         if getattr(self, '_started', False):
             if self.getProperty('starting'):
                 return
-            # back from playback (or a dialog): watched/resume state may have changed
+            # back from playback (or a dialog): watched/resume state may have changed, and so
+            # may an add-on's listing (playing a hoopla item borrows it): re-read the level shown
+            if self.current and self.current.source == ADDON:
+                self._forget_level()
             self._refresh(keep=True, reload_current=True)
             played, self.played = self.played, None
             if played is not None:  # pvr.mythtv may now ask whether to delete it
@@ -169,12 +172,13 @@ class MainWindow(xbmcgui.WindowXML):
                 return
             self.titles.selectItem(pos)
             if reload_current and rows[pos].id == self.shown_id:
-                # library and PVR state is cheap to re-read; add-ons are re-read quietly
+                # library and PVR state is cheap to re-read; an add-on level only once it has
+                # been forgotten (onInit), quietly
                 for key in list(self.mem):
                     if not key.startswith(f'{ADDON}:'):
                         del self.mem[key]
                 self.current = rows[pos]
-                self._load(force=rows[pos].source != ADDON or self.major >= 22, quiet=True)
+                self._load(force=rows[pos].source != ADDON, quiet=True)
             elif rows[pos].id != self.shown_id or not keep:
                 self._select(pos)
             else:
@@ -426,8 +430,8 @@ class MainWindow(xbmcgui.WindowXML):
             K.notify(K.tr('play_failed'), xbmcgui.NOTIFICATION_ERROR)
             return
         if ep.play.get('run'):
-            # it may change what the level shows (hoopla's "borrow, then play"): read it afresh
-            # when we're back from playback, or next time it's shown
+            # it may change what the level shows: read it afresh next time it's shown, even if
+            # it doesn't lead to playback and onInit
             self._forget_level()
             xbmc.executebuiltin(f'RunPlugin({K.builtin_param(path)})')
             return

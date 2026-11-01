@@ -235,7 +235,8 @@ Only unit tests and stub-based smoke runs so far. Drop an item once the user con
   "Center Stage" home entry and Stages panel (its `Home.xml`).
 - Add-on sources: `Files.GetDirectory`, `TVShowTitle`/`PluginCategory` and folder browsing in
   real add-ons (`../plugin.video.hoopla`, `../plugin.video.the-chosen`); `customproperties`
-  carrying `isplayable`, and hoopla's borrow items being run.
+  carrying `isplayable`; hoopla's not-borrowed items played, its borrow dialog during the
+  resolve, and "(not borrowed)" gone once back.
 - Playback, resume points and the window coming back; "Open in …" from both menus and Back.
 - Looks: all three layouts (Myth Estuary isn't installed in the Flatpak Kodi), the disk-space
   text, panel opacity, the spinner turning clockwise; Kodi 22.
