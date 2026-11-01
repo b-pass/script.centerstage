@@ -274,6 +274,17 @@ class Addon(unittest.TestCase):
         (only,) = addon.rows(None, e, 21)
         self.assertEqual(only.play, {'file': 'plugin://x/?borrow=2', 'run': True})
 
+    def test_rows_keep_what_the_label_adds_after_the_title(self):
+        rpc = FakeRpc({'Files.GetDirectory': directory({'p://show': [
+            ep('p://e1', '1x01. Pilot (not borrowed)', title='Pilot', season=1, episode=1),
+            ep('p://e2', '[B]Two[/B]', title='Two', season=1, episode=2),
+            ep('p://e3', 'Something else', title='Three', season=1, episode=3),
+            ep('p://e4', 'Four'),
+        ]})})
+        rows = addon.rows(rpc, entry(ADDON, SHOW, {'path': 'p://show'}), 21)
+        self.assertEqual([r.label for r in rows], ['Pilot (not borrowed)', 'Two', 'Three', 'Four'])
+        self.assertEqual(rows[0].title, 'Pilot')
+
     def test_untitled_items_are_flagged(self):
         rpc = FakeRpc({'Files.GetDirectory': directory({'p://show': [
             ep('p://e1', 'Untitled', title='Untitled', season=1, episode=1),
