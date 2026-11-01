@@ -40,6 +40,7 @@ def snapshot(li, rpc):
     art = {k: li.getArt(k) for k in ART_KEYS}
     snap = classify.Snapshot(
         label=li.getLabel(), path=li.getPath(), is_folder=li.isFolder(),
+        isplayable=li.getProperty('IsPlayable'),
         media_type=tag.getMediaType(), dbid=tag.getDbId(), title=tag.getTitle(),
         tvshowtitle=tag.getTVShowTitle(), season=tag.getSeason(), episode=tag.getEpisode(),
         plot=tag.getPlot(), year=tag.getYear(), art={k: v for k, v in art.items() if v},

@@ -418,11 +418,15 @@ class MainWindow(xbmcgui.WindowXML):
 
     def _play(self, ep, resume=None):
         """Kodi's PlayMedia, which asks whether to resume, as Kodi's own windows do, from the
-        resume point Kodi keeps for the file (add-on items included); resume=False doesn't ask."""
+        resume point Kodi keeps for the file (add-on items included); resume=False doesn't ask.
+        An add-on item that isn't playable is run instead, as Kodi does (model.runs)."""
         path = ep.play.get('file')
         if not path:
             K.log(f'nothing to play for {ep.play}', xbmc.LOGWARNING)
             K.notify(K.tr('play_failed'), xbmcgui.NOTIFICATION_ERROR)
+            return
+        if ep.play.get('run'):
+            xbmc.executebuiltin(f'RunPlugin({K.builtin_param(path)})')
             return
         option = '' if resume is None else ',resume' if resume else ',noresume'
         xbmc.executebuiltin(f'PlayMedia({K.builtin_param(path)}{option})')

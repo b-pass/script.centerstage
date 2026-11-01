@@ -206,7 +206,9 @@ Layout rules:
   active; calling `close()` then would move Kodi off Home.
 - **Play with the `PlayMedia` builtin, not `Player.Open`.** `PlayMedia` asks whether to resume,
   as Kodi's windows do (add-on items too, on 21). `Player.Open` never asks, except for a
-  `recordingid`, which asks and ignores `options`. `PlayMedia` reports no failure.
+  `recordingid`, which asks and ignores `options`. `PlayMedia` reports no failure. A plugin
+  item not marked `IsPlayable` is `RunPlugin`ned instead, as Kodi's windows do (`model.runs()`):
+  `PlayMedia` on one whose add-on then calls `PlayMedia` itself makes Kodi exit.
 - **`Addon.openSettings()`** edits the calling `Addon` object's own settings, so `K.ADDON` is
   current afterwards.
 - **"Open in …"** is `ActivateWindow(<window>,<path>,return)`; `return` makes Back at that path
@@ -232,7 +234,8 @@ Only unit tests and stub-based smoke runs so far. Drop an item once the user con
   Favourites, widgets); the widget click path (`PlayMedia` → `RunScript`); Myth Estuary's
   "Center Stage" home entry and Stages panel (its `Home.xml`).
 - Add-on sources: `Files.GetDirectory`, `TVShowTitle`/`PluginCategory` and folder browsing in
-  real add-ons (`../plugin.video.hoopla`, `../plugin.video.the-chosen`).
+  real add-ons (`../plugin.video.hoopla`, `../plugin.video.the-chosen`); `customproperties`
+  carrying `isplayable`, and hoopla's borrow items being run.
 - Playback, resume points and the window coming back; "Open in …" from both menus and Back.
 - Looks: all three layouts (Myth Estuary isn't installed in the Flatpak Kodi), the disk-space
   text, panel opacity, the spinner turning clockwise; Kodi 22.

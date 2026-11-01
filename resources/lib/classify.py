@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 import re
 
 from model import (Entry, LIBRARY, ADDON, SHOW, SEASON, MOVIE, ITEM, entry_id, plain,
-                   episode_code)
+                   episode_code, runs)
 
 # verbs, one per kind of menu line context.py shows
 ADD_SHOW = 'show'
@@ -30,6 +30,7 @@ class Snapshot:
     label: str = ''
     path: str = ''
     is_folder: bool = False
+    isplayable: str = ''        # the IsPlayable property
     media_type: str = ''
     dbid: int = -1
     title: str = ''
@@ -259,8 +260,11 @@ def _addon(snap):
                 ADDON, SHOW, {'path': parent}, '', snap, origin=origin,
                 art=show_art(snap.art), plot=''), needs_show_name=True))
     kind = MOVIE if snap.media_type == 'movie' else ITEM
+    ref = {'path': snap.path}
+    if runs(snap.path, snap.isplayable):
+        ref['run'] = True  # played by RunPlugin (sources/addon.py)
     out.append(Candidate(ADD_MOVIE if kind == MOVIE else ADD_ITEM, _make(
-        ADDON, kind, {'path': snap.path}, _item_title(snap), snap,
+        ADDON, kind, ref, _item_title(snap), snap,
         show_title=snap.tvshowtitle, origin=origin)))
     return out
 
