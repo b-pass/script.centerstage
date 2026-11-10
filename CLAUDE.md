@@ -161,7 +161,8 @@ Layout rules:
 - Users only ever see "Stage"; code, `group=` arguments and the `group` property say group.
 - "All Stages" comes last in every Stage list (the question, "Stage…", `?action=stages`).
 - Say "PVR", as Kodi does, never "DVR": in what users see and in the code.
-- A recording's group is its JSON-RPC `directory` minus the title folder (`pvr.group_of()`).
+- A recording's group is its JSON-RPC `directory` minus the title folder: everything after the
+  last `/`, never matched against the title, which can differ (`pvr.group_of()`).
   Recordings with no group folder (pvr.mythtv's "Show default recording group as root") are in
   `pvr.DEFAULT_GROUP` ("Default", which the user keeps), so `group=Default` works either way.
 - pvr.mythtv wraps damaged recordings' titles in `[COLOR yellow]`; titles are stripped

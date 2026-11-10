@@ -5,12 +5,16 @@ Note Kodi's naming: for a recording, JSON-RPC "title" is the programme (show) na
 carries the backend's episode name (CPVRRecording maps strEpisodeName to m_strShowTitle). Season and
 episode are -1 when the backend doesn't know them.
 
-A recording's group is its "directory" without the trailing title folder. pvr.mythtv puts each
-recording under "<recording group>/<title>", or just "<title>" for the Default group when its
-"Show default recording group as root" setting is on (its default). Recordings outside any group
-folder therefore belong to "Default", so the Default group has the same name either way (and for
-backends without groups, every recording is in it). pvr.mythtv also wraps damaged recordings'
-titles in [COLOR ...] tags; those are ignored when grouping by title.
+A recording's group is its "directory" without the trailing title folder. pvr.mythtv builds it as
+the recording group, then "/" and a title folder when it groups by title: "<group>/<folder>", or
+"/<folder>" for the Default group when its "Show default recording group as root" setting is on
+(its default); just "<group>" for a recording it doesn't group by title. So everything after the
+last "/" is the title folder, whatever it says. Don't compare the folder with the title: the
+folder is the title cut at its first "(" with "/", "\\", "[" and "]" made spaces, and pvr.mythtv
+keeps the folder it first made when the backend later changes the recording's title (until Kodi
+restarts). Recordings outside any group folder belong to "Default", so the Default group has the
+same name either way (and for backends without groups, every recording is in it). pvr.mythtv also
+wraps damaged recordings' titles in [COLOR ...] tags; those are ignored when grouping by title.
 """
 import calendar
 import re
@@ -39,10 +43,12 @@ def _title(rec):
 
 
 def group_of(rec):
-    parts = [p for p in (rec.get('directory') or '').split('/') if p]
-    if parts and pvr_key(plain(parts[-1])) == pvr_key(_title(rec)):
-        parts.pop()
-    return '/'.join(parts) or DEFAULT_GROUP
+    directory = (rec.get('directory') or '').rstrip('/')
+    if '/' in directory:
+        directory = directory.rsplit('/', 1)[0]
+    elif pvr_key(plain(directory)) == pvr_key(_title(rec)):
+        directory = ''  # a backend that names the title folder without the leading "/"
+    return '/'.join(p for p in directory.split('/') if p) or DEFAULT_GROUP
 
 
 def groups(recs):

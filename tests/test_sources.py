@@ -146,17 +146,29 @@ class Pvr(unittest.TestCase):
             {'recordingid': 2, 'title': '[COLOR yellow]Alone[/COLOR]',
              'directory': 'Saved for Later/Alone', 'showtitle': 'Damaged'},
             {'recordingid': 3, 'title': 'Alone', 'directory': 'Drama/Alone'},
-            {'recordingid': 4, 'title': 'Scrubs', 'directory': 'Scrubs'},  # root default group
+            {'recordingid': 4, 'title': 'Scrubs', 'directory': '/Scrubs'},  # root default group
             {'recordingid': 5, 'title': 'News', 'directory': 'Default'},   # no title folders
         ]
         self.assertEqual([pvr.group_of(r) for r in recs],
                          ['Saved for Later', 'Saved for Later', 'Drama', 'Default', 'Default'])
+        self.assertEqual(pvr.group_of({'title': 'Scrubs', 'directory': 'Scrubs'}), 'Default')
+        # the title folder is pvr.mythtv's cut-down title, or the one it made before the backend
+        # changed the title: it's still the title folder
+        for title, directory in (('Ad Vitam (1/6)', 'Saved for Later/Ad Vitam'),
+                                 ('20/20', 'Saved for Later/20 20'),
+                                 ('Moonfall: Extended', 'Saved for Later/Moonfall'),
+                                 ('20/20', '/20 20')):
+            self.assertEqual(pvr.group_of({'title': title, 'directory': directory}),
+                             'Default' if directory.startswith('/') else 'Saved for Later')
+        # not grouped by title: the directory is just the group
+        self.assertEqual(pvr.group_of({'title': 'Moonfall', 'directory': 'Saved for Later'}),
+                         'Saved for Later')
         self.assertEqual(pvr.groups(recs), ['Default', 'Drama', 'Saved for Later'])
         self.assertEqual(len(pvr.in_group(recs, 'Default')), 2)
         # with the root default group setting off, Default is a folder like the others
         self.assertEqual(pvr.group_of({'title': 'Scrubs', 'directory': 'Default/Scrubs'}),
                          'Default')
-        self.assertEqual(pvr.groups([{'title': 'Zed', 'directory': 'Zed'},
+        self.assertEqual(pvr.groups([{'title': 'Zed', 'directory': '/Zed'},
                                      {'title': 'A', 'directory': 'Alpha/A'}]),
                          ['Default', 'Alpha'])
         self.assertEqual(len(pvr.in_group(recs, None)), 5)
