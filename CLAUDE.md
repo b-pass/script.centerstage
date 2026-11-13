@@ -227,24 +227,3 @@ Layout rules:
   arrive as action 0; `window.DELETE_BUTTONS` matches their button codes.
 - **`Container(id)` from Python, with no window context, resolves to the topmost dialog**, then
   the active window (`GUIInfoHelper::GetWindowWithCondition`).
-
-## Not verified in a running Kodi yet
-
-Only unit tests and stub-based smoke runs so far. Drop an item once the user confirms it works.
-- Launching: where the add-on shows up; the context entry (plugin listings, recordings,
-  Favourites, widgets); the widget click path (`PlayMedia` → `RunScript`); Myth Estuary's
-  "Center Stage" home entry and Stages panel (its `Home.xml`).
-- Add-on sources: `Files.GetDirectory`, `TVShowTitle`/`PluginCategory` and folder browsing in
-  real add-ons (`../plugin.video.hoopla`, `../plugin.video.the-chosen`); `customproperties`
-  carrying `isplayable`; hoopla's not-borrowed items played, its borrow dialog during the
-  resolve, and "(not borrowed)" gone once back.
-- Playback, resume points and the window coming back; "Open in …" from both menus and Back.
-- Looks: all three layouts (Myth Estuary isn't installed in the Flatpak Kodi), the disk-space
-  text, panel opacity, the spinner turning clockwise; Kodi 22.
-- PVR: opening the window, Stages panel and widgets while pvr.mythtv is starting; a new
-  recording appearing within a minute (Newest too); the Default group with "Show default
-  recording group as root" on; the Movies and Newest titles.
-- Kodi's menu on a recording: finding it in Kodi's listing, each entry (Play, Find similar,
-  Information, Edit, pvr.mythtv's own), Clear picking Delete (from the user's remote; menu
-  hidden on Myth Estuary), a recording in progress, and the lists updating afterwards and after
-  pvr.mythtv's delete prompt at the end of playback.
