@@ -10,12 +10,9 @@ recordings (automatic, one row per recording title), the video library and other
 folders and items (both added with the "Add to Center Stage" context menu entry). The list is
 also a plugin folder, for widgets.
 
-The design constraints (no Kodi core changes allowed) are in the approved plan:
-`~/.claude/plans/we-want-to-make-linear-magpie.md`. `../xbmc` is a Kodi master (22) checkout for
-checking claims against source. It's the user's fork, not part of this project, and may move; its
-`addons/skin.estuary` carries their own skin changes. Check stock Estuary against the Flatpak 21.3
-copy (`/var/lib/flatpak/app/tv.kodi.Kodi/x86_64/stable/active/files/share/kodi/addons/skin.estuary`),
-and ask the user if you need a particular version checked out.
+**No Kodi core changes:** everything works with Kodi 21 and 22 as released. Check claims about
+Kodi against its source (github.com/xbmc/xbmc: `master` is 22, `Omega` is 21; stock Estuary is
+`addons/skin.estuary` there). Ask the user where local checkouts are, or for a particular version.
 
 ## Working with the user
 
@@ -48,8 +45,8 @@ code and its comments would already stop it.
 - Tests: `python3 -m unittest discover tests`
 - One test: `python3 -m unittest tests.test_classify -k season`
 - Syntax: `python3 -m py_compile default.py plugin.py context.py resources/lib/*.py resources/lib/sources/*.py`
-- Install into the Flatpak Kodi (21.3): `tools/install.sh`. The log is at
-  `~/.var/app/tv.kodi.Kodi/data/temp/kodi.log`; our lines start with `script.centerstage: `.
+- Install into a local Kodi: `tools/install.sh` (`KODI_ADDONS=<addons folder>` to choose which).
+  Our lines in `kodi.log` start with `script.centerstage: `.
 - Art (icon, fanart, `stage.jpg`, `sidemenu.png`, `spinner.png`): `python3 tools/art.py` (needs Pillow).
 
 ## Code layout
@@ -98,10 +95,10 @@ Estuary): a `1080i` folder there is silently skipped. `Default/` itself uses `10
 - `skin.estuary/xml/` uses Estuary's includes (`ColoredBackgroundImages`, `TopBar`,
   `OpenClose_*`), `$VAR[ListWatchedIconVar]`, its fonts and colours, all present in 21.3 and 22.
   **A colour name the skin lacks becomes fully transparent.** **Don't assume 1920 wide:** Estuary
-  has several coordinate spaces (1920-2560 wide); the user's windowed Kodi gets 2040. Anchor the
+  has several coordinate spaces (1920-2560 wide); a windowed Kodi can get 2040. Anchor the
   right side with `<right>`, centre with `<centerleft>50%`.
-- `skin.myth-estuary/xml/` is for Myth Estuary, the user's Estuary fork (`../xbmc/addons/
-  skin.estuary`). From `<window>` down it's a byte-for-byte copy of the Estuary layout
+- `skin.myth-estuary/xml/` is for Myth Estuary, the user's Estuary fork (ask where its source
+  is). From `<window>` down it's a byte-for-byte copy of the Estuary layout
   (`tests/test_skins.py`): edit Estuary, then copy. Myth Estuary is unreleased: keep it out of
   the README; describe skin hooks generically there.
 - `Default/1080i/` is for every other skin, a fixed 1920x1080 copy of the Estuary layout using
@@ -111,8 +108,8 @@ Estuary): a `1080i` folder there is silently skipped. `Default/` itself uses `10
   Change Estuary first, carry it to Default, copy to Myth.
 
 Layout rules:
-- Modelled on Myth Estuary's recordings window (`../xbmc/addons/skin.estuary/xml/
-  MyPVRRecordings.xml`), including its font sizes; users compare the two.
+- Modelled on Myth Estuary's recordings window (its `xml/MyPVRRecordings.xml`), including its
+  font sizes; users compare the two.
 - Every control stays put whichever list has focus; only contents swap (`Control.HasFocus(200)`).
   The details pane is pure XML.
 - Panels are 30px apart and 30px from the screen edges, all ending on the same line; lists are a
@@ -187,7 +184,7 @@ Layout rules:
 - Added seasons are named after the show; menus still say "Show - Season N" via
   `classify.season_description()`.
 
-## Kodi facts this code relies on (checked in ../xbmc)
+## Kodi facts this code relies on (checked in Kodi's source)
 
 - **Module globals don't survive between invocations.** Every `RunScript`, plugin URL and
   context-menu click is a fresh interpreter. Persist in the profile, the settings, or a window

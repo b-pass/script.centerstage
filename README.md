@@ -204,5 +204,5 @@ These come from Kodi itself; see `CLAUDE.md` for the source references.
 
 ```
 python3 -m unittest discover tests     # Kodi-free logic: classify, store, sources, catalog
-tools/install.sh                       # copy into the Flatpak Kodi's addons folder
+tools/install.sh                       # copy into Kodi's addons folder (or $KODI_ADDONS)
 ```
