@@ -71,14 +71,14 @@ def pvr_title(snap):
     return ' '.join(plain(snap.title or snap.label).split())
 
 
+def _season_name(season):
+    return 'Specials' if season == 0 else f'Season {season}'
+
+
 def season_label(snap):
-    if is_season_label(snap.label):
+    if is_season_label(snap.label) or snap.season < 0:
         return snap.label.strip()
-    if snap.season == 0:
-        return 'Specials'
-    if snap.season > 0:
-        return f'Season {snap.season}'
-    return snap.label.strip()
+    return _season_name(snap.season)
 
 
 def season_title(show, season):
@@ -175,7 +175,7 @@ def _library(snap):
     # episode
     out.append(Candidate(ADD_SHOW, show_entry))
     if snap.season >= 0:
-        label = 'Specials' if snap.season == 0 else f'Season {snap.season}'
+        label = _season_name(snap.season)
         out.append(Candidate(ADD_SEASON, _make(
             LIBRARY, SEASON, {'tvshowid': snap.tvshowid, 'season': snap.season},
             season_title(show, label), snap, show_title=show, season_label=label,
