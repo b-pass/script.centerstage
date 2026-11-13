@@ -14,7 +14,7 @@ def movies_entry(movies, title):
     """The "Movies" title: every movie entry in one row, with the newest one's art."""
     newest = max(movies, key=lambda e: e.added)
     return Entry(id=MOVIES_ID, source=MOVIES, kind=SHOW, ref={}, display_title=title,
-                 art=dict(newest.art), added=newest.added, auto=True,
+                 art=dict(newest.art), added=newest.added,
                  members=sorted(movies, key=lambda e: (sort_title(e.display_title), e.id)))
 
 

@@ -75,7 +75,7 @@ class Store:
     # writing
 
     def add(self, entry):
-        """Save entry. Returns False (and changes nothing) if an entry with its id already exists."""
+        """Save entry. False (and nothing changes) if an entry with its id already exists."""
         data = self._load()
         if any(d.get('id') == entry.id for d in data['entries']):
             return False

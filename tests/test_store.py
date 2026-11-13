@@ -36,11 +36,10 @@ class StoreTest(unittest.TestCase):
 
     def test_round_trip_does_not_store_runtime_fields(self):
         e = show()
-        e.auto, e.count = True, 3
+        e.count = 3
         self.store.add(e)
         with open(self.store.path) as f:
             raw = json.load(f)['entries'][0]
-        self.assertNotIn('auto', raw)
         self.assertNotIn('count', raw)
         self.assertEqual(self.store.get(e.id).ref, {'path': 'p://a'})
 

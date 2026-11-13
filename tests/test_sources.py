@@ -62,7 +62,6 @@ class Pvr(unittest.TestCase):
         titles = sorted((e.display_title, e.count) for e in rows)
         self.assertEqual(titles, [('News', 1), ('The Office', 2)])
         office = next(e for e in rows if e.count == 2)
-        self.assertTrue(office.auto)
         self.assertEqual(office.origin, 'NBC')
         self.assertEqual(office.art['thumb'], 'nbc.png')  # newest recording's, via its icon
         self.assertEqual(office.plot, '')  # recordings only have episode descriptions
@@ -449,7 +448,6 @@ class Catalog(unittest.TestCase):
             self.assertIsNone(catalog.kodi_folder(single))
 
     def test_arrange_keeps_folders_in_place(self):
-        from model import Episode
         rows = [Episode('e1', {}, sort=(0,)), Episode('e2', {}, playcount=1, sort=(1,)),
                 Episode('e3', {}, sort=(2,)), Episode('Next page', {}, is_folder=True, sort=(3,))]
         self.assertEqual([e.label for e in catalog.arrange(rows, newest_first=True)],

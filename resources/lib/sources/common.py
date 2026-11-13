@@ -22,7 +22,6 @@ def episode_label(title, season, episode, prefix=''):
 
 def folder_from_item(item, browse, sort, label=None, media_type=''):
     """A folder row (a season, or any add-on subfolder) that opens in place."""
-    position, total = resume_of(item)
     return Episode(
         label=label or item.get('label') or item.get('title') or '', play={},
         title=item.get('title') or item.get('label') or '', season=as_int(item.get('season')),

@@ -7,7 +7,7 @@ import time
 # where an entry's episodes come from
 LIBRARY = 'library'
 PVR = 'pvr'
-ADDON = 'addon'  # any other plugin:// (or plain VFS) folder or item, listed through Files.GetDirectory
+ADDON = 'addon'  # any other plugin:// (or VFS) folder or item, listed by Files.GetDirectory
 MOVIES = 'movies'  # the "Movies" title: the stored movies, gathered into one row (never stored)
 MOVIES_ID = 'movies'
 NEWEST = 'newest'  # the "<group> - Newest" title: the shown recordings, newest first (never stored)
@@ -44,11 +44,10 @@ class Entry:
     added: float = 0.0
     origin: str = ''          # human name of where it came from ("Library", an add-on's name, ...)
     group: str = ''           # the recording group it's shown in; "" for all of them
-    auto: bool = False        # computed on the fly (PVR series), never stored
     count: int = 0            # number of recordings, for PVR series; never stored
     members: list = field(default_factory=list)  # the "Movies" title's movies; never stored
 
-    RUNTIME_FIELDS = ('auto', 'count', 'members')
+    RUNTIME_FIELDS = ('count', 'members')
 
     @property
     def is_single(self):

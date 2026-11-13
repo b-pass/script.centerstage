@@ -128,7 +128,7 @@ def series_entries(recs, hidden=(), renames=None):
         out.append(Entry(
             id=eid, source=PVR, kind=SHOW, ref={'title': title},
             display_title=renames.get(eid, title), show_title=title, art=art,
-            added=_epoch(newest.get('starttime')), origin=', '.join(channels), auto=True,
+            added=_epoch(newest.get('starttime')), origin=', '.join(channels),
             count=len(group)))
     return out
 
@@ -140,7 +140,7 @@ def newest_entry(series, title):
     return Entry(id=NEWEST_ID, source=NEWEST, kind=SHOW,
                  ref={'titles': {pvr_key(e.ref['title']): plain(e.display_title) for e in series}},
                  display_title=title,
-                 art=dict(latest.art), added=latest.added, auto=True,
+                 art=dict(latest.art), added=latest.added,
                  count=sum(e.count for e in series))
 
 
@@ -176,11 +176,13 @@ def _episode(rec, sort):
     name = rec.get('showtitle') or ''
     untitled = is_untitled(name)
     when = _local(rec.get('starttime'))
+    path = rec.get('file') or ''
     position, total = resume_of(rec)
     return Episode(
         label=_marked(rec, episode_label(when if untitled else name, season, number)),
-        play={'recordingid': rec['recordingid'], 'file': rec.get('file') or ''}, title=_title(rec) if untitled else name,
-        season=season, episode=number, plot=rec.get('plot') or rec.get('plotoutline') or '',
-        art=_art(rec), playcount=as_int(rec.get('playcount'), 0), resume=position,
-        total=total, runtime=as_int(rec.get('runtime'), 0), date=when,
-        channel=rec.get('channel') or '', untitled=untitled, sort=sort, path=rec.get('file') or '')
+        play={'recordingid': rec['recordingid'], 'file': path},
+        title=_title(rec) if untitled else name, season=season, episode=number,
+        plot=rec.get('plot') or rec.get('plotoutline') or '', art=_art(rec),
+        playcount=as_int(rec.get('playcount'), 0), resume=position, total=total,
+        runtime=as_int(rec.get('runtime'), 0), date=when, channel=rec.get('channel') or '',
+        untitled=untitled, sort=sort, path=path)

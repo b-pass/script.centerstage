@@ -10,8 +10,8 @@ import xbmcgui
 import xbmcvfs
 
 from jsonrpc import Rpc, RpcError
-from model import (LIBRARY, MOVIES, MOVIES_ID, NEWEST, PVR, details_code, episode_code,
-                   format_time, parse_date, plain)
+from model import (LIBRARY, MOVIE, MOVIES, MOVIES_ID, NEWEST, PVR, details_code,
+                   episode_code, format_time, parse_date, plain)
 from sources import pvr
 
 ADDON = xbmcaddon.Addon()
@@ -32,7 +32,7 @@ S = {
     'pvr_already': 32013, 'unhide_named': 32014, 'nothing': 32015, 'folder_name': 32038,
     'from_start': 32021, 'remove': 32022, 'rename': 32023,
     'refresh': 32024, 'hide_pvr': 32025, 'show_hidden': 32026,
-    'loading': 32028, 'empty': 32029, 'load_failed': 32030, 'no_episodes': 32031,
+    'load_failed': 32030, 'no_episodes': 32031,
     'library': 32032, 'pvr': 32033, 'watched': 32034, 'left': 32035, 'recordings': 32036,
     'play_failed': 32040, 'one_recording': 32041, 'season_watched': 32042,
     'season_episode': 32043, 'episode_n': 32044, 'group': 32045, 'all_groups': 32046,
@@ -255,7 +255,7 @@ def title_art(entry):
     return art
 
 
-def entry_listitem(entry, path=''):
+def entry_listitem(entry):
     title = plain(entry.display_title)  # titles are never coloured, whatever the source sent
     li = xbmcgui.ListItem(title, offscreen=True)
     li.setArt(title_art(entry))
@@ -264,12 +264,10 @@ def entry_listitem(entry, path=''):
     tag.setPlot(entry.title_plot)
     if entry.year:
         tag.setYear(entry.year)
-    tag.setMediaType('movie' if entry.kind == 'movie' else 'tvshow')
+    tag.setMediaType('movie' if entry.kind == MOVIE else 'tvshow')
     li.setProperty('entry_id', entry.id)
     li.setProperty('origin', origin_label(entry))
     li.setProperty('count', count_label(entry))
-    if path:
-        li.setPath(path)
     return li
 
 

@@ -75,26 +75,30 @@ def busy(on):
                         else 'Dialog.Close(busydialognocancel)')
 
 
+def peek_show_title(path, rpc):
+    """The show title that items in the add-on folder at path carry, or ''."""
+    busy(True)
+    try:
+        return addon.peek_show_title(rpc, path, K.kodi_major())
+    except RpcError as err:
+        K.log(f'looking for a show title in {path} failed: {err}', xbmc.LOGWARNING)
+        return ''
+    finally:
+        busy(False)
+
+
 def name_it(cand, snap, rpc):
-    """Find the show name (or ask for it), then let the user confirm the title. False = cancelled."""
+    """Find the show name (or ask for it), then let the user confirm the title. False: cancelled."""
     e = cand.entry
     if cand.needs_show_name:
-        busy(True)
-        try:
-            peek = snap.path if snap.is_folder else e.ref['path']
-            show = addon.peek_show_title(rpc, peek, K.kodi_major())
-        except RpcError as err:
-            K.log(f'looking for a show title in {peek} failed: {err}', xbmc.LOGWARNING)
-            show = ''
-        finally:
-            busy(False)
+        show = peek_show_title(snap.path if snap.is_folder else e.ref['path'], rpc)
         if not show:
-            heading = K.tr('show_name') if e.kind == SEASON else K.tr('folder_name')
+            # the user types it, so there's nothing to confirm
+            heading = K.tr('show_name' if e.kind == SEASON else 'folder_name')
             show = xbmcgui.Dialog().input(heading).strip()
-            if not show:
-                return False
-            classify.with_show_name(cand, show)
-            return True
+            if show:
+                classify.with_show_name(cand, show)
+            return bool(show)
         classify.with_show_name(cand, show)
     if e.source == ADDON and cand.verb in (classify.ADD_SEASON, classify.ADD_FOLDER):
         title = xbmcgui.Dialog().input(K.tr('confirm_name'), e.display_title).strip()
