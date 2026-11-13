@@ -31,8 +31,6 @@ TITLES = 100
 EPISODES = 200
 EPISODES_GROUPS = (202, 203)  # groups holding 200, outermost first, in layouts that nest it
 
-WINDOW_HOME = 10000
-
 ACTION_PREVIOUS_MENU = 10
 ACTION_NAV_BACK = 92
 ACTION_CONTEXT_MENU = 117
@@ -64,6 +62,10 @@ def level_key(entry_id, browse):
     return entry_id if browse is None else f'{entry_id}|{json.dumps(browse, sort_keys=True)}'
 
 
+def _background(target, *args):
+    threading.Thread(target=target, args=args, daemon=True).start()
+
+
 class MainWindow(xbmcgui.WindowXML):
     def onInit(self):
         if getattr(self, '_started', False):
@@ -76,8 +78,7 @@ class MainWindow(xbmcgui.WindowXML):
             self._refresh(keep=True, reload_current=True)
             played, self.played = self.played, None
             if played is not None:  # pvr.mythtv may now ask whether to delete it
-                threading.Thread(target=self._refresh_when_gone, args=(played,),
-                                 daemon=True).start()
+                _background(self._refresh_when_gone, played)
             return
         self._started = True
         self.played = None      # the recording last played from here
@@ -99,13 +100,13 @@ class MainWindow(xbmcgui.WindowXML):
         self.setProperty('group', K.group_label(self.group))  # under "Center Stage" at the top
         if self.starting:
             self.setProperty('starting', 'true')  # the layouts' spinner, in the titles' place
-            threading.Thread(target=self._start_when_ready, daemon=True).start()
+            _background(self._start_when_ready)
         else:
             self._start()
 
     def _start(self):
         self._refresh(select=self.preselect)
-        threading.Thread(target=self._watch, daemon=True).start()
+        _background(self._watch)
 
     def _start_when_ready(self):
         """The PVR is still starting: wait for its recordings, then ask which Stage if that's
@@ -114,15 +115,12 @@ class MainWindow(xbmcgui.WindowXML):
         if self.closing.is_set():
             return
         if self.may_ask:
-            groups = K.recording_groups(self.rpc)
-            if len(groups) > 1:
-                ok, group = K.pick_group(K.tr('group'), groups + [None], self.store.last_group())
-                if not ok:
-                    self._close()
-                    return
-                self.store.set_last_group(group)
-                self.group, self.groups_asked = group, True
-                self.setProperty('group', K.group_label(group))
+            picked = _ask_group(self.rpc, self.store, self.group)
+            if picked is None:
+                self._close()
+                return
+            self.groups_asked, self.group = picked
+            self.setProperty('group', K.group_label(self.group))
         self.setProperty('starting', '')
         self._start()
 
@@ -133,6 +131,11 @@ class MainWindow(xbmcgui.WindowXML):
     def _stack(self):
         return self.stacks.setdefault(self.current.id, []) if self.current else []
 
+    def _browse(self, entry_id):
+        """The folder open in that title (its browse dict), or None at its top level."""
+        stack = self.stacks.get(entry_id)
+        return stack[-1][0] if stack else None
+
     # the left list
 
     def _refresh(self, keep=False, select=None, reload_current=False):
@@ -140,23 +143,12 @@ class MainWindow(xbmcgui.WindowXML):
         if keep and select is None:
             # the row the user is on: the episodes shown can lag behind it while they scroll
             select = self.rows[was_at].id if 0 <= was_at < len(self.rows) else self.shown_id
-        stored = self.store.entries()
         self.hide_watched = self.store.hide_watched()  # titles' own choices, kept for switching
-        pvr_rows = []
-        self.recs = []
-        pvr_ok = False
-        if K.setting_bool('include_pvr', True):
-            try:
-                self.recs = pvr.recordings(self.rpc)
-                pvr_ok = True
-            except RpcError as e:
-                K.log(f'no PVR recordings: {e}')  # PVR disabled or not started yet
-            self.recs_key = pvr.fingerprint(self.recs)
-            self.recs = pvr.in_group(self.recs, self.group)
-            pvr_rows = pvr.series_entries(self.recs, self.store.hidden_pvr(), self.store.renames())
-        self.setProperty('pvr', 'true' if pvr_ok else '')
-        rows = catalog.rows(stored, pvr_rows, K.setting_int('sort_order', catalog.SORT_TITLE),
-                            self.group, K.movies_title(self.store), K.newest_title(self.group))
+        recs = K.all_recordings(self.rpc)
+        self.setProperty('pvr', '' if recs is None else 'true')
+        self.recs_key = pvr.fingerprint(recs or [])
+        self.recs = pvr.in_group(recs or [], self.group)
+        rows = K.titles(self.store, self.recs, self.group)
         with self.lock:
             self.rows = rows
             pos = next((n for n, e in enumerate(rows) if e.id == select), None)
@@ -227,20 +219,15 @@ class MainWindow(xbmcgui.WindowXML):
         or watched elsewhere), so _watch re-reads them now and then."""
         if self.recs_key is None or not K.setting_bool('include_pvr', True):
             return
-        try:
-            key = pvr.fingerprint(pvr.recordings(self.rpc))
-        except RpcError:
-            key = pvr.fingerprint([])
-        if key != self.recs_key:
+        if pvr.fingerprint(K.all_recordings(self.rpc) or []) != self.recs_key:
             shown = self.current
             self._refresh(keep=True, reload_current=bool(shown) and shown.source in (PVR, NEWEST))
 
     def _at_hand(self, entry):
         """Whether entry's rows show without loading: PVR series and Newest (made from the
         recordings already read) and rows kept from earlier in this session."""
-        stack = self.stacks.get(entry.id)
-        browse = stack[-1][0] if stack else None
-        return entry.source in (PVR, NEWEST) or level_key(entry.id, browse) in self.mem
+        return (entry.source in (PVR, NEWEST)
+                or level_key(entry.id, self._browse(entry.id)) in self.mem)
 
     # the top-right list
 
@@ -252,7 +239,7 @@ class MainWindow(xbmcgui.WindowXML):
         """Show the current entry's current level (its top level, or the folder last opened)."""
         entry = self.current
         stack = self._stack()
-        browse = stack[-1][0] if stack else None
+        browse = self._browse(entry.id)
         key = level_key(entry.id, browse)
         self.gen += 1
         gen = self.gen
@@ -276,8 +263,7 @@ class MainWindow(xbmcgui.WindowXML):
                 quiet = True
         if not quiet:
             self._clear_episodes(loading=True, parent=bool(stack))
-        threading.Thread(target=self._fetch, args=(gen, entry, browse, key, quiet, reselect),
-                         daemon=True).start()
+        _background(self._fetch, gen, entry, browse, key, quiet, reselect)
 
     def _fetch(self, gen, entry, browse, key, quiet, reselect):
         try:
@@ -464,7 +450,7 @@ class MainWindow(xbmcgui.WindowXML):
         """Kodi's own context menu on a recording, which only Kodi-filled lists get: an
         invisible dialog lists the recording's folder and opens the menu on it. With pick, the
         entry with that label is chosen for the user."""
-        home = xbmcgui.Window(10000)
+        home = K.home()
         home.setProperty(RECORDINGS_PATH, ep.path.rsplit('/', 1)[0] + '?view=flat')
         if pick:
             home.setProperty(DELETING, 'true')
@@ -484,8 +470,7 @@ class MainWindow(xbmcgui.WindowXML):
         elif outcome == RecordingMenu.DONE:
             if not pick:  # anything from marking it watched to renaming it
                 self._refresh(keep=True, reload_current=True)
-            threading.Thread(target=self._refresh_when_gone, args=(ep.play['recordingid'],),
-                             daemon=True).start()
+            _background(self._refresh_when_gone, ep.play['recordingid'])
         else:  # not in Kodi's listing: perhaps already gone
             self._refresh(keep=True, reload_current=True)
 
@@ -519,8 +504,8 @@ class MainWindow(xbmcgui.WindowXML):
         if ep and not ep.is_folder and ep.resume > 0:
             actions.append((K.tr('from_start'), lambda: self._play(ep, resume=False)))
         actions.append((K.tr('refresh'), self._refresh_current))
-        stack = self._stack()
-        actions += self._open_in_kodi(self.current, stack[-1][0] if stack else None)
+        if self.current:
+            actions += self._open_in_kodi(self.current, self._browse(self.current.id))
         movie = self.store.get(ep.entry_id) if ep and ep.entry_id else None
         if movie:
             # a movie in the "Movies" title, which has no row of its own to do this from
@@ -578,8 +563,7 @@ class MainWindow(xbmcgui.WindowXML):
     def _forget_level(self):
         """Drop the level shown from memory and the disk cache."""
         with self.lock:
-            stack = self._stack()
-            key = level_key(self.current.id, stack[-1][0] if stack else None)
+            key = level_key(self.current.id, self._browse(self.current.id))
             self.mem.pop(key, None)
             self.cache.drop(key)
 
@@ -655,7 +639,7 @@ class RecordingMenu(xbmcgui.WindowXMLDialog):
         recordings.setPosition(x, y)
         recordings.setWidth(width)
         recordings.setHeight(height)
-        threading.Thread(target=self._run, daemon=True).start()
+        _background(self._run)
 
     def _run(self):
         try:
@@ -741,13 +725,10 @@ def show(preselect=None, group=None, ask=True):
     while True:
         asked = False
         if may_ask and not starting:
-            groups = K.recording_groups(K.rpc())
-            asked = len(groups) > 1
-            if asked:
-                ok, group = K.pick_group(K.tr('group'), groups + [None], store.last_group())
-                if not ok:
-                    return
-                store.set_last_group(group)
+            picked = _ask_group(K.rpc(), store, group)
+            if picked is None:
+                return
+            asked, group = picked
         K.set_home_properties()
         win = MainWindow(XML, K.ADDON_PATH, 'Default', '1080i')
         win.preselect = preselect
@@ -772,12 +753,25 @@ def show(preselect=None, group=None, ask=True):
         starting = False
 
 
+def _ask_group(rpc, store, group):
+    """Ask which Stage to show, when there are two or more: (asked, the group to show, None for
+    all of them; group when not asked), or None if the user cancelled."""
+    groups = K.recording_groups(rpc)
+    if len(groups) < 2:
+        return False, group
+    ok, group = K.pick_group(K.tr('group'), groups + [None], store.last_group())
+    if not ok:
+        return None
+    store.set_last_group(group)
+    return True, group
+
+
 def _until_left(win):
     """doModal() without its catch: that ends only on close(), but Kodi can leave the window
     another way (a Home key, the skin's menu), and activating Home drops it from Kodi's history,
     so nothing returns to it. Calling close() then would send Kodi to the previous window, off
     Home, so this just stops waiting. The callbacks run while waitForAbort waits."""
     monitor = xbmc.Monitor()
-    while not win.closing.is_set() and xbmcgui.getCurrentWindowId() != WINDOW_HOME:
+    while not win.closing.is_set() and xbmcgui.getCurrentWindowId() != K.WINDOW_HOME:
         if monitor.waitForAbort(WAIT_SLICE):
             return

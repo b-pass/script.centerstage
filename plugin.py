@@ -19,9 +19,7 @@ import xbmc  # noqa: E402
 import xbmcgui  # noqa: E402
 import xbmcplugin  # noqa: E402
 
-import catalog  # noqa: E402
 import kodiutil as K  # noqa: E402
-from jsonrpc import RpcError  # noqa: E402
 from model import plain  # noqa: E402
 from sources import pvr  # noqa: E402
 from store import Store  # noqa: E402
@@ -52,16 +50,8 @@ def open_window(entry_id=None, group=None, ask=True):
 
 
 def all_rows(group=None):
-    store = Store(K.PROFILE)
-    pvr_rows = []
-    if K.setting_bool('include_pvr', True):
-        try:
-            recs = pvr.in_group(pvr.recordings(K.rpc()), group)
-            pvr_rows = pvr.series_entries(recs, store.hidden_pvr(), store.renames())
-        except RpcError as e:
-            K.log(f'no PVR recordings: {e}')
-    return catalog.rows(store.entries(), pvr_rows, K.setting_int('sort_order', catalog.SORT_TITLE),
-                        group, K.movies_title(store), K.newest_title(group))
+    recs = pvr.in_group(K.all_recordings(K.rpc()) or [], group)
+    return K.titles(Store(K.PROFILE), recs, group)
 
 
 def title_item(entry, group):

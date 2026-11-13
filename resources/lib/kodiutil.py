@@ -9,6 +9,7 @@ import xbmcaddon
 import xbmcgui
 import xbmcvfs
 
+import catalog
 from jsonrpc import Rpc, RpcError
 from model import (LIBRARY, MOVIE, MOVIES, MOVIES_ID, NEWEST, PVR, details_code,
                    episode_code, format_time, parse_date, plain)
@@ -23,6 +24,7 @@ STAGE_ART = os.path.join(ADDON_PATH, 'resources', 'stage.jpg')
 SPINNER = os.path.join(ADDON_PATH, 'resources', 'spinner.png')  # the busy spinner (tools/art.py)
 PROFILE = xbmcvfs.translatePath(ADDON.getAddonInfo('profile'))
 CACHE_DIR = os.path.join(PROFILE, 'cache')
+WINDOW_HOME = 10000
 
 # strings.po ids
 S = {
@@ -90,6 +92,11 @@ def rpc():
     return Rpc(xbmc.executeJSONRPC)
 
 
+def home():
+    """Kodi's Home window, which holds the properties shared with the layouts and the skin."""
+    return xbmcgui.Window(WINDOW_HOME)
+
+
 def setting_int(key, default=0):
     try:
         return ADDON.getSettings().getInt(key)
@@ -113,13 +120,13 @@ def pvr_starting(rpc):
     """Whether the PVR is still starting: recordings are wanted and a PVR add-on is on, but Kodi
     has none yet. Kodi starts the PVR before the add-on has connected (pvr.mythtv takes a while)
     and loads all of an add-on's recordings at once, so there are none until they're all in."""
-    home = xbmcgui.Window(10000)
-    if home.getProperty(PVR_READY) or not setting_bool('include_pvr', True) \
+    props = home()
+    if props.getProperty(PVR_READY) or not setting_bool('include_pvr', True) \
             or not xbmc.getCondVisibility('System.HasPVRAddon'):
         return False
     try:
         if pvr.recordings(rpc):
-            home.setProperty(PVR_READY, 'true')
+            props.setProperty(PVR_READY, 'true')
             return False
     except RpcError:
         pass  # the PVR manager hasn't started
@@ -134,21 +141,34 @@ def wait_for_pvr(rpc, stop=None):
     while pvr_starting(rpc):
         if time.monotonic() > end:
             log('no PVR recordings yet; not waiting for them again')
-            xbmcgui.Window(10000).setProperty(PVR_READY, 'gave up')
+            home().setProperty(PVR_READY, 'gave up')
             return
         if monitor.waitForAbort(0.5) or (stop is not None and stop.is_set()):
             return
 
 
+def all_recordings(rpc):
+    """Every PVR recording, or None with recordings turned off or the PVR not running."""
+    if not setting_bool('include_pvr', True):
+        return None
+    try:
+        return pvr.recordings(rpc)
+    except RpcError as e:
+        log(f'no PVR recordings: {e}')  # PVR disabled or not started yet
+        return None
+
+
 def recording_groups(rpc):
     """The PVR's recording groups (Default first), or [] with the PVR off."""
-    if not setting_bool('include_pvr', True):
-        return []
-    try:
-        return pvr.groups(pvr.recordings(rpc))
-    except RpcError as e:
-        log(f'no PVR recordings: {e}')
-        return []
+    return pvr.groups(all_recordings(rpc) or [])
+
+
+def titles(store, recs, group):
+    """The left list: the stored entries for group and the PVR series of recs (already limited
+    to group), as the settings arrange them."""
+    pvr_rows = pvr.series_entries(recs, store.hidden_pvr(), store.renames())
+    return catalog.rows(store.entries(), pvr_rows, setting_int('sort_order', catalog.SORT_TITLE),
+                        group, movies_title(store), newest_title(group))
 
 
 def movies_title(store):
@@ -168,11 +188,11 @@ def set_home_properties():
     - script.centerstage.spinner: the busy spinner, shown while the PVR starts."""
     pct = min(100, max(0, setting_int('panel_opacity', 80)))
     alpha = f'{round(pct * 255 / 100):02X}'
-    home = xbmcgui.Window(10000)
-    home.setProperty(f'{ADDON_ID}.panel', alpha + 'FFFFFF')
-    home.setProperty(f'{ADDON_ID}.panel_dark', alpha + '181C22')
-    home.setProperty(f'{ADDON_ID}.stage', STAGE_ART)
-    home.setProperty(f'{ADDON_ID}.spinner', SPINNER)
+    props = home()
+    props.setProperty(f'{ADDON_ID}.panel', alpha + 'FFFFFF')
+    props.setProperty(f'{ADDON_ID}.panel_dark', alpha + '181C22')
+    props.setProperty(f'{ADDON_ID}.stage', STAGE_ART)
+    props.setProperty(f'{ADDON_ID}.spinner', SPINNER)
 
 
 def newest_title(group):
